@@ -62,10 +62,13 @@ export default async function AdminPage() {
             <div className="eyebrow">Admin</div>
             <h1 className="h2">Áttekintés</h1>
           </div>
-          <Link href="/admin/kurzusok/uj" className="btn">+ Új kurzus</Link>
+          <div className="row" style={{ '--gap': '8px' } as React.CSSProperties}>
+            <Link href="/admin/elofizetok" className="btn light">Előfizetők</Link>
+            <Link href="/admin/kurzusok/uj" className="btn">+ Új kurzus</Link>
+          </div>
         </div>
         <div className="grid" style={{ '--min': '170px', '--gap': '12px' } as React.CSSProperties}>
-          <div className="stat"><span className="label">Havi előfizetői bevétel</span><span className="value">{formatHuf(activeSubs * SUBSCRIPTION.priceHuf)}</span><span className="muted" style={{ fontSize: 13 }}>{activeSubs} aktív előfizető</span></div>
+          <div className="stat"><span className="label">Havi előfizetői bevétel</span><span className="value">{formatHuf(activeSubs * SUBSCRIPTION.priceHuf)}</span><Link href="/admin/elofizetok" className="muted" style={{ fontSize: 13, textDecoration: 'underline' }}>{activeSubs} aktív előfizető →</Link></div>
           <div className="stat"><span className="label">Kurzuseladás · 30 nap</span><span className="value">{formatHuf(revenue30)}</span><span className="muted" style={{ fontSize: 13 }}>Összesen: {formatHuf(revenue)}</span></div>
           <div className="stat"><span className="label">Felhasználók</span><span className="value">{userCount ?? 0}</span></div>
           <div className="stat"><span className="label">Élő leckék</span><span className="value">{live.length}</span><span className="muted" style={{ fontSize: 13 }}>{scheduled.length} ütemezve · {missingVideo} videó nélkül</span></div>
