@@ -12,7 +12,8 @@ export async function fulfillCheckoutSession(session: Stripe.Checkout.Session) {
   if (customerId) await admin.from('profiles').update({ stripe_customer_id: customerId }).eq('id', userId);
 
   if (session.mode === 'payment') {
-    if (session.payment_status !== 'paid') return;
+    // 100%-os kuponnál a Stripe 'no_payment_required' állapotot ad – ilyenkor is jár a hozzáférés.
+    if (session.payment_status !== 'paid' && session.payment_status !== 'no_payment_required') return;
     const courseId = session.metadata?.course_id;
     if (!courseId) return;
     const { error } = await admin.from('enrollments').upsert(

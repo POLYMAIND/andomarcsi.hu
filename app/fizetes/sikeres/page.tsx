@@ -22,7 +22,7 @@ export default async function SuccessPage({ searchParams }: { searchParams: Prom
     try {
       const session = await stripe().checkout.sessions.retrieve(session_id);
       const owner = session.metadata?.user_id ?? session.client_reference_id;
-      if (owner === user.id && (session.payment_status === 'paid' || session.status === 'complete')) {
+      if (owner === user.id && (session.payment_status === 'paid' || session.payment_status === 'no_payment_required' || session.status === 'complete')) {
         await fulfillCheckoutSession(session);
         ok = true;
         isSub = session.mode === 'subscription';
