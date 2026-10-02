@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
 export type Profile = { id: string; email: string | null; full_name: string | null; is_admin: boolean; stripe_customer_id: string | null };
@@ -6,6 +7,8 @@ export type Profile = { id: string; email: string | null; full_name: string | nu
 export const supabaseConfigured = () => !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
 export async function getCurrentUser() {
+  // Felhasználófüggő oldal: soha ne próbálja a build előre legenerálni (ott még nincs süti és kulcs).
+  await connection();
   if (!supabaseConfigured()) throw new Error('Supabase nincs beállítva: NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY');
   const supabase = await createClient();
   const { data } = await supabase.auth.getUser();

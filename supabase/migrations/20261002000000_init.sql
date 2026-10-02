@@ -106,7 +106,7 @@ create table public.lesson_progress (
 );
 
 -- ── Hozzáférés-logika ─────────────────────────────────────────────────────
-create function public.has_active_subscription(uid uuid default auth.uid())
+create function public.has_active_subscription()
 returns boolean
 language sql
 stable
@@ -114,7 +114,7 @@ security definer set search_path = public
 as $$
   select exists (
     select 1 from public.subscriptions s
-    where s.user_id = uid
+    where s.user_id = auth.uid()
       and s.status in ('active', 'trialing')
       and (s.current_period_end is null or s.current_period_end > now())
   );
@@ -198,3 +198,7 @@ create policy "haladás: saját beírása" on public.lesson_progress
   for insert with check (user_id = auth.uid());
 create policy "haladás: saját törlése" on public.lesson_progress
   for delete using (user_id = auth.uid());
+
+-- A trigger-függvényt kívülről (RPC) ne lehessen hívni.
+revoke execute on function public.handle_new_user() from public, anon, authenticated;
+revoke execute on function public.has_active_subscription() from anon;
