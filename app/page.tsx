@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { SiteFooter, SiteNav } from '@/components/SiteNav';
+import { SiteNav } from '@/components/SiteNav';
 import { WorkshopList } from '@/components/WorkshopList';
 import { SUBSCRIPTION } from '@/lib/config';
 import { getCatalog } from '@/lib/data';
@@ -197,7 +197,6 @@ export default async function Home() {
         </section>
       )}
 
-      <SiteFooter />
     </div>
   );
 }

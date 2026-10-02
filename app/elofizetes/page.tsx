@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { SiteFooter, SiteNav } from '@/components/SiteNav';
+import { PurchaseConsents } from '@/components/PurchaseConsents';
+import { SiteNav } from '@/components/SiteNav';
 import { getCurrentUser } from '@/lib/auth';
 import { SUBSCRIPTION } from '@/lib/config';
 import { getCatalog, getUserAccess } from '@/lib/data';
@@ -18,6 +19,7 @@ export default async function SubscriptionPage({ searchParams }: { searchParams:
   return (
     <div className="page">
       <SiteNav />
+      {sp.hiba === 'nyilatkozat' && <div className="notice err">A vásárláshoz el kell fogadnod az ÁSZF-et és a nyilatkozatot.</div>}
       {sp.megszakitva && <div className="notice">A fizetés megszakadt – semmit nem terheltünk.</div>}
       <section className="card stack" style={{ '--gap': '20px' } as React.CSSProperties}>
         <div className="eyebrow">Tudástár előfizetés</div>
@@ -53,7 +55,8 @@ export default async function SubscriptionPage({ searchParams }: { searchParams:
             ) : (
               <form action="/api/checkout" method="post">
                 <input type="hidden" name="plan" value="subscription" />
-                <button className="btn purple block" type="submit">{user ? 'Előfizetek bankkártyával' : 'Belépek és előfizetek'}</button>
+                {user && <PurchaseConsents />}
+                <button className="btn purple block" type="submit" style={{ marginTop: 10 }}>{user ? 'Előfizetek bankkártyával' : 'Belépek és előfizetek'}</button>
               </form>
             )}
             <span className="muted" style={{ fontSize: 12 }}>Biztonságos, ismétlődő fizetés a Stripe-on keresztül. Számlát e-mailben kapsz.</span>
@@ -74,7 +77,6 @@ export default async function SubscriptionPage({ searchParams }: { searchParams:
           </div>
         </section>
       )}
-      <SiteFooter />
     </div>
   );
 }

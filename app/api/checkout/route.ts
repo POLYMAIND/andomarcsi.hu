@@ -17,6 +17,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.redirect(new URL(`/belepes?next=${encodeURIComponent(back)}`, SITE_URL), 303);
   }
 
+  // Kötelező nyilatkozatok (ÁSZF + adatkezelés; digitális tartalomnál az elállási jogról)
+  const consentOk = form.get('aszf') === 'on' && form.get('digital') === 'on';
+  if (!consentOk) {
+    const back = plan === 'subscription' ? '/elofizetes' : '/kurzusok';
+    return NextResponse.redirect(new URL(`${back}?hiba=nyilatkozat`, SITE_URL), 303);
+  }
+  const consentAt = new Date().toISOString();
+
   const customer = profile?.stripe_customer_id ?? undefined;
   const common: Stripe.Checkout.SessionCreateParams = {
     client_reference_id: user.id,
@@ -51,7 +59,7 @@ export async function POST(request: NextRequest) {
               },
             },
       ],
-      metadata: { user_id: user.id, plan: 'subscription' },
+      metadata: { user_id: user.id, plan: 'subscription', consent_aszf_at: consentAt, consent_digital_at: consentAt },
       subscription_data: { metadata: { user_id: user.id } },
       success_url: `${SITE_URL}/fizetes/sikeres?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${SITE_URL}/elofizetes?megszakitva=1`,
@@ -89,7 +97,7 @@ export async function POST(request: NextRequest) {
           },
         },
       ],
-      metadata: { user_id: user.id, course_id: course.id, plan: 'course' },
+      metadata: { user_id: user.id, course_id: course.id, plan: 'course', consent_aszf_at: consentAt, consent_digital_at: consentAt },
       success_url: `${SITE_URL}/fizetes/sikeres?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${SITE_URL}/kurzusok/${course.slug}?megszakitva=1`,
     });

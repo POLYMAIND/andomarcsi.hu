@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getCurrentUser, supabaseConfigured } from '@/lib/auth';
+import { COMPANY } from '@/lib/company';
 import { SUBSCRIPTION } from '@/lib/config';
 
 export async function SiteNav({ bare = false }: { bare?: boolean }) {
@@ -35,15 +36,27 @@ export async function SiteNav({ bare = false }: { bare?: boolean }) {
 
 export function SiteFooter() {
   return (
-    <div className="footer-bar">
-      <span className="logo" style={{ fontSize: 18 }}>
-        andormarcsi<span>.</span>hu
-      </span>
-      <div className="row" style={{ '--gap': '24px' } as React.CSSProperties}>
-        <Link href="/kurzusok">Tudástár</Link>
-        {SUBSCRIPTION.enabled && <Link href="/elofizetes">Előfizetés</Link>}
-        <a href="mailto:hello@andormarcsi.hu">Kapcsolat</a>
+    <footer className="site-footer">
+      <div className="row between" style={{ alignItems: 'flex-start', '--gap': '24px' } as React.CSSProperties}>
+        <div className="stack" style={{ '--gap': '6px' } as React.CSSProperties}>
+          <span className="logo" style={{ fontSize: 20 }}>
+            andormarcsi<span>.</span>hu
+          </span>
+          <span className="muted" style={{ fontSize: 13 }}>Online videókurzusok kezdőknek – Canva, Claude, PolyOS.</span>
+        </div>
+        <nav className="footer-links" aria-label="Lábléc">
+          <Link href="/kurzusok">Tudástár</Link>
+          {SUBSCRIPTION.enabled && <Link href="/elofizetes">Előfizetés</Link>}
+          <a href={`mailto:${COMPANY.email}`}>Kapcsolat</a>
+          <Link href="/aszf">ÁSZF</Link>
+          <Link href="/adatvedelem">Adatkezelési tájékoztató</Link>
+          <Link href="/adatvedelem#sutik">Sütik</Link>
+          <Link href="/impresszum">Impresszum</Link>
+        </nav>
       </div>
-    </div>
+      <div className="footer-legal">
+        © {new Date().getFullYear()} {COMPANY.name} · {COMPANY.seat} · Adószám: {COMPANY.taxNumber} · {COMPANY.vatNote.split(' –')[0]}
+      </div>
+    </footer>
   );
 }

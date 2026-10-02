@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { SUBSCRIPTION } from '@/lib/config';
 import { formatHuf } from '@/lib/format';
 import { soonLabel, type Course } from '@/lib/types';
+import { PurchaseConsents } from '@/components/PurchaseConsents';
 
 // Vásárlás / beiratkozás doboz egy kurzushoz.
 export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref, bundle = null, userEmail = null, waitlisted = false }: {
@@ -46,7 +47,7 @@ export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref,
             <input className="input" name="email" type="email" required placeholder="E-mail címed" defaultValue={userEmail ?? ''} autoComplete="email" />
             <label className="check" style={{ alignItems: 'flex-start', fontSize: 13, color: 'var(--ink-3)' }}>
               <input type="checkbox" name="consent" required style={{ marginTop: 3 }} />
-              <span>Hozzájárulok, hogy az andormarcsi.hu e-mailben értesítsen a kurzus indulásáról és kapcsolódó ajánlatokról. Bármikor leiratkozhatok.</span>
+              <span>Hozzájárulok, hogy az andormarcsi.hu e-mailben értesítsen a kurzus indulásáról és kapcsolódó ajánlatokról. Bármikor leiratkozhatok. <Link href="/adatvedelem" target="_blank" style={{ textDecoration: 'underline' }}>Adatkezelési tájékoztató</Link></span>
             </label>
             <button className="btn block" type="submit">Értesítést kérek</button>
           </form>
@@ -102,11 +103,12 @@ export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref,
       <div className="plan-price" style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 36, letterSpacing: '-.03em' }}>
         {formatHuf(course.price_huf as number)}
       </div>
-      <span className="muted" style={{ fontSize: 14 }}>Egyszeri díj, örökös hozzáférés ehhez a kurzushoz.</span>
+      <span className="muted" style={{ fontSize: 14 }}>Egyszeri díj, a kurzushoz korlátlan ideig hozzáférsz.</span>
       <form action="/api/checkout" method="post">
         <input type="hidden" name="plan" value="course" />
         <input type="hidden" name="course_id" value={course.id} />
-        <button className="btn block" type="submit">{loggedIn ? 'Megveszem bankkártyával' : 'Belépek és megveszem'}</button>
+        {loggedIn && <PurchaseConsents />}
+        <button className="btn block" type="submit" style={{ marginTop: 10 }}>{loggedIn ? 'Megveszem bankkártyával' : 'Belépek és megveszem'}</button>
       </form>
       {upsell}
       {SUBSCRIPTION.enabled && course.included_in_subscription && (

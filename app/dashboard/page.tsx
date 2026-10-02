@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { CourseCard } from '@/components/CourseCard';
-import { SiteFooter, SiteNav } from '@/components/SiteNav';
+import { SiteNav } from '@/components/SiteNav';
 import { requireUser } from '@/lib/auth';
 import { SUBSCRIPTION } from '@/lib/config';
 import { courseAccessible, getCatalog, getUserAccess } from '@/lib/data';
@@ -171,7 +171,6 @@ export default async function DashboardPage() {
           </div>
         )}
       </section>
-      <SiteFooter />
     </div>
   );
 }

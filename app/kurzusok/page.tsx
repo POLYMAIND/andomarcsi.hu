@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { CourseCard } from '@/components/CourseCard';
-import { SiteFooter, SiteNav } from '@/components/SiteNav';
+import { SiteNav } from '@/components/SiteNav';
 import { getCurrentUser } from '@/lib/auth';
 import { SUBSCRIPTION } from '@/lib/config';
 import { courseAccessible, getCatalog, getUserAccess } from '@/lib/data';
@@ -9,7 +9,8 @@ import { formatDate, formatHuf } from '@/lib/format';
 
 export const metadata: Metadata = { title: 'Tudástár' };
 
-export default async function CoursesPage() {
+export default async function CoursesPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const sp = await searchParams;
   const { supabase, user, profile } = await getCurrentUser();
   const [catalog, access] = await Promise.all([getCatalog(supabase), getUserAccess(supabase, user?.id)]);
   const titleOf = new Map(catalog.courses.map((c) => [c.id, c]));
@@ -17,6 +18,7 @@ export default async function CoursesPage() {
   return (
     <div className="page">
       <SiteNav />
+      {sp.hiba === 'nyilatkozat' && <div className="notice err">A vásárláshoz el kell fogadnod az ÁSZF-et és a nyilatkozatot.</div>}
       <section className="card stack" style={{ '--gap': '20px' } as React.CSSProperties}>
         <div className="eyebrow">Videós tudástár</div>
         <h1 className="h1">Tanulj a saját tempódban.</h1>
@@ -66,7 +68,6 @@ export default async function CoursesPage() {
           return <CourseCard key={c.id} course={c} lessonCount={s.count} newCount={s.fresh} hasAccess={!!user && courseAccessible(c, access, profile?.is_admin)} />;
         })}
       </section>
-      <SiteFooter />
     </div>
   );
 }

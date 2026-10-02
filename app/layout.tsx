@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { SiteFooter } from '@/components/SiteNav';
 import { SITE_URL } from '@/lib/config';
 
 export const metadata: Metadata = {
@@ -11,7 +12,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="hu">
-      <body>{children}</body>
+      <body>
+        {children}
+        <div className="page" style={{ paddingTop: 0 }}>
+          <SiteFooter />
+        </div>
+      </body>
     </html>
   );
 }
