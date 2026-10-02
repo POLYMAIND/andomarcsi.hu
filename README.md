@@ -1,7 +1,7 @@
 # andormarcsi.hu – oktatási platform
 
 Workshop-landing + videós tudástár (YouTube-leckék), tanulói dashboard, admin felület,
-Stripe fizetés: egyedi kurzusvásárlás és **havi előfizetés (20 000 Ft/hó, heti 2 új anyag)**.
+Stripe fizetés: egyedi kurzusvásárlás és **havi előfizetés (14 990 Ft/hó, heti 2 új anyag)**.
 
 **Stack:** Next.js 16 (App Router) · Supabase (belépés + Postgres + RLS) · Stripe Checkout / Billing · Vercel
 
@@ -38,7 +38,7 @@ Stripe fizetés: egyedi kurzusvásárlás és **havi előfizetés (20 000 Ft/hó
      `checkout.session.completed`, `checkout.session.async_payment_succeeded`,
      `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted` → `STRIPE_WEBHOOK_SECRET`.
    - Customer portal bekapcsolása (Settings → Billing → Customer portal) a lemondáshoz/kártyacseréhez.
-   - Az előfizetés ára alapból kódból jön (20 000 Ft/hó); ha Stripe-ban saját Price-t hozol létre, add meg: `STRIPE_SUBSCRIPTION_PRICE_ID`.
+   - Az előfizetés ára alapból kódból jön (14 990 Ft/hó); ha Stripe-ban saját Price-t hozol létre, add meg: `STRIPE_SUBSCRIPTION_PRICE_ID`.
 3. **Környezeti változók**: lásd `.env.example` (Vercelen: Project → Settings → Environment Variables).
 4. `npm install && npm run dev`
 
