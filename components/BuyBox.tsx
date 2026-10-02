@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { SUBSCRIPTION } from '@/lib/config';
 import { formatHuf } from '@/lib/format';
-import type { Course } from '@/lib/types';
+import { soonLabel, type Course } from '@/lib/types';
 
 // Vásárlás / beiratkozás doboz egy kurzushoz.
 export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref }: {
@@ -12,17 +12,62 @@ export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref 
   firstLessonHref: string | null;
 }) {
   if (course.coming_soon && !hasAccess) {
+    const note = (
+      <span className="muted" style={{ fontSize: 14 }}>
+        {course.starts_at ? `A kurzus ${soonLabel(course).replace('Indul: ', '')}-án/én indul` : 'A kurzus hamarosan indul'} – a videók az induláskor nyílnak meg.
+      </span>
+    );
+    if (enrolled) {
+      return (
+        <div className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
+          <span className="pill ok" style={{ alignSelf: 'flex-start' }}>✓ Megvetted</span>
+          <strong style={{ fontSize: 20 }}>Köszönöm az előrendelést!</strong>
+          {note}
+        </div>
+      );
+    }
+    if (course.price_huf === null) {
+      return (
+        <div className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
+          <span className="pill new" style={{ alignSelf: 'flex-start' }}>{soonLabel(course)}</span>
+          <strong style={{ fontSize: 20 }}>A tudástár-tagság része</strong>
+          {SUBSCRIPTION.enabled ? (
+            <>
+              <span className="muted" style={{ fontSize: 14 }}>Előfizetőként induláskor azonnal hozzáférsz.</span>
+              <Link href="/elofizetes" className="btn purple block">Előfizetés – {formatHuf(SUBSCRIPTION.priceHuf)}/hó</Link>
+            </>
+          ) : (
+            <>
+              <span className="muted" style={{ fontSize: 14 }}>A tudástár-tagság hamarosan indul. Írj, és szólok, amint elérhető!</span>
+              <a className="btn light block" href={`mailto:hello@andormarcsi.hu?subject=${encodeURIComponent('Értesítést kérek: ' + course.title)}`}>Szólj, ha indul</a>
+            </>
+          )}
+        </div>
+      );
+    }
+    if (course.price_huf === 0) {
+      return (
+        <div className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
+          <span className="pill new" style={{ alignSelf: 'flex-start' }}>{soonLabel(course)} · ingyenes</span>
+          {note}
+          <a className="btn light block" href={`mailto:hello@andormarcsi.hu?subject=${encodeURIComponent('Értesítést kérek: ' + course.title)}`}>Szólj, ha indul</a>
+        </div>
+      );
+    }
     return (
       <div className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
-        <span className="pill new" style={{ alignSelf: 'flex-start' }}>Hamarosan</span>
-        <strong style={{ fontSize: 20 }}>Ez a kurzus hamarosan indul.</strong>
-        <span className="muted" style={{ fontSize: 14 }}>
-          {course.price_huf === null ? 'A tudástár-tagság része lesz. ' : course.price_huf > 0 ? `Várható ár: ${formatHuf(course.price_huf)}. ` : 'Ingyenes lesz. '}
-          Írj, és szólok, amint elérhető!
-        </span>
-        <a className="btn light block" href={`mailto:hello@andormarcsi.hu?subject=${encodeURIComponent('Értesítést kérek: ' + course.title)}`}>
-          Szólj, ha indul
-        </a>
+        <span className="pill new" style={{ alignSelf: 'flex-start' }}>{soonLabel(course)} · előrendelhető</span>
+        <div style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 36, letterSpacing: '-.03em' }}>{formatHuf(course.price_huf)}</div>
+        {note}
+        <form action="/api/checkout" method="post">
+          <input type="hidden" name="plan" value="course" />
+          <input type="hidden" name="course_id" value={course.id} />
+          <button className="btn block" type="submit">{loggedIn ? 'Előrendelem bankkártyával' : 'Belépek és előrendelem'}</button>
+        </form>
+        {SUBSCRIPTION.enabled && course.included_in_subscription && (
+          <Link href="/elofizetes" className="btn light block">Vagy minden anyag: {formatHuf(SUBSCRIPTION.priceHuf)}/hó</Link>
+        )}
+        <span className="muted" style={{ fontSize: 12 }}>Biztonságos fizetés a Stripe-on keresztül.</span>
       </div>
     );
   }
@@ -45,10 +90,17 @@ export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref 
     return (
       <div className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
         <strong style={{ fontSize: 20 }}>A tudástár-tagság része</strong>
-        <span className="muted" style={{ fontSize: 14 }}>Ez a kurzus külön nem vásárolható, az előfizetéssel minden anyag elérhető.</span>
-        <Link href="/elofizetes" className="btn purple block">
-          Előfizetés – {formatHuf(SUBSCRIPTION.priceHuf)}/hó
-        </Link>
+        {SUBSCRIPTION.enabled ? (
+          <>
+            <span className="muted" style={{ fontSize: 14 }}>Ez a kurzus külön nem vásárolható, az előfizetéssel minden anyag elérhető.</span>
+            <Link href="/elofizetes" className="btn purple block">Előfizetés – {formatHuf(SUBSCRIPTION.priceHuf)}/hó</Link>
+          </>
+        ) : (
+          <>
+            <span className="muted" style={{ fontSize: 14 }}>A tudástár-tagság hamarosan indul. Írj, és szólok, amint elérhető!</span>
+            <a className="btn light block" href={`mailto:hello@andormarcsi.hu?subject=${encodeURIComponent('Értesítést kérek: ' + course.title)}`}>Szólj, ha indul</a>
+          </>
+        )}
       </div>
     );
   }

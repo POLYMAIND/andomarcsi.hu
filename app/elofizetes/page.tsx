@@ -5,6 +5,7 @@ import { getCurrentUser } from '@/lib/auth';
 import { SUBSCRIPTION } from '@/lib/config';
 import { getCatalog, getUserAccess } from '@/lib/data';
 import { formatHuf } from '@/lib/format';
+import { soonLabel } from '@/lib/types';
 
 export const metadata: Metadata = { title: 'Előfizetés' };
 
@@ -64,7 +65,7 @@ export default async function SubscriptionPage({ searchParams }: { searchParams:
             <ul>
               {paidCourses.map((c) => (
                 <li key={c.id}>
-                  <Link href={`/kurzusok/${c.slug}`}>{c.title}</Link> – <span className="mono">{c.coming_soon ? 'hamarosan' : formatHuf(c.price_huf)}</span>
+                  <Link href={`/kurzusok/${c.slug}`}>{c.title}</Link> – <span className="mono">{formatHuf(c.price_huf)}{c.coming_soon ? ` (${soonLabel(c).toLowerCase()}, előrendelhető)` : ''}</span>
                 </li>
               ))}
               <li>Ingyenes kurzusok mindenkinek</li>

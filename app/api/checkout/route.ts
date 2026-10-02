@@ -3,7 +3,7 @@ import type Stripe from 'stripe';
 import { getCurrentUser } from '@/lib/auth';
 import { SITE_URL, SUBSCRIPTION } from '@/lib/config';
 import { hufToStripe, stripe } from '@/lib/stripe';
-import type { Course } from '@/lib/types';
+import { withStart, type Course } from '@/lib/types';
 
 // Űrlapból hívjuk (POST), és a Stripe Checkout oldalra irányítunk.
 export async function POST(request: NextRequest) {
@@ -57,9 +57,12 @@ export async function POST(request: NextRequest) {
       cancel_url: `${SITE_URL}/elofizetes?megszakitva=1`,
     });
   } else {
-    const { data: course } = await supabase.from('courses').select('*').eq('id', courseId).eq('published', true).maybeSingle<Course>();
+    const { data: rawCourse } = await supabase.from('courses').select('*').eq('id', courseId).eq('published', true).maybeSingle<Course>();
+    const course = rawCourse ? withStart(rawCourse) : null;
     if (!course) return NextResponse.json({ error: 'Ismeretlen kurzus' }, { status: 404 });
-    if (course.coming_soon) return NextResponse.redirect(new URL(`/kurzusok/${course.slug}`, SITE_URL), 303);
+    // „Hamarosan” kurzus előre megvásárolható; aki már megvette, ne fizessen kétszer.
+    const { data: owned } = await supabase.from('enrollments').select('id').eq('course_id', course.id).eq('user_id', user.id).maybeSingle();
+    if (owned) return NextResponse.redirect(new URL(`/kurzusok/${course.slug}`, SITE_URL), 303);
     if (course.price_huf === null) return NextResponse.redirect(new URL('/elofizetes', SITE_URL), 303);
     if (course.price_huf === 0) return NextResponse.redirect(new URL(`/kurzusok/${course.slug}`, SITE_URL), 303);
     const { data: access } = await supabase.rpc('has_course_access', { cid: course.id });

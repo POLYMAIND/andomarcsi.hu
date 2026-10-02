@@ -90,6 +90,10 @@ export default async function EditCoursePage({ params, searchParams }: Props) {
                 <option value="live">Elérhető – vásárolható, nézhető</option>
               </select>
             </label>
+            <label className="field">
+              Indulás (Hamarosan esetén – ekkor élesedik magától)
+              <input className="input" name="starts_at" type="datetime-local" defaultValue={course?.starts_at ? isoToBudapestLocal(course.starts_at) : ''} />
+            </label>
             <label className="check"><input type="checkbox" name="included_in_subscription" defaultChecked={course?.included_in_subscription ?? true} /> Benne van az előfizetésben</label>
           </div>
           <div className="row between">

@@ -4,6 +4,7 @@ import { WorkshopList } from '@/components/WorkshopList';
 import { SUBSCRIPTION } from '@/lib/config';
 import { getCatalog } from '@/lib/data';
 import { formatHuf, toolColor } from '@/lib/format';
+import { soonLabel } from '@/lib/types';
 import { createClient } from '@/lib/supabase/server';
 
 const DATES = [
@@ -108,7 +109,7 @@ export default async function Home() {
 
       {/* WORKSHOPOK */}
       <section id="workshopok" className="card stack" style={{ '--gap': '36px' } as React.CSSProperties}>
-        <WorkshopList />
+        <WorkshopList courses={(catalog?.courses ?? []).map(({ id, slug, title, subtitle, description, tool, level, price_huf, coming_soon, starts_at }) => ({ id, slug, title, subtitle, description, tool, level, price_huf, coming_soon, starts_at }))} />
       </section>
 
       {/* TUDÁSTÁR */}
@@ -138,7 +139,7 @@ export default async function Home() {
                   {catalog!.stats(c.id).count} lecke{c.subtitle ? ` · ${c.subtitle}` : ''}
                 </span>
               </span>
-              <span className="mono" style={{ fontSize: 13, color: 'var(--amber)' }}>{c.coming_soon ? 'Hamarosan' : formatHuf(c.price_huf)}</span>
+              <span className="mono" style={{ fontSize: 13, color: 'var(--amber)' }}>{formatHuf(c.price_huf)}{c.coming_soon ? ` · ${soonLabel(c).toLowerCase()}` : ''}</span>
             </Link>
           ))}
         </div>

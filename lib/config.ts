@@ -4,7 +4,8 @@ export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || (vercelUrl ? `https
 
 // Havi előfizetés: minden (előfizetésbe tartozó) kurzushoz hozzáférés.
 export const SUBSCRIPTION = {
-  enabled: process.env.NEXT_PUBLIC_SUBSCRIPTION_ENABLED !== 'false',
+  // Kikapcsolva, amíg nincs elég videó (cél: 20). Bekapcsolás: NEXT_PUBLIC_SUBSCRIPTION_ENABLED=true
+  enabled: process.env.NEXT_PUBLIC_SUBSCRIPTION_ENABLED === 'true',
   priceHuf: Number(process.env.NEXT_PUBLIC_SUBSCRIPTION_PRICE_HUF ?? 14990),
   name: 'andormarcsi.hu Tudástár – havi előfizetés',
   weeklyNew: 2,

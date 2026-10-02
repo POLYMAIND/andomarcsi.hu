@@ -24,7 +24,8 @@ export default async function DashboardPage() {
 
   // "Saját" kurzusok: amibe beiratkozott/megvette, vagy amibe már belekezdett (előfizetőként / ingyenesként).
   const mine = catalog.courses
-    .filter((c) => courseAccessible(c, access, profile?.is_admin))
+    // hozzáférhető kurzusok + az előrendelt („Hamarosan”) kurzusok
+    .filter((c) => courseAccessible(c, access, profile?.is_admin) || access.enrolled.has(c.id))
     .map((c) => {
       const ls = byCourse.get(c.id) ?? [];
       const done = ls.filter((l) => access.completed.has(l.id)).length;
@@ -120,7 +121,7 @@ export default async function DashboardPage() {
         ) : (
           <div className="grid" style={{ '--min': '280px' } as React.CSSProperties}>
             {[...mine].sort((a, b) => Number(b.started) - Number(a.started) || b.progress - a.progress).map((m) => (
-              <CourseCard key={m.course.id} course={m.course} lessonCount={m.lessons.length} newCount={catalog.stats(m.course.id).fresh} progress={m.progress} hasAccess />
+              <CourseCard key={m.course.id} course={m.course} lessonCount={m.lessons.length} newCount={catalog.stats(m.course.id).fresh} progress={m.progress} hasAccess={courseAccessible(m.course, access, profile?.is_admin)} owned={access.enrolled.has(m.course.id)} />
             ))}
           </div>
         )}

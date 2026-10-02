@@ -4,7 +4,7 @@ import { SiteNav } from '@/components/SiteNav';
 import { requireAdmin } from '@/lib/auth';
 import { SUBSCRIPTION } from '@/lib/config';
 import { formatDate, formatHuf, toolColor } from '@/lib/format';
-import { courseStatus, type Course, type Lesson } from '@/lib/types';
+import { courseStatus, soonLabel, withStartAll, type Course, type Lesson } from '@/lib/types';
 
 export const metadata: Metadata = { title: 'Admin' };
 
@@ -20,7 +20,7 @@ function weekStart(offsetWeeks = 0) {
 
 export default async function AdminPage() {
   const { supabase } = await requireAdmin();
-  const [{ data: courses }, { data: lessons }, { data: videos }, { data: enrollments }, { data: subs }, { count: userCount }] = await Promise.all([
+  const [{ data: rawCourses }, { data: lessons }, { data: videos }, { data: enrollments }, { data: subs }, { count: userCount }] = await Promise.all([
     supabase.from('courses').select('*').order('sort_order').returns<Course[]>(),
     supabase.from('lessons').select('id, course_id, title, published_at').order('published_at', { ascending: false }).returns<Lesson[]>(),
     supabase.from('lesson_videos').select('lesson_id'),
@@ -29,6 +29,7 @@ export default async function AdminPage() {
     supabase.from('profiles').select('id', { count: 'exact', head: true }),
   ]);
 
+  const courses = withStartAll(rawCourses);
   const now = Date.now();
   const paid = (enrollments ?? []).filter((e) => e.source === 'stripe');
   const revenue = paid.reduce((s, e) => s + e.amount_huf, 0);
@@ -92,7 +93,7 @@ export default async function AdminPage() {
                     </td>
                     <td>{allLessons.filter((l) => l.course_id === c.id).length}</td>
                     <td className="mono">{formatHuf(c.price_huf)}</td>
-                    <td>{{ live: <span className="pill ok">Elérhető</span>, soon: <span className="pill new">Hamarosan</span>, draft: <span className="pill warn">Vázlat</span> }[courseStatus(c)]}</td>
+                    <td>{{ live: <span className="pill ok">Elérhető</span>, soon: <span className="pill new">{soonLabel(c)}</span>, draft: <span className="pill warn">Vázlat</span> }[courseStatus(c)]}</td>
                   </tr>
                 ))}
               </tbody>

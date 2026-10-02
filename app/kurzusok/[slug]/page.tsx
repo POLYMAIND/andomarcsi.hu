@@ -7,7 +7,7 @@ import { getCurrentUser } from '@/lib/auth';
 import { courseAccessible, getUserAccess } from '@/lib/data';
 import { toolColor } from '@/lib/format';
 import { createClient } from '@/lib/supabase/server';
-import type { Course, Lesson } from '@/lib/types';
+import { withStart, type Course, type Lesson } from '@/lib/types';
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | undefined>> };
 
@@ -21,7 +21,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CoursePage({ params, searchParams }: Props) {
   const [{ slug }, sp] = await Promise.all([params, searchParams]);
   const { supabase, user, profile } = await getCurrentUser();
-  const { data: course } = await supabase.from('courses').select('*').eq('slug', slug).maybeSingle<Course>();
+  const { data: rawCourse } = await supabase.from('courses').select('*').eq('slug', slug).maybeSingle<Course>();
+  const course = rawCourse ? withStart(rawCourse) : null;
   if (!course) notFound();
 
   const [{ data: lessons }, access] = await Promise.all([

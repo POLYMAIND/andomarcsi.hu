@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getCurrentUser, supabaseConfigured } from '@/lib/auth';
+import { SUBSCRIPTION } from '@/lib/config';
 
 export async function SiteNav({ bare = false }: { bare?: boolean }) {
   const { user, profile } = supabaseConfigured() ? await getCurrentUser() : { user: null, profile: null };
@@ -11,7 +12,7 @@ export async function SiteNav({ bare = false }: { bare?: boolean }) {
       <div className="nav-links">
         <Link href="/#workshopok">Workshopok</Link>
         <Link href="/kurzusok">Tudástár</Link>
-        <Link href="/elofizetes">Előfizetés</Link>
+        {SUBSCRIPTION.enabled && <Link href="/elofizetes">Előfizetés</Link>}
         {profile?.is_admin && <Link href="/admin">Admin</Link>}
       </div>
       {user ? (
@@ -35,7 +36,7 @@ export function SiteFooter() {
       </span>
       <div className="row" style={{ '--gap': '24px' } as React.CSSProperties}>
         <Link href="/kurzusok">Tudástár</Link>
-        <Link href="/elofizetes">Előfizetés</Link>
+        {SUBSCRIPTION.enabled && <Link href="/elofizetes">Előfizetés</Link>}
         <a href="mailto:hello@andormarcsi.hu">Kapcsolat</a>
       </div>
     </div>

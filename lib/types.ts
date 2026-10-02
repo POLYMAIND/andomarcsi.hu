@@ -10,6 +10,7 @@ export type Course = {
   included_in_subscription: boolean;
   published: boolean;
   coming_soon: boolean;
+  starts_at: string | null; // indulás: ekkortól automatikusan élesedik (a videók is ekkor nyílnak meg)
   sort_order: number;
   created_at: string;
 };
@@ -31,6 +32,20 @@ export type Subscription = {
   current_period_end: string | null;
   cancel_at_period_end: boolean;
 };
+
+// A „Hamarosan” állapot az indulási dátumig tart, utána a kurzus magától élesedik.
+export function withStart<T extends Pick<Course, 'coming_soon' | 'starts_at'>>(c: T): T {
+  const started = !!c.starts_at && new Date(c.starts_at).getTime() <= Date.now();
+  return started ? { ...c, coming_soon: false } : c;
+}
+export function withStartAll<T extends Pick<Course, 'coming_soon' | 'starts_at'>>(list: T[] | null | undefined): T[] {
+  return (list ?? []).map(withStart);
+}
+export function soonLabel(c: Pick<Course, 'starts_at'>): string {
+  if (!c.starts_at) return 'Hamarosan';
+  const d = new Date(c.starts_at).toLocaleDateString('hu-HU', { month: 'short', day: 'numeric', timeZone: 'Europe/Budapest' });
+  return `Indul: ${d}`;
+}
 
 export type CourseStatus = 'draft' | 'soon' | 'live';
 export const courseStatus = (c: Pick<Course, 'published' | 'coming_soon'>): CourseStatus =>

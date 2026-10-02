@@ -29,6 +29,7 @@ export async function saveCourse(formData: FormData) {
     // Állapot: vázlat (rejtett) · hamarosan (látszik, de nem vásárolható) · elérhető
     published: str(formData, 'status') !== 'draft',
     coming_soon: str(formData, 'status') === 'soon',
+    starts_at: budapestLocalToIso(str(formData, 'starts_at')),
     // a csak tagsággal elérhető kurzus mindig az előfizetés része
     included_in_subscription: formData.get('included_in_subscription') === 'on' || int(formData, 'price_huf') === null,
   };

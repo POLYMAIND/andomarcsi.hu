@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Course, Lesson, Subscription } from '@/lib/types';
-import { isSubscriptionActive } from '@/lib/types';
+import { isSubscriptionActive, withStartAll } from '@/lib/types';
 
 const WEEK = 7 * 24 * 3600 * 1000;
 
@@ -19,7 +19,7 @@ export async function getCatalog(supabase: SupabaseClient) {
   }
   const latest = [...(lessons ?? [])].sort((a, b) => b.published_at.localeCompare(a.published_at)).slice(0, 6);
   return {
-    courses: courses ?? [],
+    courses: withStartAll(courses),
     stats: (id: string) => byCourse.get(id) ?? { count: 0, fresh: 0 },
     latest,
     totalLessons: lessons?.length ?? 0,

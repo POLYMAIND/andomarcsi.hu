@@ -6,7 +6,7 @@ import { SiteNav } from '@/components/SiteNav';
 import { getCurrentUser } from '@/lib/auth';
 import { courseAccessible, getUserAccess } from '@/lib/data';
 import { youTubeEmbedUrl } from '@/lib/youtube';
-import type { Course, Lesson } from '@/lib/types';
+import { soonLabel, withStart, type Course, type Lesson } from '@/lib/types';
 import { toggleComplete } from './actions';
 
 type Props = { params: Promise<{ slug: string; lessonId: string }> };
@@ -19,7 +19,8 @@ export default async function LessonPage({ params }: Props) {
   const { slug, lessonId } = await params;
   if (!UUID.test(lessonId)) notFound();
   const { supabase, user, profile } = await getCurrentUser();
-  const { data: course } = await supabase.from('courses').select('*').eq('slug', slug).maybeSingle<Course>();
+  const { data: rawCourse } = await supabase.from('courses').select('*').eq('slug', slug).maybeSingle<Course>();
+  const course = rawCourse ? withStart(rawCourse) : null;
   if (!course) notFound();
 
   const [{ data: lessons }, { data: video }, access] = await Promise.all([
@@ -57,7 +58,7 @@ export default async function LessonPage({ params }: Props) {
               <div className="video-locked">
                 <div className="stack" style={{ '--gap': '14px', alignItems: 'center', maxWidth: 420 } as React.CSSProperties}>
                   <span style={{ fontSize: 40 }}>{canWatch ? '⏳' : '🔒'}</span>
-                  <strong style={{ fontSize: 20 }}>{canWatch ? 'A videó hamarosan felkerül.' : course.coming_soon ? 'Ez a kurzus hamarosan indul.' : 'Ez a lecke a teljes kurzus része.'}</strong>
+                  <strong style={{ fontSize: 20 }}>{canWatch ? 'A videó hamarosan felkerül.' : course.coming_soon ? (course.starts_at ? `A kurzus indul: ${soonLabel(course).replace('Indul: ', '')}` : 'Ez a kurzus hamarosan indul.') : 'Ez a lecke a teljes kurzus része.'}</strong>
                   {!canWatch && !course.coming_soon && <span style={{ color: '#cfcad4' }}>Vásárold meg a kurzust, vagy fizess elő, és azonnal nézheted.</span>}
                 </div>
               </div>

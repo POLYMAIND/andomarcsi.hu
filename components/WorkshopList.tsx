@@ -1,30 +1,37 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
-import { TOOL_COLORS } from '@/lib/format';
+import { formatHuf, toolColor } from '@/lib/format';
+import { soonLabel } from '@/lib/types';
 
-const WORKSHOPS = [
-  { tool: 'Canva', level: 'Kezdő', title: 'Canva az első lépésektől', desc: 'Felület, sablonok, színek, betűk – és az első saját poszted 90 perc alatt.', meta: '90 perc · online' },
-  { tool: 'Canva', level: 'Haladó kezdő', title: 'Egységes arculat Canvában', desc: 'Márkakészlet, újrahasználható sablonok és közösségi média csomag egyszerre.', meta: '2 × 90 perc · online' },
-  { tool: 'Claude', level: 'Kezdő', title: 'Claude alapok: beszélgess az AI-jal', desc: 'Hogyan kérdezz jól? Szövegírás, ötletelés és összefoglalás a mindennapokban.', meta: '2 óra · online / élő' },
-  { tool: 'Claude', level: 'Haladó kezdő', title: 'Claude a munkádban', desc: 'Ismétlődő feladatok kiszervezése, e-mailek, dokumentumok és saját munkafolyamatok.', meta: '3 óra · élő' },
-  { tool: 'Polyos', level: 'Kezdő', title: 'Polyos bevezető', desc: 'Az első projekted felépítése nulláról, magyarázatokkal és közös gyakorlással.', meta: '2 óra · online' },
-  { tool: 'Hirdetés', level: 'Kezdő', title: 'Hirdetéskezelés AI eszközökkel', desc: 'Hirdetésszövegek Claude-dal, kreatívok Canvában, célzás és mérés – az első kampányod lépésről lépésre.', meta: '3 óra · online / élő' },
-];
-const FILTERS = ['Összes', 'Canva', 'Claude', 'Polyos', 'Hirdetés'];
+export type ListCourse = {
+  id: string;
+  slug: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  tool: string;
+  level: string;
+  price_huf: number | null;
+  coming_soon: boolean;
+  starts_at: string | null;
+};
 
-export function WorkshopList() {
+// Főoldali kurzuslista témaszűrővel – az adatbázisban lévő (publikus) kurzusokból.
+export function WorkshopList({ courses }: { courses: ListCourse[] }) {
   const [filter, setFilter] = useState('Összes');
-  const list = WORKSHOPS.filter((w) => filter === 'Összes' || w.tool === filter);
+  const tools = ['Összes', ...Array.from(new Set(courses.map((c) => c.tool)))];
+  const list = courses.filter((c) => filter === 'Összes' || c.tool === filter);
   return (
     <>
       <div className="row between" style={{ alignItems: 'flex-end', '--gap': '24px' } as React.CSSProperties}>
         <div className="stack" style={{ maxWidth: 620, '--gap': '12px' } as React.CSSProperties}>
-          <div className="eyebrow">Workshopok</div>
+          <div className="eyebrow">Kurzusok</div>
           <h2 className="h2">Válaszd ki, mivel kezdenéd.</h2>
         </div>
         <div className="row" style={{ '--gap': '8px' } as React.CSSProperties}>
-          {FILTERS.map((f) => (
+          {tools.map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
@@ -38,19 +45,27 @@ export function WorkshopList() {
         </div>
       </div>
       <div className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
-        {list.map((w) => (
-          <article key={w.title} className="ws-card">
-            <div className="ws-tool" style={{ background: TOOL_COLORS[w.tool] }}>
-              <span style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 26, letterSpacing: '-.03em' }}>{w.tool}</span>
-              <span className="tag">{w.level}</span>
+        {list.length === 0 && <p className="lead">Hamarosan érkeznek az első kurzusok.</p>}
+        {list.map((c) => (
+          <article key={c.id} className="ws-card">
+            <div className="ws-tool" style={{ background: toolColor(c.tool) }}>
+              <span style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 26, letterSpacing: '-.03em' }}>{c.tool}</span>
+              <span className="tag">{c.level}</span>
             </div>
             <div className="ws-body">
-              <h3 className="h3">{w.title}</h3>
-              <p style={{ margin: 0, fontSize: 15, lineHeight: 1.55, color: 'var(--ink-2)' }}>{w.desc}</p>
+              <h3 className="h3">
+                <Link href={`/kurzusok/${c.slug}`}>{c.title}</Link>
+              </h3>
+              <p style={{ margin: 0, fontSize: 15, lineHeight: 1.55, color: 'var(--ink-2)' }}>{c.description || c.subtitle}</p>
             </div>
             <div className="ws-meta">
-              <span style={{ fontSize: 14, color: 'var(--ink-3)' }}>{w.meta}</span>
-              <a href="#idopontok" className="btn sm">Jelentkezem</a>
+              <div className="stack" style={{ '--gap': '6px' } as React.CSSProperties}>
+                {c.coming_soon && <span className="pill new" style={{ alignSelf: 'flex-start' }}>{soonLabel(c)}</span>}
+                <span style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 22, letterSpacing: '-.02em' }}>{formatHuf(c.price_huf)}</span>
+              </div>
+              <Link href={`/kurzusok/${c.slug}`} className="btn sm">
+                {c.coming_soon && (c.price_huf ?? 0) > 0 ? 'Előrendelem' : 'Részletek'}
+              </Link>
             </div>
           </article>
         ))}
