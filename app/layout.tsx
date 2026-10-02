@@ -4,7 +4,7 @@ import { SITE_URL } from '@/lib/config';
 
 export const metadata: Metadata = {
   title: { default: 'andormarcsi.hu – Digitális eszközök félelem nélkül', template: '%s · andormarcsi.hu' },
-  description: 'Canva, Claude és Polyos – lépésről lépésre, emberi nyelven. Workshopok és videós tudástár kezdőknek.',
+  description: 'Canva, Claude és Polyos – lépésről lépésre, emberi nyelven. Előre felvett online videókurzusok kezdőknek.',
   metadataBase: new URL(SITE_URL),
 };
 

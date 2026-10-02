@@ -10,7 +10,7 @@ export async function SiteNav({ bare = false }: { bare?: boolean }) {
         andormarcsi<span>.</span>
       </Link>
       <div className="nav-links">
-        <Link href="/#workshopok">Workshopok</Link>
+        <Link href="/#kurzusok">Kurzusok</Link>
         <Link href="/kurzusok">Tudástár</Link>
         {SUBSCRIPTION.enabled && <Link href="/elofizetes">Előfizetés</Link>}
         {profile?.is_admin && <Link href="/admin">Admin</Link>}

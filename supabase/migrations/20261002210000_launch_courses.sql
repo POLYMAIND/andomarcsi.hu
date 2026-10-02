@@ -21,7 +21,7 @@ insert into public.courses (slug, title, subtitle, description, tool, level, pri
    '4:5 arányú kreatív négyzetes biztonsági zónával, ami boostolva is jól működik.',
    'Social', 'Haladó kezdő', null, true, true, true, 40),
   ('hirdetesi-alapok', 'Hirdetési alapok', 'Meta boost és Google Ads',
-   'Egy beállított, kis költségvetésű kampány a saját vállalkozásodra. Tudástár + élő Q&A.',
+   'Egy beállított, kis költségvetésű kampány a saját vállalkozásodra – lépésről lépésre, előre felvett videókban.',
    'Hirdetés', 'Kezdő', null, true, true, true, 50),
   ('kis-eszkozok-ai-jal', 'Kis eszközök AI-jal', 'Kalkulátor vagy landing oldal Claude-dal',
    'Egy működő kalkulátor vagy landing oldal, amit Claude-dal építesz meg.',
