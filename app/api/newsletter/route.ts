@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/server';
 import { forwardToPolyos } from '@/lib/waitlist';
+import { FORM_ELAPSED_FIELD, tooFastElapsed } from '@/lib/honeypot';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -10,7 +11,11 @@ export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => ({}));
   const email = String(body.email ?? '').trim().toLowerCase();
   const name = String(body.name ?? '').trim().slice(0, 120) || null;
-  if (body.website) return NextResponse.json({ ok: true }); // botcsapda
+  // Botvédelem (lib/honeypot.ts). NEM állít sikert: egy tévesen megfogott valódi látogató lássa, hogy nem ment át.
+  if (tooFastElapsed(body[FORM_ELAPSED_FIELD])) {
+    console.warn('[botvedelem] newsletter');
+    return NextResponse.json({ error: 'Nem sikerült a feliratkozás, próbáld újra.' }, { status: 400 });
+  }
   if (!EMAIL.test(email) || email.length > 200) return NextResponse.json({ error: 'Kérlek, adj meg egy érvényes e-mail címet.' }, { status: 400 });
   if (body.consent !== true) return NextResponse.json({ error: 'A feliratkozáshoz pipáld be a hozzájárulást.' }, { status: 400 });
 

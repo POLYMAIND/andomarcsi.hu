@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
+import { FORM_ELAPSED_FIELD } from '@/lib/honeypot';
 
 // Lábléc: „Havonta egy hasznos tipp, spam nélkül.”
 export function NewsletterForm() {
@@ -10,6 +11,8 @@ export function NewsletterForm() {
   const [state, setState] = useState<'idle' | 'busy' | 'ok' | 'error'>('idle');
   const [msg, setMsg] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const mountedAt = useRef(0); // botvédelem: mennyi ideig volt nyitva az űrlap (lib/honeypot.ts)
+  useEffect(() => { mountedAt.current = performance.now(); }, []);
 
   // A fejléc „Ingyenes tippek” gombja ide ugrik (#hirlevel) – tegyük a kurzort az e-mail mezőbe.
   useEffect(() => {
@@ -23,12 +26,12 @@ export function NewsletterForm() {
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const website = (new FormData(e.currentTarget).get('website') as string) ?? '';
+    const elapsed = mountedAt.current ? Math.round(performance.now() - mountedAt.current) : 0;
     setState('busy');
     const res = await fetch('/api/newsletter', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, consent, website }),
+      body: JSON.stringify({ email, consent, [FORM_ELAPSED_FIELD]: elapsed }),
     }).catch(() => null);
     const data = res ? await res.json().catch(() => ({})) : {};
     if (res?.ok) {
@@ -47,7 +50,6 @@ export function NewsletterForm() {
       ) : (
         <form onSubmit={submit} className="stack" style={{ '--gap': '10px' } as React.CSSProperties}>
           <div className="newsletter-field">
-            <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden style={{ position: 'absolute', left: -9999, width: 1, height: 1, opacity: 0 }} />
             <input
               ref={inputRef}
               type="email"
