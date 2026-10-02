@@ -8,7 +8,7 @@ export const COMPANY = {
   taxNumber: '67982774-1-33',
   vatNote: 'Alanyi adómentes (AAM) – az árak végösszegek, ÁFA-t nem tartalmaznak.',
   email: 'hello@andormarcsi.hu',
-  phone: 'KITÖLTENDŐ: telefonszám',
+  phone: '+36 70 600 5655',
   website: 'https://www.andormarcsi.hu',
   // A székhely szerinti megyei békéltető testület (pl. Budapest: Budapesti Békéltető Testület)
   conciliationBody: 'Pest Vármegyei Békéltető Testület',
