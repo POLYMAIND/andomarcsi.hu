@@ -29,6 +29,7 @@ export default async function EditCoursePage({ params, searchParams }: Props) {
   const [{ id }, sp] = await Promise.all([params, searchParams]);
   const { supabase } = await requireAdmin();
   const isNew = id === 'uj';
+  const { data: allCourses } = await supabase.from('courses').select('id, title, price_huf').order('sort_order');
 
   let course: Course | null = null;
   let lessons: Lesson[] = [];
@@ -81,6 +82,19 @@ export default async function EditCoursePage({ params, searchParams }: Props) {
             <label className="field">Sorrend<input className="input" name="sort_order" type="number" defaultValue={course?.sort_order ?? 0} /></label>
           </div>
           <label className="field">Leírás<textarea className="textarea" name="description" defaultValue={course?.description} /></label>
+          <details open={(course?.bundle_course_ids?.length ?? 0) > 0} style={{ background: 'var(--paper)', borderRadius: 14, padding: '12px 16px' }}>
+            <summary style={{ cursor: 'pointer', fontWeight: 500, fontSize: 14 }}>
+              Csomag – ha ezt a kurzust megveszik, ezeket is megnyitja ({course?.bundle_course_ids?.length ?? 0} kiválasztva)
+            </summary>
+            <div className="stack" style={{ '--gap': '6px', marginTop: 10 } as React.CSSProperties}>
+              {(allCourses ?? []).filter((c) => c.id !== course?.id).map((c) => (
+                <label key={c.id} className="check">
+                  <input type="checkbox" name="bundle_course_ids" value={c.id} defaultChecked={course?.bundle_course_ids?.includes(c.id)} />
+                  {c.title} <span className="muted mono" style={{ fontSize: 12 }}>· {formatHuf(c.price_huf)}</span>
+                </label>
+              ))}
+            </div>
+          </details>
           <div className="row" style={{ '--gap': '24px' } as React.CSSProperties}>
             <label className="field" style={{ minWidth: 260 }}>
               Állapot

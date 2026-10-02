@@ -16,6 +16,7 @@ export type ListCourse = {
   price_huf: number | null;
   coming_soon: boolean;
   starts_at: string | null;
+  bundle_course_ids: string[];
 };
 
 // Főoldali kurzuslista témaszűrővel – az adatbázisban lévő (publikus) kurzusokból.
@@ -50,7 +51,7 @@ export function WorkshopList({ courses }: { courses: ListCourse[] }) {
           <article key={c.id} className="ws-card">
             <div className="ws-tool" style={{ background: toolColor(c.tool) }}>
               <span style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 26, letterSpacing: '-.03em' }}>{c.tool}</span>
-              <span className="tag">{c.level}</span>
+              <span className="tag">{c.bundle_course_ids?.length ? `Csomag · ${c.bundle_course_ids.length} modul` : c.level}</span>
             </div>
             <div className="ws-body">
               <h3 className="h3">

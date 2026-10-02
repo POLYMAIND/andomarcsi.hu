@@ -112,7 +112,7 @@ export default async function Home() {
 
       {/* WORKSHOPOK */}
       <section id="kurzusok" className="card stack" style={{ '--gap': '36px' } as React.CSSProperties}>
-        <WorkshopList courses={(catalog?.courses ?? []).map(({ id, slug, title, subtitle, description, tool, level, price_huf, coming_soon, starts_at }) => ({ id, slug, title, subtitle, description, tool, level, price_huf, coming_soon, starts_at }))} />
+        <WorkshopList courses={(catalog?.courses ?? []).map(({ id, slug, title, subtitle, description, tool, level, price_huf, coming_soon, starts_at, bundle_course_ids }) => ({ id, slug, title, subtitle, description, tool, level, price_huf, coming_soon, starts_at, bundle_course_ids }))} />
       </section>
 
       {/* TUDÁSTÁR */}

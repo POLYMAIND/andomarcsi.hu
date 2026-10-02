@@ -26,6 +26,7 @@ export async function fulfillCheckoutSession(session: Stripe.Checkout.Session) {
       { onConflict: 'user_id,course_id', ignoreDuplicates: true },
     );
     if (error) throw error;
+    await enrollBundleContents(userId, courseId, 'stripe');
   } else if (session.mode === 'subscription' && session.subscription) {
     const subId = typeof session.subscription === 'string' ? session.subscription : session.subscription.id;
     await syncSubscription(await stripe().subscriptions.retrieve(subId), userId);
@@ -63,6 +64,19 @@ export async function syncSubscription(sub: Stripe.Subscription, knownUserId?: s
       updated_at: new Date().toISOString(),
     },
     { onConflict: 'user_id' },
+  );
+  if (error) throw error;
+}
+
+// Csomag vásárlásakor (vagy kézi hozzáadáskor) a benne lévő kurzusokat is megnyitjuk.
+export async function enrollBundleContents(userId: string, courseId: string, source: 'stripe' | 'manual') {
+  const admin = createAdminClient();
+  const { data: bundle } = await admin.from('courses').select('bundle_course_ids').eq('id', courseId).maybeSingle();
+  const ids: string[] = bundle?.bundle_course_ids ?? [];
+  if (!ids.length) return;
+  const { error } = await admin.from('enrollments').upsert(
+    ids.map((id) => ({ user_id: userId, course_id: id, source, amount_huf: 0 })),
+    { onConflict: 'user_id,course_id', ignoreDuplicates: true },
   );
   if (error) throw error;
 }

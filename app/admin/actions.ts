@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { requireAdmin } from '@/lib/auth';
 import { budapestLocalToIso, slugify } from '@/lib/format';
 import { parseYouTubeId } from '@/lib/youtube';
+import { enrollBundleContents } from '@/lib/fulfillment';
 
 const str = (f: FormData, k: string) => String(f.get(k) ?? '').trim();
 const int = (f: FormData, k: string) => {
@@ -30,6 +31,7 @@ export async function saveCourse(formData: FormData) {
     published: str(formData, 'status') !== 'draft',
     coming_soon: str(formData, 'status') === 'soon',
     starts_at: budapestLocalToIso(str(formData, 'starts_at')),
+    bundle_course_ids: formData.getAll('bundle_course_ids').map(String).filter((v) => v && v !== id),
     // a csak tagsággal elérhető kurzus mindig az előfizetés része
     included_in_subscription: formData.get('included_in_subscription') === 'on' || int(formData, 'price_huf') === null,
   };
@@ -100,5 +102,6 @@ export async function grantAccess(formData: FormData) {
   const { data: user } = await supabase.from('profiles').select('id').ilike('email', email).maybeSingle();
   if (!user) redirect(`${back}?hiba=${encodeURIComponent('Nincs ilyen e-mail címmel regisztrált felhasználó.')}`);
   await supabase.from('enrollments').upsert({ user_id: user.id, course_id: courseId, source: 'manual', amount_huf: 0 }, { onConflict: 'user_id,course_id', ignoreDuplicates: true });
+  await enrollBundleContents(user.id, courseId, 'manual');
   redirect(`${back}?ok=1`);
 }

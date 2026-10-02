@@ -41,7 +41,7 @@ export function CourseCard({
         )}
         <div className="foot">
           <span className="muted" style={{ fontSize: 14 }}>
-            {lessonCount} lecke
+            {course.bundle_course_ids?.length ? `Csomag · ${course.bundle_course_ids.length} modul` : `${lessonCount} lecke`}
           </span>
           <span className="price">{owned ? 'Megvetted' : hasAccess ? 'Hozzáférsz' : formatHuf(course.price_huf)}</span>
         </div>

@@ -6,9 +6,9 @@ import { ChatWidget } from '@/components/ChatWidget';
 import { SiteFooter, SiteNav } from '@/components/SiteNav';
 import { getCurrentUser } from '@/lib/auth';
 import { courseAccessible, getUserAccess } from '@/lib/data';
-import { toolColor } from '@/lib/format';
+import { formatHuf, toolColor } from '@/lib/format';
 import { createClient } from '@/lib/supabase/server';
-import { withStart, type Course, type Lesson } from '@/lib/types';
+import { withStart, withStartAll, type Course, type Lesson } from '@/lib/types';
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | undefined>> };
 
@@ -26,10 +26,19 @@ export default async function CoursePage({ params, searchParams }: Props) {
   const course = rawCourse ? withStart(rawCourse) : null;
   if (!course) notFound();
 
-  const [{ data: lessons }, access] = await Promise.all([
+  const isBundle = (course.bundle_course_ids ?? []).length > 0;
+  const [{ data: lessons }, access, { data: bundleItems }, { data: bundlesWithThis }] = await Promise.all([
     supabase.from('lessons').select('*').eq('course_id', course.id).lte('published_at', new Date().toISOString()).order('sort_order').returns<Lesson[]>(),
     getUserAccess(supabase, user?.id),
+    // csomag esetén: a benne lévő kurzusok
+    isBundle
+      ? supabase.from('courses').select('*').in('id', course.bundle_course_ids).order('sort_order').returns<Course[]>()
+      : Promise.resolve({ data: [] as Course[] }),
+    // modul esetén: azok a csomagok, amikben benne van (csomagajánlathoz)
+    supabase.from('courses').select('*').contains('bundle_course_ids', [course.id]).eq('published', true).returns<Course[]>(),
   ]);
+  const modules = withStartAll(bundleItems);
+  const bundle = withStartAll(bundlesWithThis)[0] ?? null;
   const list = lessons ?? [];
   const hasAccess = !!user && courseAccessible(course, access, profile?.is_admin);
   const done = list.filter((l) => access.completed.has(l.id)).length;
@@ -59,8 +68,32 @@ export default async function CoursePage({ params, searchParams }: Props) {
       <div className="layout-sidebar">
         <section className="card stack" style={{ '--gap': '20px' } as React.CSSProperties}>
           {course.description && <p style={{ margin: 0, fontSize: 17, lineHeight: 1.65, color: 'var(--ink-2)', whiteSpace: 'pre-line' }}>{course.description}</p>}
-          <h2 className="h3">Tananyag</h2>
-          {list.length === 0 && <p className="muted">A leckék hamarosan érkeznek.</p>}
+          {isBundle && (
+            <>
+              <h2 className="h3">A csomag tartalma</h2>
+              <ul className="lesson-list">
+                {modules.map((m, i) => (
+                  <li key={m.id}>
+                    <Link href={`/kurzusok/${m.slug}`} className="lesson-item">
+                      <span className={`lesson-num${access.enrolled.has(m.id) ? ' done' : ''}`}>{access.enrolled.has(m.id) ? '✓' : i + 1}</span>
+                      <span className="stack" style={{ '--gap': '2px' } as React.CSSProperties}>
+                        <strong>{m.title}</strong>
+                        {m.subtitle && <span className="muted" style={{ fontSize: 13 }}>{m.subtitle}</span>}
+                      </span>
+                      <span className="muted mono" style={{ fontSize: 12 }}>{formatHuf(m.price_huf)}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              {modules.some((m) => m.price_huf) && (
+                <p className="muted" style={{ margin: 0, fontSize: 14 }}>
+                  Külön megvéve {formatHuf(modules.reduce((s, m) => s + (m.price_huf ?? 0), 0))} – a csomaggal {formatHuf(Math.max(0, modules.reduce((s, m) => s + (m.price_huf ?? 0), 0) - (course.price_huf ?? 0)))}-ot spórolsz.
+                </p>
+              )}
+            </>
+          )}
+          {!isBundle && <h2 className="h3">Tananyag</h2>}
+          {!isBundle && list.length === 0 && <p className="muted">A leckék hamarosan érkeznek.</p>}
           <ol className="lesson-list">
             {list.map((l, i) => {
               const open = hasAccess || (l.is_preview && !course.coming_soon);
@@ -86,7 +119,8 @@ export default async function CoursePage({ params, searchParams }: Props) {
             loggedIn={!!user}
             hasAccess={hasAccess}
             enrolled={access.enrolled.has(course.id)}
-            firstLessonHref={next ? `/kurzusok/${course.slug}/${next.id}` : null}
+            firstLessonHref={next ? `/kurzusok/${course.slug}/${next.id}` : isBundle && modules[0] ? `/kurzusok/${modules[0].slug}` : null}
+            bundle={bundle && !access.enrolled.has(bundle.id) ? bundle : null}
           />
         </aside>
       </div>

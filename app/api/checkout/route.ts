@@ -63,6 +63,10 @@ export async function POST(request: NextRequest) {
     // „Hamarosan” kurzus előre megvásárolható; aki már megvette, ne fizessen kétszer.
     const { data: owned } = await supabase.from('enrollments').select('id').eq('course_id', course.id).eq('user_id', user.id).maybeSingle();
     if (owned) return NextResponse.redirect(new URL(`/kurzusok/${course.slug}`, SITE_URL), 303);
+    if (course.bundle_course_ids?.length) {
+      const { data: have } = await supabase.from('enrollments').select('course_id').eq('user_id', user.id).in('course_id', course.bundle_course_ids);
+      if ((have?.length ?? 0) >= course.bundle_course_ids.length) return NextResponse.redirect(new URL(`/kurzusok/${course.slug}`, SITE_URL), 303);
+    }
     if (course.price_huf === null) return NextResponse.redirect(new URL('/elofizetes', SITE_URL), 303);
     if (course.price_huf === 0) return NextResponse.redirect(new URL(`/kurzusok/${course.slug}`, SITE_URL), 303);
     const { data: access } = await supabase.rpc('has_course_access', { cid: course.id });

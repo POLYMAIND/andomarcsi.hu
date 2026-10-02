@@ -10,6 +10,7 @@ export type Course = {
   included_in_subscription: boolean;
   published: boolean;
   coming_soon: boolean;
+  bundle_course_ids: string[]; // csomag: ezeket a kurzusokat is megnyitja vásárláskor
   starts_at: string | null; // indulás: ekkortól automatikusan élesedik (a videók is ekkor nyílnak meg)
   sort_order: number;
   created_at: string;
