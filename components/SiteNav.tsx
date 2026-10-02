@@ -16,9 +16,14 @@ export async function SiteNav({ bare = false }: { bare?: boolean }) {
         {profile?.is_admin && <Link href="/admin">Admin</Link>}
       </div>
       {user ? (
-        <Link href="/dashboard" className="btn outline sm">
-          Saját tanulás
-        </Link>
+        <div className="row" style={{ '--gap': '8px' } as React.CSSProperties}>
+          <Link href="/dashboard" className="btn outline sm">
+            Saját tanulás
+          </Link>
+          <form action="/auth/signout" method="post">
+            <button type="submit" className="btn light sm" title="Kijelentkezés">Kilépés</button>
+          </form>
+        </div>
       ) : (
         <Link href="/belepes" className="btn outline sm">
           Belépés
