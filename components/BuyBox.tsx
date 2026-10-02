@@ -4,13 +4,15 @@ import { formatHuf } from '@/lib/format';
 import { soonLabel, type Course } from '@/lib/types';
 
 // Vásárlás / beiratkozás doboz egy kurzushoz.
-export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref, bundle = null }: {
+export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref, bundle = null, userEmail = null, waitlisted = false }: {
   course: Course;
   loggedIn: boolean;
   hasAccess: boolean;
   enrolled: boolean;
   firstLessonHref: string | null;
   bundle?: Course | null; // csomag, amiben ez a kurzus is benne van
+  userEmail?: string | null;
+  waitlisted?: boolean; // már kért értesítést
 }) {
   const upsell = bundle && !hasAccess && !enrolled ? (
     <Link href={`/kurzusok/${bundle.slug}`} className="btn light block" style={{ whiteSpace: 'normal', textAlign: 'center' }}>
@@ -18,63 +20,38 @@ export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref,
     </Link>
   ) : null;
   if (course.coming_soon && !hasAccess) {
-    const note = (
-      <span className="muted" style={{ fontSize: 14 }}>
-        {course.starts_at ? `A kurzus ${soonLabel(course).replace('Indul: ', '')}-án/én indul` : 'A kurzus hamarosan indul'} – a videók az induláskor nyílnak meg.
-      </span>
-    );
     if (enrolled) {
       return (
         <div className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
           <span className="pill ok" style={{ alignSelf: 'flex-start' }}>✓ Megvetted</span>
-          <strong style={{ fontSize: 20 }}>Köszönöm az előrendelést!</strong>
-          {note}
-        </div>
-      );
-    }
-    if (course.price_huf === null) {
-      return (
-        <div className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
-          <span className="pill new" style={{ alignSelf: 'flex-start' }}>{soonLabel(course)}</span>
-          <strong style={{ fontSize: 20 }}>A tudástár-tagság része</strong>
-          {SUBSCRIPTION.enabled ? (
-            <>
-              <span className="muted" style={{ fontSize: 14 }}>Előfizetőként induláskor azonnal hozzáférsz.</span>
-              <Link href="/elofizetes" className="btn purple block">Előfizetés – {formatHuf(SUBSCRIPTION.priceHuf)}/hó</Link>
-            </>
-          ) : (
-            <>
-              <span className="muted" style={{ fontSize: 14 }}>A tudástár-tagság hamarosan indul. Írj, és szólok, amint elérhető!</span>
-              <a className="btn light block" href={`mailto:hello@andormarcsi.hu?subject=${encodeURIComponent('Értesítést kérek: ' + course.title)}`}>Szólj, ha indul</a>
-            </>
-          )}
-        </div>
-      );
-    }
-    if (course.price_huf === 0) {
-      return (
-        <div className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
-          <span className="pill new" style={{ alignSelf: 'flex-start' }}>{soonLabel(course)} · ingyenes</span>
-          {note}
-          <a className="btn light block" href={`mailto:hello@andormarcsi.hu?subject=${encodeURIComponent('Értesítést kérek: ' + course.title)}`}>Szólj, ha indul</a>
+          <span className="muted" style={{ fontSize: 14 }}>A videók az induláskor nyílnak meg.</span>
         </div>
       );
     }
     return (
-      <div className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
-        <span className="pill new" style={{ alignSelf: 'flex-start' }}>{soonLabel(course)} · előrendelhető</span>
-        <div style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 36, letterSpacing: '-.03em' }}>{formatHuf(course.price_huf)}</div>
-        {note}
-        <form action="/api/checkout" method="post">
-          <input type="hidden" name="plan" value="course" />
-          <input type="hidden" name="course_id" value={course.id} />
-          <button className="btn block" type="submit">{loggedIn ? 'Előrendelem bankkártyával' : 'Belépek és előrendelem'}</button>
-        </form>
-        {upsell}
-        {SUBSCRIPTION.enabled && course.included_in_subscription && (
-          <Link href="/elofizetes" className="btn light block">Vagy minden anyag: {formatHuf(SUBSCRIPTION.priceHuf)}/hó</Link>
+      <div id="ertesites" className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
+        <span className="pill new" style={{ alignSelf: 'flex-start' }}>{soonLabel(course)}</span>
+        {course.price_huf !== null && (
+          <div style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 32, letterSpacing: '-.03em' }}>{formatHuf(course.price_huf)}</div>
         )}
-        <span className="muted" style={{ fontSize: 12 }}>Biztonságos fizetés a Stripe-on keresztül.</span>
+        {waitlisted ? (
+          <div className="notice ok">✓ Feliratkoztál – szólok e-mailben, amint elérhető a kurzus.</div>
+        ) : (
+          <form action="/api/waitlist" method="post" className="stack" style={{ '--gap': '10px' } as React.CSSProperties}>
+            <strong style={{ fontSize: 18 }}>Kérj értesítést, amint elérhető!</strong>
+            <span className="muted" style={{ fontSize: 14 }}>Nem kell most fizetned – e-mailben szólok, amikor indul a kurzus.</span>
+            <input type="hidden" name="course_id" value={course.id} />
+            <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden style={{ position: 'absolute', left: -9999, width: 1, height: 1, opacity: 0 }} />
+            <input className="input" name="name" placeholder="Neved (nem kötelező)" autoComplete="name" />
+            <input className="input" name="email" type="email" required placeholder="E-mail címed" defaultValue={userEmail ?? ''} autoComplete="email" />
+            <label className="check" style={{ alignItems: 'flex-start', fontSize: 13, color: 'var(--ink-3)' }}>
+              <input type="checkbox" name="consent" required style={{ marginTop: 3 }} />
+              <span>Hozzájárulok, hogy az andormarcsi.hu e-mailben értesítsen a kurzus indulásáról és kapcsolódó ajánlatokról. Bármikor leiratkozhatok.</span>
+            </label>
+            <button className="btn block" type="submit">Értesítést kérek</button>
+          </form>
+        )}
+        {upsell}
       </div>
     );
   }

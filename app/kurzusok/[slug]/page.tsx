@@ -38,6 +38,9 @@ export default async function CoursePage({ params, searchParams }: Props) {
     supabase.from('courses').select('*').contains('bundle_course_ids', [course.id]).eq('published', true).returns<Course[]>(),
   ]);
   const modules = withStartAll(bundleItems);
+  const { data: waitRow } = user
+    ? await supabase.from('course_waitlist').select('id').eq('course_id', course.id).eq('user_id', user.id).maybeSingle()
+    : { data: null };
   const bundle = withStartAll(bundlesWithThis)[0] ?? null;
   const list = lessons ?? [];
   const hasAccess = !!user && courseAccessible(course, access, profile?.is_admin);
@@ -49,6 +52,10 @@ export default async function CoursePage({ params, searchParams }: Props) {
     <div className="page">
       <SiteNav />
       {sp.megszakitva && <div className="notice">A fizetés megszakadt – semmit nem terheltünk. Bármikor újrapróbálhatod.</div>}
+      {sp.ertesites === 'ok' && <div className="notice ok">Köszönöm! Feliratkoztál – e-mailben szólok, amint elérhető a kurzus.</div>}
+      {sp.ertesites === 'email' && <div className="notice err">Kérlek, adj meg egy érvényes e-mail címet.</div>}
+      {sp.ertesites === 'hozzajarulas' && <div className="notice err">A feliratkozáshoz pipáld be a hozzájárulást.</div>}
+      {sp.ertesites === 'hiba' && <div className="notice err">Nem sikerült a feliratkozás, próbáld újra.</div>}
       <section className="card" style={{ background: toolColor(course.tool) }}>
         <div className="stack" style={{ '--gap': '16px', maxWidth: 780 } as React.CSSProperties}>
           <div className="row">
@@ -121,6 +128,8 @@ export default async function CoursePage({ params, searchParams }: Props) {
             enrolled={access.enrolled.has(course.id)}
             firstLessonHref={next ? `/kurzusok/${course.slug}/${next.id}` : isBundle && modules[0] ? `/kurzusok/${modules[0].slug}` : null}
             bundle={bundle && !access.enrolled.has(bundle.id) ? bundle : null}
+            userEmail={user?.email ?? null}
+            waitlisted={!!waitRow || sp.ertesites === 'ok'}
           />
         </aside>
       </div>

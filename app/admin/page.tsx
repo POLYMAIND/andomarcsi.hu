@@ -64,6 +64,7 @@ export default async function AdminPage() {
             <h1 className="h2">Áttekintés</h1>
           </div>
           <div className="row" style={{ '--gap': '8px' } as React.CSSProperties}>
+            <Link href="/admin/ertesitesek" className="btn light">Értesítési lista</Link>
             <Link href="/admin/elofizetok" className="btn light">Előfizetők</Link>
             <Link href="/admin/kurzusok/uj" className="btn">+ Új kurzus</Link>
           </div>

@@ -60,7 +60,9 @@ export async function POST(request: NextRequest) {
     const { data: rawCourse } = await supabase.from('courses').select('*').eq('id', courseId).eq('published', true).maybeSingle<Course>();
     const course = rawCourse ? withStart(rawCourse) : null;
     if (!course) return NextResponse.json({ error: 'Ismeretlen kurzus' }, { status: 404 });
-    // „Hamarosan” kurzus előre megvásárolható; aki már megvette, ne fizessen kétszer.
+    // „Hamarosan” kurzusra nincs előre fizetés – ott értesítést lehet kérni.
+    if (course.coming_soon) return NextResponse.redirect(new URL(`/kurzusok/${course.slug}#ertesites`, SITE_URL), 303);
+    // Aki már megvette, ne fizessen kétszer.
     const { data: owned } = await supabase.from('enrollments').select('id').eq('course_id', course.id).eq('user_id', user.id).maybeSingle();
     if (owned) return NextResponse.redirect(new URL(`/kurzusok/${course.slug}`, SITE_URL), 303);
     if (course.bundle_course_ids?.length) {

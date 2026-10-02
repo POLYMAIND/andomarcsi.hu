@@ -65,7 +65,7 @@ export function WorkshopList({ courses }: { courses: ListCourse[] }) {
                 <span style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 22, letterSpacing: '-.02em' }}>{formatHuf(c.price_huf)}</span>
               </div>
               <Link href={`/kurzusok/${c.slug}`} className="btn sm">
-                {c.coming_soon && (c.price_huf ?? 0) > 0 ? 'Előrendelem' : 'Részletek'}
+                {c.coming_soon ? 'Értesítést kérek' : 'Részletek'}
               </Link>
             </div>
           </article>

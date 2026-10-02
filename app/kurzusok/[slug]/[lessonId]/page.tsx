@@ -94,7 +94,7 @@ export default async function LessonPage({ params }: Props) {
         <aside className="stack" style={{ '--gap': '16px' } as React.CSSProperties}>
           {!hasAccess && (
             <div className="card">
-              <BuyBox course={course} loggedIn={!!user} hasAccess={false} enrolled={false} firstLessonHref={null} />
+              <BuyBox course={course} loggedIn={!!user} hasAccess={false} enrolled={access.enrolled.has(course.id)} firstLessonHref={null} userEmail={user?.email ?? null} />
             </div>
           )}
           <div className="card" style={{ padding: 16 }}>

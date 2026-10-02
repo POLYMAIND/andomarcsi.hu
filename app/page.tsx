@@ -177,7 +177,7 @@ export default async function Home() {
         <section id="idopontok" className="card amber stack" style={{ '--gap': '32px' } as React.CSSProperties}>
           <div className="stack" style={{ '--gap': '10px' } as React.CSSProperties}>
             <h2 className="h2">Közelgő indulások</h2>
-            <p className="lead" style={{ color: 'var(--ink)' }}>Előre felvett online kurzusok – már most előrendelheted, és az induláskor azonnal hozzáférsz.</p>
+            <p className="lead" style={{ color: 'var(--ink)' }}>Előre felvett online kurzusok – kérj értesítést, és szólok, amint elérhetők.</p>
           </div>
           <div className="stack" style={{ '--gap': '10px' } as React.CSSProperties}>
             {launches.map((c) => (
@@ -190,7 +190,7 @@ export default async function Home() {
                   <span style={{ fontWeight: 700, fontSize: 18 }}>{c.title}</span>
                   <span style={{ fontSize: 14, color: 'var(--ink-3)' }}>Online videókurzus · {formatHuf(c.price_huf)}</span>
                 </div>
-                <Link href={`/kurzusok/${c.slug}`} className="btn sm">{(c.price_huf ?? 0) > 0 ? 'Előrendelem' : 'Részletek'}</Link>
+                <Link href={`/kurzusok/${c.slug}`} className="btn sm">Értesítést kérek</Link>
               </div>
             ))}
           </div>
