@@ -7,6 +7,7 @@ export const metadata: Metadata = { title: 'Belépés' };
 const ERRORS: Record<string, string> = {
   email: 'Kérlek, adj meg egy érvényes e-mail címet.',
   kuldes: 'Nem sikerült elküldeni a belépő linket. Próbáld újra pár perc múlva.',
+  limit: 'Túl sok belépő linket kértünk rövid idő alatt. Várj egy kicsit (kb. fél–egy órát), aztán próbáld újra – vagy használd a legutóbb kapott linket.',
   '1': 'A belépő link lejárt vagy már felhasználtad. Kérj egy újat!',
 };
 

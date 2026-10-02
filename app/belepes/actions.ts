@@ -20,6 +20,9 @@ export async function sendMagicLink(formData: FormData) {
       data: name ? { full_name: name } : undefined,
     },
   });
-  if (error) redirect(`/belepes?hiba=kuldes&next=${encodeURIComponent(next)}`);
+  if (error) {
+    const code = error.status === 429 || error.code === 'over_email_send_rate_limit' ? 'limit' : 'kuldes';
+    redirect(`/belepes?hiba=${code}&next=${encodeURIComponent(next)}`);
+  }
   redirect(`/belepes?elkuldve=${encodeURIComponent(email)}`);
 }
