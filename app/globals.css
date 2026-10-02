@@ -199,3 +199,10 @@ a.lesson-item:hover { background: #ebe7e1; color: var(--ink); }
   .legal .table th { white-space: normal; }
   .legal .table th, .legal .table td { padding: 8px 6px; }
 }
+
+/* Hírlevél (lábléc) */
+.newsletter { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: 20px 32px; align-items: center; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
+.newsletter-field { display: flex; gap: 8px; background: var(--paper); border-radius: 999px; padding: 6px; }
+.newsletter-field input[type=email] { flex: 1; min-width: 0; border: 0; background: transparent; padding: 0 16px; font: 400 16px 'DM Sans', sans-serif; outline: none; }
+.tips-btn { display: inline-flex; align-items: center; gap: 6px; }
+.newsletter { scroll-margin-top: 24px; }

@@ -1,7 +1,20 @@
 import Link from 'next/link';
 import { getCurrentUser, supabaseConfigured } from '@/lib/auth';
+import { NewsletterForm } from '@/components/NewsletterForm';
 import { COMPANY } from '@/lib/company';
 import { SUBSCRIPTION } from '@/lib/config';
+
+function TipsButton() {
+  return (
+    <a href="#hirlevel" className="btn light sm tips-btn" title="Ingyenes tippek – hírlevél">
+      <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 2a7 7 0 0 0-4 12.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26A7 7 0 0 0 12 2Z" fill="#FFC21A" stroke="#C98A00" strokeWidth="1.2" />
+        <path d="M9.5 20h5M10.5 22h3" stroke="#6b5a2e" strokeWidth="1.6" strokeLinecap="round" />
+      </svg>
+      Ingyenes tippek
+    </a>
+  );
+}
 
 export async function SiteNav({ bare = false }: { bare?: boolean }) {
   const { user, profile } = supabaseConfigured() ? await getCurrentUser() : { user: null, profile: null };
@@ -18,6 +31,7 @@ export async function SiteNav({ bare = false }: { bare?: boolean }) {
       </div>
       {user ? (
         <div className="row" style={{ '--gap': '8px' } as React.CSSProperties}>
+          <TipsButton />
           <Link href="/dashboard" className="btn outline sm">
             Saját tanulás
           </Link>
@@ -26,9 +40,12 @@ export async function SiteNav({ bare = false }: { bare?: boolean }) {
           </form>
         </div>
       ) : (
-        <Link href="/belepes" className="btn outline sm">
-          Belépés
-        </Link>
+        <div className="row" style={{ '--gap': '8px' } as React.CSSProperties}>
+          <TipsButton />
+          <Link href="/belepes" className="btn outline sm">
+            Belépés
+          </Link>
+        </div>
       )}
     </nav>
   );
@@ -37,6 +54,7 @@ export async function SiteNav({ bare = false }: { bare?: boolean }) {
 export function SiteFooter() {
   return (
     <footer className="site-footer">
+      <NewsletterForm />
       <div className="row between" style={{ alignItems: 'flex-start', '--gap': '24px' } as React.CSSProperties}>
         <div className="stack" style={{ '--gap': '6px' } as React.CSSProperties}>
           <span className="logo" style={{ fontSize: 20 }}>

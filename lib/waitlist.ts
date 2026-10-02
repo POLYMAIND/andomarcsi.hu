@@ -1,14 +1,16 @@
 // „Értesítést kérek” feliratkozások továbbítása külső rendszerbe (PolyOS).
 // POLYOS_WEBHOOK_URL: ide küldünk minden új feliratkozást JSON-ben (POST).
 // POLYOS_WEBHOOK_SECRET: opcionális, X-Webhook-Secret fejlécben megy át.
-export type WaitlistEvent = {
-  event: 'waitlist.signup';
-  email: string;
-  name: string | null;
-  course: { id: string; slug: string; title: string };
-  consent_at: string;
-  source: string;
-};
+export type WaitlistEvent =
+  | {
+      event: 'waitlist.signup';
+      email: string;
+      name: string | null;
+      course: { id: string; slug: string; title: string };
+      consent_at: string;
+      source: string;
+    }
+  | { event: 'newsletter.signup'; email: string; name: string | null; consent_at: string; source: string };
 
 export async function forwardToPolyos(payload: WaitlistEvent) {
   const url = process.env.POLYOS_WEBHOOK_URL;

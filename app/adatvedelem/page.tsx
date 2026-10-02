@@ -34,6 +34,13 @@ const ACTIVITIES = [
     retention: 'a hozzájárulás visszavonásáig (leiratkozásig)',
   },
   {
+    name: 'Hírlevél',
+    data: 'e-mail cím, a hozzájárulás időpontja',
+    purpose: 'havi hírlevél, hasznos tippek és ajánlatok küldése; az adatokat ügyfélkezelő rendszerünkben (PolyOS) is tároljuk',
+    basis: 'hozzájárulás (GDPR 6. cikk (1) a)), amely bármikor visszavonható',
+    retention: 'a hozzájárulás visszavonásáig (leiratkozásig)',
+  },
+  {
     name: 'AI segítő (csevegő)',
     data: 'a csevegőbe írt kérdések és a megnyitott kurzus/lecke címe; a felhasználó azonosítója a napi keret számolásához',
     purpose: 'válasz a tanulással kapcsolatos kérdésekre',
@@ -103,7 +110,7 @@ export default function PrivacyPage() {
             ))}
             <tr>
               <td><strong>PolyOS</strong></td>
-              <td>Ügyfélkezelő rendszer – az „Értesítést kérek” feliratkozók kezelése</td>
+              <td>Ügyfélkezelő rendszer – a hírlevél- és „Értesítést kérek” feliratkozók kezelése</td>
               <td><Fill v="KITÖLTENDŐ: a PolyOS üzemeltetőjének neve és adatvédelmi tájékoztatója" /></td>
             </tr>
           </tbody>
