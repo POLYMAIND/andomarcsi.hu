@@ -61,7 +61,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
           {list.length === 0 && <p className="muted">A leckék hamarosan érkeznek.</p>}
           <ol className="lesson-list">
             {list.map((l, i) => {
-              const open = hasAccess || l.is_preview;
+              const open = hasAccess || (l.is_preview && !course.coming_soon);
               const isDone = access.completed.has(l.id);
               return (
                 <li key={l.id}>
@@ -69,7 +69,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
                     <span className={`lesson-num${isDone ? ' done' : ''}`}>{isDone ? '✓' : i + 1}</span>
                     <span className="stack" style={{ '--gap': '2px' } as React.CSSProperties}>
                       <strong>{l.title}</strong>
-                      {l.is_preview && !hasAccess && <span className="muted" style={{ fontSize: 13 }}>Ingyenes előzetes</span>}
+                      {l.is_preview && !hasAccess && !course.coming_soon && <span className="muted" style={{ fontSize: 13 }}>Ingyenes előzetes</span>}
                     </span>
                     <span className="muted mono" style={{ fontSize: 12 }}>{open ? (l.duration_min ? `${l.duration_min} p` : '') : '🔒'}</span>
                   </Link>

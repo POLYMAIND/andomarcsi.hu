@@ -47,5 +47,7 @@ export function courseAccessible(
   access: { enrolled: Set<string>; subscribed: boolean },
   isAdmin = false,
 ) {
-  return isAdmin || course.price_huf === 0 || access.enrolled.has(course.id) || (access.subscribed && course.included_in_subscription);
+  if (isAdmin) return true;
+  if (course.coming_soon) return false;
+  return course.price_huf === 0 || access.enrolled.has(course.id) || (access.subscribed && course.included_in_subscription);
 }

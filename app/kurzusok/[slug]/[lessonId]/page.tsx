@@ -33,7 +33,7 @@ export default async function LessonPage({ params }: Props) {
   if (idx < 0) notFound();
   const lesson = list[idx];
   const hasAccess = !!user && courseAccessible(course, access, profile?.is_admin);
-  const canWatch = hasAccess || lesson.is_preview;
+  const canWatch = hasAccess || (lesson.is_preview && !course.coming_soon);
   const isDone = access.completed.has(lesson.id);
   const prev = list[idx - 1];
   const next = list[idx + 1];
@@ -57,8 +57,8 @@ export default async function LessonPage({ params }: Props) {
               <div className="video-locked">
                 <div className="stack" style={{ '--gap': '14px', alignItems: 'center', maxWidth: 420 } as React.CSSProperties}>
                   <span style={{ fontSize: 40 }}>{canWatch ? '⏳' : '🔒'}</span>
-                  <strong style={{ fontSize: 20 }}>{canWatch ? 'A videó hamarosan felkerül.' : 'Ez a lecke a teljes kurzus része.'}</strong>
-                  {!canWatch && <span style={{ color: '#cfcad4' }}>Vásárold meg a kurzust, vagy fizess elő, és azonnal nézheted.</span>}
+                  <strong style={{ fontSize: 20 }}>{canWatch ? 'A videó hamarosan felkerül.' : course.coming_soon ? 'Ez a kurzus hamarosan indul.' : 'Ez a lecke a teljes kurzus része.'}</strong>
+                  {!canWatch && !course.coming_soon && <span style={{ color: '#cfcad4' }}>Vásárold meg a kurzust, vagy fizess elő, és azonnal nézheted.</span>}
                 </div>
               </div>
             )}
@@ -98,7 +98,7 @@ export default async function LessonPage({ params }: Props) {
           <div className="card" style={{ padding: 16 }}>
             <ol className="lesson-list">
               {list.map((l, i) => {
-                const open = hasAccess || l.is_preview;
+                const open = hasAccess || (l.is_preview && !course.coming_soon);
                 const d = access.completed.has(l.id);
                 return (
                   <li key={l.id}>

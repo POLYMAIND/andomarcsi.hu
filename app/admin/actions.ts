@@ -26,7 +26,9 @@ export async function saveCourse(formData: FormData) {
     level: str(formData, 'level') || 'Kezdő',
     price_huf: Math.max(0, int(formData, 'price_huf') ?? 0),
     sort_order: int(formData, 'sort_order') ?? 0,
-    published: formData.get('published') === 'on',
+    // Állapot: vázlat (rejtett) · hamarosan (látszik, de nem vásárolható) · elérhető
+    published: str(formData, 'status') !== 'draft',
+    coming_soon: str(formData, 'status') === 'soon',
     included_in_subscription: formData.get('included_in_subscription') === 'on',
   };
   const res = id

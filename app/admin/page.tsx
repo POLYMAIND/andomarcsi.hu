@@ -4,7 +4,7 @@ import { SiteNav } from '@/components/SiteNav';
 import { requireAdmin } from '@/lib/auth';
 import { SUBSCRIPTION } from '@/lib/config';
 import { formatDate, formatHuf, toolColor } from '@/lib/format';
-import type { Course, Lesson } from '@/lib/types';
+import { courseStatus, type Course, type Lesson } from '@/lib/types';
 
 export const metadata: Metadata = { title: 'Admin' };
 
@@ -89,7 +89,7 @@ export default async function AdminPage() {
                     </td>
                     <td>{allLessons.filter((l) => l.course_id === c.id).length}</td>
                     <td className="mono">{formatHuf(c.price_huf)}</td>
-                    <td>{c.published ? <span className="pill ok">Publikus</span> : <span className="pill warn">Vázlat</span>}</td>
+                    <td>{{ live: <span className="pill ok">Elérhető</span>, soon: <span className="pill new">Hamarosan</span>, draft: <span className="pill warn">Vázlat</span> }[courseStatus(c)]}</td>
                   </tr>
                 ))}
               </tbody>

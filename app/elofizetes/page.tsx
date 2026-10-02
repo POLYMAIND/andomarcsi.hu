@@ -64,7 +64,7 @@ export default async function SubscriptionPage({ searchParams }: { searchParams:
             <ul>
               {paidCourses.map((c) => (
                 <li key={c.id}>
-                  <Link href={`/kurzusok/${c.slug}`}>{c.title}</Link> – <span className="mono">{formatHuf(c.price_huf)}</span>
+                  <Link href={`/kurzusok/${c.slug}`}>{c.title}</Link> – <span className="mono">{c.coming_soon ? 'hamarosan' : formatHuf(c.price_huf)}</span>
                 </li>
               ))}
               <li>Ingyenes kurzusok mindenkinek</li>

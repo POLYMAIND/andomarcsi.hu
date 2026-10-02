@@ -59,6 +59,7 @@ export async function POST(request: NextRequest) {
   } else {
     const { data: course } = await supabase.from('courses').select('*').eq('id', courseId).eq('published', true).maybeSingle<Course>();
     if (!course) return NextResponse.json({ error: 'Ismeretlen kurzus' }, { status: 404 });
+    if (course.coming_soon) return NextResponse.redirect(new URL(`/kurzusok/${course.slug}`, SITE_URL), 303);
     if (course.price_huf === 0) return NextResponse.redirect(new URL(`/kurzusok/${course.slug}`, SITE_URL), 303);
     const { data: access } = await supabase.rpc('has_course_access', { cid: course.id });
     if (access) return NextResponse.redirect(new URL(`/kurzusok/${course.slug}`, SITE_URL), 303);

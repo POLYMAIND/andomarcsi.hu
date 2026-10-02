@@ -138,7 +138,7 @@ export default async function Home() {
                   {catalog!.stats(c.id).count} lecke{c.subtitle ? ` · ${c.subtitle}` : ''}
                 </span>
               </span>
-              <span className="mono" style={{ fontSize: 13, color: 'var(--amber)' }}>{formatHuf(c.price_huf)}</span>
+              <span className="mono" style={{ fontSize: 13, color: 'var(--amber)' }}>{c.coming_soon ? 'Hamarosan' : formatHuf(c.price_huf)}</span>
             </Link>
           ))}
         </div>

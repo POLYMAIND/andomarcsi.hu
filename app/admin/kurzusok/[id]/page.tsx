@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { SiteNav } from '@/components/SiteNav';
 import { requireAdmin } from '@/lib/auth';
 import { formatDate, formatHuf, isoToBudapestLocal, TOOL_COLORS } from '@/lib/format';
-import type { Course, Lesson } from '@/lib/types';
+import { courseStatus, type Course, type Lesson } from '@/lib/types';
 import { youTubeThumb } from '@/lib/youtube';
 import { deleteCourse, deleteLesson, grantAccess, saveCourse, saveLesson } from '../../actions';
 
@@ -79,7 +79,14 @@ export default async function EditCoursePage({ params, searchParams }: Props) {
           </div>
           <label className="field">Leírás<textarea className="textarea" name="description" defaultValue={course?.description} /></label>
           <div className="row" style={{ '--gap': '24px' } as React.CSSProperties}>
-            <label className="check"><input type="checkbox" name="published" defaultChecked={course?.published ?? false} /> Publikus</label>
+            <label className="field" style={{ minWidth: 260 }}>
+              Állapot
+              <select className="select" name="status" defaultValue={course ? courseStatus(course) : 'draft'}>
+                <option value="draft">Vázlat – rejtett, csak az admin látja</option>
+                <option value="soon">Hamarosan – látszik, de még nem vásárolható</option>
+                <option value="live">Elérhető – vásárolható, nézhető</option>
+              </select>
+            </label>
             <label className="check"><input type="checkbox" name="included_in_subscription" defaultChecked={course?.included_in_subscription ?? true} /> Benne van az előfizetésben</label>
           </div>
           <div className="row between">

@@ -11,6 +11,21 @@ export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref 
   enrolled: boolean;
   firstLessonHref: string | null;
 }) {
+  if (course.coming_soon && !hasAccess) {
+    return (
+      <div className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
+        <span className="pill new" style={{ alignSelf: 'flex-start' }}>Hamarosan</span>
+        <strong style={{ fontSize: 20 }}>Ez a kurzus hamarosan indul.</strong>
+        <span className="muted" style={{ fontSize: 14 }}>
+          {course.price_huf > 0 ? `Várható ár: ${formatHuf(course.price_huf)}. ` : 'Ingyenes lesz. '}
+          Írj, és szólok, amint elérhető!
+        </span>
+        <a className="btn light block" href={`mailto:hello@andormarcsi.hu?subject=${encodeURIComponent('Értesítést kérek: ' + course.title)}`}>
+          Szólj, ha indul
+        </a>
+      </div>
+    );
+  }
   if (hasAccess) {
     return (
       <div className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>

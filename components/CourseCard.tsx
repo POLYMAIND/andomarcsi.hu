@@ -22,7 +22,7 @@ export function CourseCard({
           <span className="tool">{course.tool}</span>
           <span className="tag">{course.level}</span>
         </div>
-        {newCount > 0 && <span className="pill new">+{newCount} új</span>}
+        {course.coming_soon ? <span className="pill new">Hamarosan</span> : newCount > 0 && <span className="pill new">+{newCount} új</span>}
       </div>
       <div className="body">
         <h3 className="h3">{course.title}</h3>
@@ -41,7 +41,7 @@ export function CourseCard({
           <span className="muted" style={{ fontSize: 14 }}>
             {lessonCount} lecke
           </span>
-          <span className="price">{hasAccess ? 'Hozzáférsz' : formatHuf(course.price_huf)}</span>
+          <span className="price">{course.coming_soon ? 'Hamarosan' : hasAccess ? 'Hozzáférsz' : formatHuf(course.price_huf)}</span>
         </div>
       </div>
     </Link>
