@@ -39,16 +39,16 @@ export function WorkshopList() {
       </div>
       <div className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
         {list.map((w) => (
-          <article key={w.title} style={{ display: 'flex', flexWrap: 'wrap', background: 'var(--paper)', borderRadius: 24, overflow: 'hidden' }}>
-            <div style={{ background: TOOL_COLORS[w.tool], padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 16, borderRight: '2px dashed var(--ink)', flex: '1 1 180px', maxWidth: 240 }}>
+          <article key={w.title} className="ws-card">
+            <div className="ws-tool" style={{ background: TOOL_COLORS[w.tool] }}>
               <span style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 26, letterSpacing: '-.03em' }}>{w.tool}</span>
               <span className="tag">{w.level}</span>
             </div>
-            <div style={{ flex: '3 1 320px', padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: 8, justifyContent: 'center' }}>
+            <div className="ws-body">
               <h3 className="h3">{w.title}</h3>
               <p style={{ margin: 0, fontSize: 15, lineHeight: 1.55, color: 'var(--ink-2)' }}>{w.desc}</p>
             </div>
-            <div style={{ padding: '24px 28px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start', gap: 12, borderLeft: '1px solid var(--line)', flex: '1 0 180px' }}>
+            <div className="ws-meta">
               <span style={{ fontSize: 14, color: 'var(--ink-3)' }}>{w.meta}</span>
               <a href="#idopontok" className="btn sm">Jelentkezem</a>
             </div>
