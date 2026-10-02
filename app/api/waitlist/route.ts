@@ -4,7 +4,7 @@ import { SITE_URL } from '@/lib/config';
 import { createAdminClient } from '@/lib/supabase/server';
 import { withStart, type Course } from '@/lib/types';
 import { forwardToPolyos } from '@/lib/waitlist';
-import { HONEYPOT_FIELD, honeypotTripped } from '@/lib/honeypot';
+import { FORM_TS_FIELD, tooFastSince } from '@/lib/honeypot';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
   const email = String(form.get('email') ?? '').trim().toLowerCase();
   const name = String(form.get('name') ?? '').trim().slice(0, 120) || null;
   const consent = form.get('consent') === 'on';
-  const honeypot = form.get(HONEYPOT_FIELD); // botoknak (lásd lib/honeypot.ts)
+  const renderedAt = form.get(FORM_TS_FIELD); // botvédelem (lásd lib/honeypot.ts)
 
   const admin = createAdminClient();
   const { data: raw } = await admin.from('courses').select('*').eq('id', courseId).eq('published', true).maybeSingle<Course>();
@@ -23,9 +23,9 @@ export async function POST(request: NextRequest) {
   const course = withStart(raw);
   const back = (q: string) => NextResponse.redirect(new URL(`/kurzusok/${course.slug}?${q}#ertesites`, SITE_URL), 303);
 
-  // A csapda NEM állít sikert: egy tévesen megfogott valódi látogató így látja, hogy nem ment át.
-  if (honeypotTripped(honeypot)) {
-    console.warn('[botcsapda] waitlist', course.slug);
+  // A botvédelem NEM állít sikert: egy tévesen megfogott valódi látogató így látja, hogy nem ment át.
+  if (tooFastSince(renderedAt)) {
+    console.warn('[botvedelem] waitlist', course.slug, renderedAt ? 'tul_gyors' : 'nincs_idobelyeg');
     return back('ertesites=hiba');
   }
   if (!EMAIL.test(email) || email.length > 200) return back('ertesites=email');

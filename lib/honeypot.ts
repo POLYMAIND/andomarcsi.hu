@@ -1,30 +1,30 @@
-// Botcsapda (honeypot) a nyilvános feliratkozó-űrlapokhoz.
+// Botvédelem a nyilvános feliratkozó-űrlapokhoz: IDŐALAPÚ, nem rejtett szövegmező.
 //
-// MIÉRT VAN KÜLÖN: a korábbi csapda egy `website` nevű rejtett mező volt. Ezt a nevet a böngészők
-// automatikus kitöltése és a jelszókezelők felismerik és kitöltik — és ilyenkor a VALÓDI látogató
-// feliratkozását a szerver csendben eldobta, miközben „✓ Feliratkoztál" üzenetet mutatott.
-// 2026-10-02-én így egyetlen „Értesítést kérek" feliratkozás sem került be a course_waitlist táblába.
+// MIÉRT NEM REJTETT SZÖVEGMEZŐ (a klasszikus „honeypot"): 2026-10-02-én kétszer is kiderült, hogy
+// a böngésző automatikus kitöltése / jelszókezelő kitölti — előbb a `website` nevűt, aztán egy
+// semmire nem hasonlító nevűt is. Ilyenkor a VALÓDI látogató feliratkozását dobtuk el. Egy védelem,
+// ami valódi embereket fog meg, rosszabb, mint ha nem volna.
 //
-// A javítás két része:
-//  1. A mező neve semmilyen kitöltési mintára nem hasonlít, és a jelszókezelők kihagyó jelzőit is megkapja.
-//  2. Ha a csapda mégis bezár, a szerver NEM állítja, hogy sikerült: naplóz, és hibát ad vissza,
-//     hogy egy tévesen megfogott valódi látogató lássa, és újrapróbálhassa.
-export const HONEYPOT_FIELD = 'hp_x7q_leave_empty';
+// HOGYAN MŰKÖDIK: az űrlap egy rejtett (type="hidden") mezőben hozza, mennyi ideig volt nyitva,
+// mielőtt elküldték. A type="hidden" mezőt a böngésző nem tölti ki. Ami ennél gyorsabban jön
+// (vagy a mező nélkül — a közvetlenül POST-oló botok), az bot.
+//   • kurzusoldal (szerver-komponens): a szerver a renderelés idejét teszi bele (FORM_TS_FIELD),
+//     a szerver a saját órájával számol → nincs óraeltérés;
+//   • lábléc (kliens-komponens): a böngésző a mount óta eltelt időt küldi (FORM_ELAPSED_FIELD).
+export const FORM_TS_FIELD = 'form_ts';
+export const FORM_ELAPSED_FIELD = 'form_elapsed_ms';
+export const MIN_FILL_MS = 2000;
 
-// A rejtett mező attribútumai (React-propként terítve a <input>-ra).
-export const honeypotInputProps = {
-  type: 'text',
-  name: HONEYPOT_FIELD,
-  tabIndex: -1,
-  autoComplete: 'off',
-  'aria-hidden': true,
-  'data-1p-ignore': 'true',
-  'data-lpignore': 'true',
-  'data-bwignore': 'true',
-  'data-form-type': 'other',
-  style: { position: 'absolute', left: -9999, width: 1, height: 1, opacity: 0 },
-} as const;
+// Szerver-renderelt űrlap: a renderelés időbélyegéből számolunk.
+export function tooFastSince(renderedAt: unknown, now: number = Date.now()): boolean {
+  const t = Number(renderedAt);
+  if (!Number.isFinite(t) || t <= 0) return true; // hiányzik → közvetlen POST
+  return now - t < MIN_FILL_MS;
+}
 
-export function honeypotTripped(value: unknown): boolean {
-  return typeof value === 'string' && value.trim() !== '';
+// Kliens-űrlap: a böngészőben mért eltelt időből.
+export function tooFastElapsed(elapsedMs: unknown): boolean {
+  const ms = Number(elapsedMs);
+  if (!Number.isFinite(ms) || ms < 0) return true;
+  return ms < MIN_FILL_MS;
 }
