@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { BuyBox } from '@/components/BuyBox';
+import { ChatWidget } from '@/components/ChatWidget';
 import { SiteFooter, SiteNav } from '@/components/SiteNav';
 import { getCurrentUser } from '@/lib/auth';
 import { courseAccessible, getUserAccess } from '@/lib/data';
@@ -89,6 +90,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
           />
         </aside>
       </div>
+      <ChatWidget courseSlug={course.slug} loggedIn={!!user} />
       <SiteFooter />
     </div>
   );

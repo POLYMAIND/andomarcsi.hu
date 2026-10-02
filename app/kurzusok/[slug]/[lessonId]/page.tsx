@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { BuyBox } from '@/components/BuyBox';
+import { ChatWidget } from '@/components/ChatWidget';
 import { SiteNav } from '@/components/SiteNav';
 import { getCurrentUser } from '@/lib/auth';
 import { courseAccessible, getUserAccess } from '@/lib/data';
@@ -115,6 +116,7 @@ export default async function LessonPage({ params }: Props) {
           </div>
         </aside>
       </div>
+      <ChatWidget courseSlug={course.slug} lessonId={lesson.id} loggedIn={!!user} />
     </div>
   );
 }

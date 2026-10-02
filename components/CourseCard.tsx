@@ -43,7 +43,7 @@ export function CourseCard({
           <span className="muted" style={{ fontSize: 14 }}>
             {lessonCount} lecke
           </span>
-          <span className="price">{hasAccess ? 'Hozzáférsz' : owned ? 'Megvetted' : formatHuf(course.price_huf)}</span>
+          <span className="price">{owned ? 'Megvetted' : hasAccess ? 'Hozzáférsz' : formatHuf(course.price_huf)}</span>
         </div>
       </div>
     </Link>

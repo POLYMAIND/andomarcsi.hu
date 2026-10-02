@@ -80,7 +80,7 @@ h1, h2, h3 { font-family: var(--display); font-weight: 700; margin: 0; letter-sp
 .tag { font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
 
 /* Kurzuskártya */
-.course-card { display: flex; flex-direction: column; background: var(--paper); border-radius: 24px; overflow: hidden; color: var(--ink); height: 100%; }
+.course-card { display: flex; flex-direction: column; background: #fff; border-radius: 24px; overflow: hidden; color: var(--ink); height: 100%; }
 .course-card:hover { color: var(--ink); transform: translateY(-2px); box-shadow: 0 20px 40px -24px rgba(20, 18, 22, .35); }
 .course-card { transition: transform .15s, box-shadow .15s; }
 .course-card .head { padding: 22px 24px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; border-bottom: 2px dashed var(--ink); min-height: 96px; }
@@ -160,3 +160,22 @@ a.lesson-item:hover { background: #ebe7e1; color: var(--ink); }
   .ws-body { padding: 20px 24px 8px; }
   .ws-meta { flex: none; flex-direction: row; justify-content: space-between; align-items: center; border-left: 0; padding: 12px 24px 22px; }
 }
+
+/* AI segítő */
+.chat-fab { position: fixed; right: 20px; bottom: 20px; z-index: 50; display: inline-flex; align-items: center; gap: 8px; padding: 14px 20px; border: 0; border-radius: 999px; background: var(--purple); color: #fff; font: 700 15px 'DM Sans', sans-serif; cursor: pointer; box-shadow: 0 18px 40px -16px rgba(20, 18, 22, .55); }
+.chat-fab:hover { opacity: .92; }
+.chat-panel { position: fixed; right: 20px; bottom: 20px; z-index: 50; width: min(400px, calc(100vw - 32px)); height: min(600px, calc(100vh - 40px)); display: flex; flex-direction: column; background: #fff; border-radius: 24px; box-shadow: 0 30px 70px -20px rgba(20, 18, 22, .45); overflow: hidden; }
+.chat-head { display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; background: var(--ink); color: #fff; }
+.chat-close { background: transparent; border: 0; color: #fff; font-size: 26px; line-height: 1; cursor: pointer; padding: 0 4px; }
+.chat-list { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; background: var(--paper); }
+.chat-msg { max-width: 88%; padding: 10px 14px; border-radius: 16px; font-size: 15px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; }
+.chat-msg.assistant { align-self: flex-start; background: #fff; }
+.chat-msg.user { align-self: flex-end; background: var(--purple); color: #fff; }
+.chat-typing { opacity: .6; font-style: italic; }
+.chat-suggest { align-self: flex-start; text-align: left; background: #fff; border: 1.5px solid #d9d5dd; border-radius: 14px; padding: 8px 12px; font: 500 14px 'DM Sans', sans-serif; cursor: pointer; color: var(--ink); }
+.chat-suggest:hover { border-color: var(--purple); }
+.chat-form { display: flex; gap: 8px; align-items: flex-end; padding: 12px; border-top: 1px solid var(--line); }
+.chat-input { flex: 1; resize: none; border: 1.5px solid #d9d5dd; border-radius: 14px; padding: 10px 12px; font: 400 15px 'DM Sans', sans-serif; }
+.chat-input:focus { outline: 2px solid var(--purple); outline-offset: 1px; border-color: transparent; }
+.chat-note { margin: 0; padding: 0 14px 12px; font-size: 11px; color: var(--muted); }
+@media (max-width: 600px) { .chat-panel { right: 0; bottom: 0; width: 100vw; height: 100dvh; border-radius: 0; } .chat-fab { right: 12px; bottom: 12px; } }
