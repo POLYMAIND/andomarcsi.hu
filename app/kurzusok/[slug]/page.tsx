@@ -130,6 +130,12 @@ export default async function CoursePage({ params, searchParams }: Props) {
             bundle={bundle && !access.enrolled.has(bundle.id) ? bundle : null}
             userEmail={user?.email ?? null}
             waitlisted={!!waitRow || sp.ertesites === 'ok'}
+            waitlistError={
+              sp.ertesites === 'email' ? 'Kérlek, adj meg egy érvényes e-mail címet.'
+              : sp.ertesites === 'hozzajarulas' ? 'A feliratkozáshoz pipáld be a hozzájárulást.'
+              : sp.ertesites === 'hiba' ? 'Nem sikerült a feliratkozás, próbáld újra.'
+              : null
+            }
           />
         </aside>
       </div>
