@@ -3,6 +3,7 @@ import { SUBSCRIPTION } from '@/lib/config';
 import { formatHuf } from '@/lib/format';
 import { soonLabel, type Course } from '@/lib/types';
 import { PurchaseConsents } from '@/components/PurchaseConsents';
+import { honeypotInputProps } from '@/lib/honeypot';
 
 // Vásárlás / beiratkozás doboz egy kurzushoz.
 export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref, bundle = null, userEmail = null, waitlisted = false }: {
@@ -42,7 +43,7 @@ export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref,
             <strong style={{ fontSize: 18 }}>Kérj értesítést, amint elérhető!</strong>
             <span className="muted" style={{ fontSize: 14 }}>Nem kell most fizetned – e-mailben szólok, amikor indul a kurzus.</span>
             <input type="hidden" name="course_id" value={course.id} />
-            <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden style={{ position: 'absolute', left: -9999, width: 1, height: 1, opacity: 0 }} />
+            <input {...honeypotInputProps} />
             <input className="input" name="name" placeholder="Neved (nem kötelező)" autoComplete="name" />
             <input className="input" name="email" type="email" required placeholder="E-mail címed" defaultValue={userEmail ?? ''} autoComplete="email" />
             <label className="check" style={{ alignItems: 'flex-start', fontSize: 13, color: 'var(--ink-3)' }}>

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
+import { HONEYPOT_FIELD, honeypotInputProps } from '@/lib/honeypot';
 
 // Lábléc: „Havonta egy hasznos tipp, spam nélkül.”
 export function NewsletterForm() {
@@ -23,12 +24,12 @@ export function NewsletterForm() {
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const website = (new FormData(e.currentTarget).get('website') as string) ?? '';
+    const hp = (new FormData(e.currentTarget).get(HONEYPOT_FIELD) as string) ?? '';
     setState('busy');
     const res = await fetch('/api/newsletter', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, consent, website }),
+      body: JSON.stringify({ email, consent, [HONEYPOT_FIELD]: hp }),
     }).catch(() => null);
     const data = res ? await res.json().catch(() => ({})) : {};
     if (res?.ok) {
@@ -47,7 +48,7 @@ export function NewsletterForm() {
       ) : (
         <form onSubmit={submit} className="stack" style={{ '--gap': '10px' } as React.CSSProperties}>
           <div className="newsletter-field">
-            <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden style={{ position: 'absolute', left: -9999, width: 1, height: 1, opacity: 0 }} />
+            <input {...honeypotInputProps} />
             <input
               ref={inputRef}
               type="email"
