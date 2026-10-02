@@ -24,12 +24,13 @@ export async function saveCourse(formData: FormData) {
     description: str(formData, 'description'),
     tool: str(formData, 'tool') || 'Canva',
     level: str(formData, 'level') || 'Kezdő',
-    price_huf: Math.max(0, int(formData, 'price_huf') ?? 0),
+    price_huf: int(formData, 'price_huf') === null ? null : Math.max(0, int(formData, 'price_huf')!),
     sort_order: int(formData, 'sort_order') ?? 0,
     // Állapot: vázlat (rejtett) · hamarosan (látszik, de nem vásárolható) · elérhető
     published: str(formData, 'status') !== 'draft',
     coming_soon: str(formData, 'status') === 'soon',
-    included_in_subscription: formData.get('included_in_subscription') === 'on',
+    // a csak tagsággal elérhető kurzus mindig az előfizetés része
+    included_in_subscription: formData.get('included_in_subscription') === 'on' || int(formData, 'price_huf') === null,
   };
   const res = id
     ? await supabase.from('courses').update(row).eq('id', id).select('id').single()

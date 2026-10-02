@@ -6,7 +6,7 @@ export type Course = {
   description: string;
   tool: string;
   level: string;
-  price_huf: number;
+  price_huf: number | null; // null = csak tagsággal érhető el, külön nem vásárolható
   included_in_subscription: boolean;
   published: boolean;
   coming_soon: boolean;

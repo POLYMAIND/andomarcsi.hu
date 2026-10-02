@@ -74,7 +74,10 @@ export default async function EditCoursePage({ params, searchParams }: Props) {
               Szint
               <select className="select" name="level" defaultValue={course?.level ?? 'Kezdő'}>{LEVELS.map((l) => <option key={l}>{l}</option>)}</select>
             </label>
-            <label className="field">Ár (Ft, 0 = ingyenes)<input className="input" name="price_huf" type="number" min={0} step={10} defaultValue={course?.price_huf ?? 0} /></label>
+            <label className="field">
+              Ár (Ft) – 0 = ingyenes, üres = csak tagsággal
+              <input className="input" name="price_huf" type="number" min={0} step={10} placeholder="csak tagsággal" defaultValue={course ? (course.price_huf ?? '') : ''} />
+            </label>
             <label className="field">Sorrend<input className="input" name="sort_order" type="number" defaultValue={course?.sort_order ?? 0} /></label>
           </div>
           <label className="field">Leírás<textarea className="textarea" name="description" defaultValue={course?.description} /></label>

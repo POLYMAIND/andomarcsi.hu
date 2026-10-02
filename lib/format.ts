@@ -1,4 +1,5 @@
-export function formatHuf(amount: number): string {
+export function formatHuf(amount: number | null): string {
+  if (amount === null) return 'Tagsággal';
   if (amount === 0) return 'Ingyenes';
   return `${String(Math.round(amount)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} Ft`;
 }
@@ -8,6 +9,10 @@ export const TOOL_COLORS: Record<string, string> = {
   Claude: 'oklch(0.72 0.13 295)',
   Polyos: 'oklch(0.75 0.14 15)',
   'Hirdetés': 'oklch(0.78 0.13 165)',
+  'AI kép': 'oklch(0.80 0.12 230)',
+  'Social': 'oklch(0.82 0.13 120)',
+  'AI eszközök': 'oklch(0.76 0.12 320)',
+  'PolyOS': 'oklch(0.75 0.14 15)',
 };
 
 export function toolColor(tool: string): string {

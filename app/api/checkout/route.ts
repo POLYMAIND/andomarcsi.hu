@@ -60,6 +60,7 @@ export async function POST(request: NextRequest) {
     const { data: course } = await supabase.from('courses').select('*').eq('id', courseId).eq('published', true).maybeSingle<Course>();
     if (!course) return NextResponse.json({ error: 'Ismeretlen kurzus' }, { status: 404 });
     if (course.coming_soon) return NextResponse.redirect(new URL(`/kurzusok/${course.slug}`, SITE_URL), 303);
+    if (course.price_huf === null) return NextResponse.redirect(new URL('/elofizetes', SITE_URL), 303);
     if (course.price_huf === 0) return NextResponse.redirect(new URL(`/kurzusok/${course.slug}`, SITE_URL), 303);
     const { data: access } = await supabase.rpc('has_course_access', { cid: course.id });
     if (access) return NextResponse.redirect(new URL(`/kurzusok/${course.slug}`, SITE_URL), 303);
@@ -74,7 +75,7 @@ export async function POST(request: NextRequest) {
           quantity: 1,
           price_data: {
             currency: 'huf',
-            unit_amount: hufToStripe(course.price_huf),
+            unit_amount: hufToStripe(course.price_huf as number),
             product_data: { name: course.title, description: course.subtitle || undefined },
           },
         },

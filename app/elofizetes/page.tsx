@@ -12,7 +12,7 @@ export default async function SubscriptionPage({ searchParams }: { searchParams:
   const sp = await searchParams;
   const { supabase, user } = await getCurrentUser();
   const [catalog, access] = await Promise.all([getCatalog(supabase), getUserAccess(supabase, user?.id)]);
-  const paidCourses = catalog.courses.filter((c) => c.price_huf > 0);
+  const paidCourses = catalog.courses.filter((c) => (c.price_huf ?? 0) > 0);
 
   return (
     <div className="page">

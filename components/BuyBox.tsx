@@ -17,7 +17,7 @@ export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref 
         <span className="pill new" style={{ alignSelf: 'flex-start' }}>Hamarosan</span>
         <strong style={{ fontSize: 20 }}>Ez a kurzus hamarosan indul.</strong>
         <span className="muted" style={{ fontSize: 14 }}>
-          {course.price_huf > 0 ? `Várható ár: ${formatHuf(course.price_huf)}. ` : 'Ingyenes lesz. '}
+          {course.price_huf === null ? 'A tudástár-tagság része lesz. ' : course.price_huf > 0 ? `Várható ár: ${formatHuf(course.price_huf)}. ` : 'Ingyenes lesz. '}
           Írj, és szólok, amint elérhető!
         </span>
         <a className="btn light block" href={`mailto:hello@andormarcsi.hu?subject=${encodeURIComponent('Értesítést kérek: ' + course.title)}`}>
@@ -41,6 +41,18 @@ export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref 
     );
   }
 
+  if (course.price_huf === null) {
+    return (
+      <div className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
+        <strong style={{ fontSize: 20 }}>A tudástár-tagság része</strong>
+        <span className="muted" style={{ fontSize: 14 }}>Ez a kurzus külön nem vásárolható, az előfizetéssel minden anyag elérhető.</span>
+        <Link href="/elofizetes" className="btn purple block">
+          Előfizetés – {formatHuf(SUBSCRIPTION.priceHuf)}/hó
+        </Link>
+      </div>
+    );
+  }
+
   if (course.price_huf === 0) {
     return (
       <Link href={`/belepes?next=${encodeURIComponent(`/kurzusok/${course.slug}`)}`} className="btn block">
@@ -52,7 +64,7 @@ export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref 
   return (
     <div className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
       <div className="plan-price" style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 36, letterSpacing: '-.03em' }}>
-        {formatHuf(course.price_huf)}
+        {formatHuf(course.price_huf as number)}
       </div>
       <span className="muted" style={{ fontSize: 14 }}>Egyszeri díj, örökös hozzáférés ehhez a kurzushoz.</span>
       <form action="/api/checkout" method="post">
