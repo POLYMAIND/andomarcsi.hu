@@ -10,7 +10,11 @@ export const maxDuration = 60;
 type ChatTurn = { role: 'user' | 'assistant'; content: string };
 
 let client: Anthropic | null = null;
-const anthropic = () => (client ??= new Anthropic());
+// Ha a kulcs nincs workspace-hez rendelve, az ANTHROPIC_WORKSPACE_ID-t fejlécben küldjük.
+const anthropic = () =>
+  (client ??= new Anthropic({
+    defaultHeaders: process.env.ANTHROPIC_WORKSPACE_ID ? { 'anthropic-workspace-id': process.env.ANTHROPIC_WORKSPACE_ID } : undefined,
+  }));
 
 const fail = (status: number, message: string) => NextResponse.json({ error: message }, { status });
 
