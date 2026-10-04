@@ -6,6 +6,7 @@ import { getCurrentUser } from '@/lib/auth';
 import { SUBSCRIPTION } from '@/lib/config';
 import { courseAccessible, getCatalog, getUserAccess } from '@/lib/data';
 import { formatDate, formatHuf } from '@/lib/format';
+import { soonLabel } from '@/lib/types';
 
 export const metadata: Metadata = { title: 'Tudástár' };
 
@@ -38,8 +39,10 @@ export default async function CoursesPage({ searchParams }: { searchParams: Prom
       {catalog.latest.length > 0 && (
         <section className="card stack" style={{ '--gap': '18px' } as React.CSSProperties}>
           <div className="row between">
-            <h2 className="h3" style={{ fontSize: 26 }}>Legújabb anyagok</h2>
-            <span className="pill new">Heti {SUBSCRIPTION.weeklyNew} új</span>
+            <h2 className="h3" style={{ fontSize: 26 }}>
+              {catalog.latest.every((l) => titleOf.get(l.course_id)?.coming_soon) ? 'Hamarosan érkező anyagok' : 'Legújabb anyagok'}
+            </h2>
+            {SUBSCRIPTION.enabled && <span className="pill new">Heti {SUBSCRIPTION.weeklyNew} új</span>}
           </div>
           <ul className="lesson-list">
             {catalog.latest.map((l) => {
@@ -48,12 +51,14 @@ export default async function CoursesPage({ searchParams }: { searchParams: Prom
               return (
                 <li key={l.id}>
                   <Link href={`/kurzusok/${c.slug}/${l.id}`} className="lesson-item">
-                    <span className="lesson-num">▶</span>
+                    <span className="lesson-num">{c.coming_soon ? '🔒' : '▶'}</span>
                     <span className="stack" style={{ '--gap': '2px' } as React.CSSProperties}>
                       <strong>{l.title}</strong>
                       <span className="muted" style={{ fontSize: 13 }}>{c.title}</span>
                     </span>
-                    <span className="muted mono" style={{ fontSize: 12 }}>{formatDate(l.published_at)}</span>
+                    {c.coming_soon
+                      ? <span className="pill new">{soonLabel(c)}</span>
+                      : <span className="muted mono" style={{ fontSize: 12 }}>{formatDate(l.published_at)}</span>}
                   </Link>
                 </li>
               );

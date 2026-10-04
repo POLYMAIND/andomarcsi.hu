@@ -37,10 +37,11 @@ export default async function DashboardPage() {
   const totalDone = access.completed.size;
   const minutesDone = (lessons ?? []).filter((l) => access.completed.has(l.id)).reduce((s, l) => s + (l.duration_min ?? 0), 0);
   const weekAgo = Date.now() - 7 * 864e5;
-  const fresh = (lessons ?? [])
-    .filter((l) => new Date(l.published_at).getTime() > weekAgo)
-    .sort((a, b) => b.published_at.localeCompare(a.published_at));
   const courseById = new Map(catalog.courses.map((c) => [c.id, c]));
+  // „Hamarosan” kurzusok leckéi még nem számítanak újnak
+  const fresh = (lessons ?? [])
+    .filter((l) => new Date(l.published_at).getTime() > weekAgo && !courseById.get(l.course_id)?.coming_soon)
+    .sort((a, b) => b.published_at.localeCompare(a.published_at));
   const sub = access.subscription;
   const firstName = (profile?.full_name || user.email || '').split(/[\s@]/)[0];
 
