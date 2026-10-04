@@ -108,14 +108,14 @@ export default function PrivacyPage() {
                 <td><a href={p.site} target="_blank" rel="noreferrer">megnyitás ↗</a></td>
               </tr>
             ))}
-            <tr>
-              <td><strong>PolyOS</strong></td>
-              <td>Ügyfélkezelő rendszer – a hírlevél- és „Értesítést kérek” feliratkozók kezelése</td>
-              <td><Fill v="KITÖLTENDŐ: a PolyOS üzemeltetőjének neve és adatvédelmi tájékoztatója" /></td>
-            </tr>
           </tbody>
         </table>
       </div>
+      <p>
+        A hírlevél- és „Értesítést kérek” feliratkozók adatait saját ügyfélkezelő rendszerünkben, a <strong>PolyOS</strong>-ben kezeljük, és a hírleveleket,
+        illetve a kurzusindulásról szóló értesítéseket is innen küldjük. A PolyOS-t maga az adatkezelő ({COMPANY.name}) üzemelteti, így ez nem jelent
+        adattovábbítást harmadik félnek.
+      </p>
       <p>
         Az EU-n kívüli (USA) adattovábbítás az Európai Bizottság megfelelőségi határozata (EU–USA adatvédelmi keretrendszer) vagy általános szerződési
         feltételek (SCC) alapján történik. Adatot harmadik félnek nem adunk el, és csak jogszabályi kötelezettség esetén adunk át hatóságnak.

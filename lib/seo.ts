@@ -120,6 +120,7 @@ export const ORGANIZATION = {
   '@type': 'EducationalOrganization',
   '@id': ORG_ID,
   name: 'andormarcsi.hu',
+  legalName: COMPANY.name,
   url: `${SITE_URL}/`,
   founder: { '@id': PERSON_ID },
   email: COMPANY.email,
