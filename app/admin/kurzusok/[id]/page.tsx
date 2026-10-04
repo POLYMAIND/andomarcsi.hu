@@ -79,6 +79,10 @@ export default async function EditCoursePage({ params, searchParams }: Props) {
               Ár (Ft) – 0 = ingyenes, üres = csak tagsággal
               <input className="input" name="price_huf" type="number" min={0} step={10} placeholder="csak tagsággal" defaultValue={course ? (course.price_huf ?? '') : ''} />
             </label>
+            <label className="field">
+              Egyedi árcímke (nem kötelező)
+              <input className="input" name="price_note" placeholder="pl. PolyOS-tagsággal ingyenes" defaultValue={course?.price_note ?? ''} />
+            </label>
             <label className="field">Sorrend<input className="input" name="sort_order" type="number" defaultValue={course?.sort_order ?? 0} /></label>
             <label className="field">
               Videóanyag hossza (perc)

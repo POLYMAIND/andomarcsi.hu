@@ -9,6 +9,7 @@ export type Course = {
   workload_min: number | null; // videóanyag hossza percben (schema.org)
   tool: string;
   level: string;
+  price_note: string; // egyedi árcímke, pl. „PolyOS-tagsággal ingyenes” (felülírja a megjelenített árat)
   price_huf: number | null; // null = csak tagsággal érhető el, külön nem vásárolható
   included_in_subscription: boolean;
   published: boolean;

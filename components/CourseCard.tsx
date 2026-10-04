@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { formatHuf, toolColor } from '@/lib/format';
+import { formatHuf, priceLabel, toolColor } from '@/lib/format';
 import { soonLabel, type Course } from '@/lib/types';
 
 export function CourseCard({
@@ -43,7 +43,7 @@ export function CourseCard({
           <span className="muted" style={{ fontSize: 14 }}>
             {course.bundle_course_ids?.length ? `Csomag · ${course.bundle_course_ids.length} modul` : `${lessonCount} lecke`}
           </span>
-          <span className="price">{owned ? 'Megvetted' : hasAccess ? 'Hozzáférsz' : formatHuf(course.price_huf)}</span>
+          <span className="price">{owned ? 'Megvetted' : hasAccess ? 'Hozzáférsz' : priceLabel(course)}</span>
         </div>
       </div>
     </Link>

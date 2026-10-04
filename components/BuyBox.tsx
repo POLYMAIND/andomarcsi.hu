@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { SUBSCRIPTION } from '@/lib/config';
-import { formatHuf } from '@/lib/format';
+import { formatHuf, priceLabel } from '@/lib/format';
 import { soonLabel, type Course } from '@/lib/types';
 import { PurchaseConsents } from '@/components/PurchaseConsents';
 import { FORM_TS_FIELD } from '@/lib/honeypot';
@@ -35,7 +35,7 @@ export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref,
       <div id="ertesites" className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
         <span className="pill new" style={{ alignSelf: 'flex-start' }}>{soonLabel(course)}</span>
         {course.price_huf !== null && (
-          <div style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 32, letterSpacing: '-.03em' }}>{formatHuf(course.price_huf)}</div>
+          <div style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 32, letterSpacing: '-.03em' }}>{priceLabel(course)}</div>
         )}
         {waitlisted ? (
           <div className="notice ok">✓ Feliratkoztál – szólok e-mailben, amint elérhető a kurzus.</div>
@@ -74,6 +74,15 @@ export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref,
     );
   }
 
+  if (course.price_huf === null && course.price_note) {
+    return (
+      <div className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
+        <strong style={{ fontSize: 20 }}>{course.price_note}</strong>
+        <span className="muted" style={{ fontSize: 14 }}>Ez a kurzus külön nem vásárolható. Írj, és megnyitom a hozzáférésed.</span>
+        <a className="btn light block" href={`mailto:hello@andormarcsi.hu?subject=${encodeURIComponent('Hozzáférés: ' + course.title)}`}>Hozzáférést kérek</a>
+      </div>
+    );
+  }
   if (course.price_huf === null) {
     return (
       <div className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>

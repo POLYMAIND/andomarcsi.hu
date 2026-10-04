@@ -24,6 +24,7 @@ export async function saveCourse(formData: FormData) {
     subtitle: str(formData, 'subtitle'),
     description: str(formData, 'description'),
     teaser: str(formData, 'teaser'),
+    price_note: str(formData, 'price_note'),
     outcome: str(formData, 'outcome'),
     workload_min: int(formData, 'workload_min'),
     tool: str(formData, 'tool') || 'Canva',

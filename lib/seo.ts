@@ -50,7 +50,9 @@ export function courseFaq(c: Course): Faq[] {
   });
   faq.push({
     q: 'Mennyibe kerül?',
-    a: c.price_huf === null
+    a: c.price_note && c.price_huf === null
+      ? `${name}: ${c.price_note.charAt(0).toLowerCase() + c.price_note.slice(1)}. Külön nem vásárolható meg.`
+      : c.price_huf === null
       ? `${name} a tagság része, külön nem vásárolható meg.`
       : c.price_huf === 0
         ? `${name} ingyenes.`

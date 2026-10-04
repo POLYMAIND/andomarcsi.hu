@@ -8,7 +8,7 @@ import { HOME_FAQ } from '@/lib/seo';
 export async function GET() {
   const courses = await publicCourses();
   const line = (c: (typeof courses)[number]) => {
-    const meta = [c.subtitle, c.price_huf === null ? 'tagsággal' : formatHuf(c.price_huf), c.coming_soon ? 'hamarosan indul' : null].filter(Boolean).join(', ');
+    const meta = [c.subtitle, c.price_note || (c.price_huf === null ? 'tagsággal' : formatHuf(c.price_huf)), c.coming_soon ? 'hamarosan indul' : null].filter(Boolean).join(', ');
     return `- [${c.title}](${SITE_URL}/kurzusok/${c.slug}): ${meta}`;
   };
   const text = `# andormarcsi.hu

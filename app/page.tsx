@@ -6,7 +6,7 @@ import { SiteNav } from '@/components/SiteNav';
 import { WorkshopList } from '@/components/WorkshopList';
 import { SUBSCRIPTION } from '@/lib/config';
 import { getCatalog } from '@/lib/data';
-import { formatHuf, toolColor } from '@/lib/format';
+import { formatHuf, priceLabel, toolColor } from '@/lib/format';
 import { courseSchema, faqPage, graph, HOME_FAQ, ORGANIZATION, PERSON } from '@/lib/seo';
 import { soonLabel } from '@/lib/types';
 import { createClient } from '@/lib/supabase/server';
@@ -163,7 +163,7 @@ export default async function Home() {
 
       {/* KURZUSOK */}
       <section id="kurzusok" className="card stack" style={{ '--gap': '36px' } as React.CSSProperties}>
-        <WorkshopList courses={(catalog?.courses ?? []).map(({ id, slug, title, subtitle, description, teaser, tool, level, price_huf, coming_soon, starts_at, bundle_course_ids }) => ({ id, slug, title, subtitle, description, teaser, tool, level, price_huf, coming_soon, starts_at, bundle_course_ids }))} />
+        <WorkshopList courses={(catalog?.courses ?? []).map(({ id, slug, title, subtitle, description, teaser, tool, level, price_huf, price_note, coming_soon, starts_at, bundle_course_ids }) => ({ id, slug, title, subtitle, description, teaser, tool, level, price_huf, price_note, coming_soon, starts_at, bundle_course_ids }))} />
       </section>
 
       {/* TUDÁSTÁR */}
@@ -194,7 +194,7 @@ export default async function Home() {
                   {catalog!.stats(c.id).count} lecke{c.subtitle ? ` · ${c.subtitle}` : ''}
                 </span>
               </span>
-              <span className="mono" style={{ fontSize: 13, color: 'var(--amber)' }}>{formatHuf(c.price_huf)}{c.coming_soon ? ` · ${soonLabel(c).toLowerCase()}` : ''}</span>
+              <span className="mono" style={{ fontSize: 13, color: 'var(--amber)' }}>{priceLabel(c)}{c.coming_soon ? ` · ${soonLabel(c).toLowerCase()}` : ''}</span>
             </Link>
           ))}
         </div>
@@ -246,7 +246,7 @@ export default async function Home() {
                 </div>
                 <div className="stack" style={{ '--gap': '4px' } as React.CSSProperties}>
                   <span style={{ fontWeight: 700, fontSize: 18 }}>{c.title}</span>
-                  <span style={{ fontSize: 14, color: 'var(--ink-3)' }}>Online videókurzus · {formatHuf(c.price_huf)}</span>
+                  <span style={{ fontSize: 14, color: 'var(--ink-3)' }}>Online videókurzus · {priceLabel(c)}</span>
                 </div>
                 <Link href={`/kurzusok/${c.slug}`} className="btn sm">Szólj, ha indul</Link>
               </div>

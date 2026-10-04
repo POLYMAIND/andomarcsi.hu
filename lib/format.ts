@@ -4,6 +4,11 @@ export function formatHuf(amount: number | null): string {
   return `${String(Math.round(amount)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} Ft`;
 }
 
+// Kártyákon/listákban megjelenő ár: az egyedi árcímke (price_note) felülírja.
+export function priceLabel(c: { price_huf: number | null; price_note?: string | null }): string {
+  return c.price_note?.trim() || formatHuf(c.price_huf);
+}
+
 export const TOOL_COLORS: Record<string, string> = {
   Canva: 'oklch(0.79 0.16 68)',
   Claude: 'oklch(0.72 0.13 295)',

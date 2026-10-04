@@ -8,7 +8,7 @@ import { JsonLd } from '@/components/JsonLd';
 import { SiteNav } from '@/components/SiteNav';
 import { getCurrentUser } from '@/lib/auth';
 import { courseAccessible, getUserAccess } from '@/lib/data';
-import { formatHuf, toolColor } from '@/lib/format';
+import { formatHuf, priceLabel, toolColor } from '@/lib/format';
 import { courseFaq, courseHeading, courseSchema, faqPage, graph, ORGANIZATION } from '@/lib/seo';
 import { createClient } from '@/lib/supabase/server';
 import { withStart, withStartAll, type Course, type Lesson } from '@/lib/types';
@@ -106,7 +106,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
                         <strong>{m.title}</strong>
                         {m.subtitle && <span className="muted" style={{ fontSize: 13 }}>{m.subtitle}</span>}
                       </span>
-                      <span className="muted mono" style={{ fontSize: 12 }}>{formatHuf(m.price_huf)}</span>
+                      <span className="muted mono" style={{ fontSize: 12 }}>{priceLabel(m)}</span>
                     </Link>
                   </li>
                 ))}
