@@ -23,7 +23,7 @@ export default async function CoursesPage({ searchParams }: { searchParams: Prom
         <div className="eyebrow">Videós tudástár</div>
         <h1 className="h1">Tanulj a saját tempódban.</h1>
         <p className="lead">
-          {catalog.totalLessons} videólecke {catalog.courses.length} témában – Canva, Claude, Polyos és hirdetéskezelés, kezdőknek.
+          {catalog.totalLessons} videólecke {catalog.courses.length} témában – Canva, Claude, AI-eszközök, hirdetés és PolyOS, kezdőknek.
           {SUBSCRIPTION.enabled && ` Hetente ${SUBSCRIPTION.weeklyNew} új anyag.`}
         </p>
         {SUBSCRIPTION.enabled && !access.subscribed && (

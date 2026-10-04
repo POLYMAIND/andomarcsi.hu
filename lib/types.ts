@@ -4,6 +4,9 @@ export type Course = {
   title: string;
   subtitle: string;
   description: string;
+  teaser: string; // rövid, emberi hangú leírás (kártyák, kurzusoldal teteje)
+  outcome: string; // „Mit tudsz majd a végére?”
+  workload_min: number | null; // videóanyag hossza percben (schema.org)
   tool: string;
   level: string;
   price_huf: number | null; // null = csak tagsággal érhető el, külön nem vásárolható

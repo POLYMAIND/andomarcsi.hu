@@ -3,10 +3,13 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { BuyBox } from '@/components/BuyBox';
 import { ChatWidget } from '@/components/ChatWidget';
+import { FaqList } from '@/components/FaqList';
+import { JsonLd } from '@/components/JsonLd';
 import { SiteNav } from '@/components/SiteNav';
 import { getCurrentUser } from '@/lib/auth';
 import { courseAccessible, getUserAccess } from '@/lib/data';
 import { formatHuf, toolColor } from '@/lib/format';
+import { courseFaq, courseHeading, courseSchema, faqPage, graph, ORGANIZATION } from '@/lib/seo';
 import { createClient } from '@/lib/supabase/server';
 import { withStart, withStartAll, type Course, type Lesson } from '@/lib/types';
 
@@ -15,8 +18,15 @@ type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<s
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const supabase = await createClient();
-  const { data } = await supabase.from('courses').select('title, subtitle').eq('slug', slug).maybeSingle();
-  return data ? { title: data.title, description: data.subtitle } : {};
+  const { data } = await supabase.from('courses').select('title, subtitle, teaser, level').eq('slug', slug).maybeSingle();
+  if (!data) return {};
+  const description = (data.teaser || data.subtitle || '').slice(0, 160);
+  return {
+    title: courseHeading(data),
+    description,
+    alternates: { canonical: `/kurzusok/${slug}` },
+    openGraph: { title: courseHeading(data), description, url: `/kurzusok/${slug}`, siteName: 'andormarcsi.hu', locale: 'hu_HU', type: 'website' },
+  };
 }
 
 export default async function CoursePage({ params, searchParams }: Props) {
@@ -47,6 +57,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
   const done = list.filter((l) => access.completed.has(l.id)).length;
   const next = list.find((l) => !access.completed.has(l.id)) ?? list[0];
   const totalMin = list.reduce((s, l) => s + (l.duration_min ?? 0), 0);
+  const faq = courseFaq(course);
 
   return (
     <div className="page">
@@ -62,8 +73,9 @@ export default async function CoursePage({ params, searchParams }: Props) {
             <Link href="/kurzusok" className="tag">← Tudástár</Link>
             <span className="tag">· {course.tool} · {course.level}</span>
           </div>
-          <h1 className="h1">{course.title}</h1>
+          <h1 className="h1">{courseHeading(course)}</h1>
           {course.subtitle && <p className="lead" style={{ color: 'var(--ink)' }}>{course.subtitle}</p>}
+          {course.teaser && <p style={{ margin: 0, fontSize: 17, lineHeight: 1.6, color: 'var(--ink)' }}>{course.teaser}</p>}
           <div className="row">
             <span className="pill">{list.length} lecke</span>
             {totalMin > 0 && <span className="pill">{totalMin} perc videó</span>}
@@ -74,6 +86,13 @@ export default async function CoursePage({ params, searchParams }: Props) {
 
       <div className="layout-sidebar">
         <section className="card stack" style={{ '--gap': '20px' } as React.CSSProperties}>
+          {course.outcome && (
+            <>
+              <h2 className="h3">Mit tudsz majd a végére?</h2>
+              <p style={{ margin: 0, fontSize: 17, lineHeight: 1.65, color: 'var(--ink-2)' }}>{course.outcome}</p>
+            </>
+          )}
+          {course.description && course.outcome && <h2 className="h3">Miről szól?</h2>}
           {course.description && <p style={{ margin: 0, fontSize: 17, lineHeight: 1.65, color: 'var(--ink-2)', whiteSpace: 'pre-line' }}>{course.description}</p>}
           {isBundle && (
             <>
@@ -139,6 +158,11 @@ export default async function CoursePage({ params, searchParams }: Props) {
           />
         </aside>
       </div>
+      <section className="card stack" style={{ '--gap': '24px' } as React.CSSProperties}>
+        <h2 className="h2" style={{ fontSize: 'clamp(28px,3.4vw,44px)' }}>Gyakori kérdések</h2>
+        <FaqList items={faq} />
+      </section>
+      <JsonLd data={graph(ORGANIZATION, courseSchema(course), faqPage(faq))} />
       <ChatWidget courseSlug={course.slug} loggedIn={!!user} />
     </div>
   );

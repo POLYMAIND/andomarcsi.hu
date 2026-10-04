@@ -60,7 +60,7 @@ export function SiteFooter() {
           <span className="logo" style={{ fontSize: 20 }}>
             andormarcsi<span>.</span>hu
           </span>
-          <span className="muted" style={{ fontSize: 13 }}>Online videókurzusok kezdőknek – Canva, Claude, PolyOS.</span>
+          <span className="muted" style={{ fontSize: 13, maxWidth: 420 }}>andormarcsi.hu – online videókurzusok kezdőknek: Canva, Claude, AI-eszközök és PolyOS. Emberi nyelven, félelem nélkül.</span>
         </div>
         <nav className="footer-links" aria-label="Lábléc">
           <Link href="/kurzusok">Tudástár</Link>

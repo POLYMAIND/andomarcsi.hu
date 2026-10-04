@@ -11,6 +11,7 @@ export type ListCourse = {
   title: string;
   subtitle: string;
   description: string;
+  teaser: string;
   tool: string;
   level: string;
   price_huf: number | null;
@@ -29,7 +30,10 @@ export function WorkshopList({ courses }: { courses: ListCourse[] }) {
       <div className="row between" style={{ alignItems: 'flex-end', '--gap': '24px' } as React.CSSProperties}>
         <div className="stack" style={{ maxWidth: 620, '--gap': '12px' } as React.CSSProperties}>
           <div className="eyebrow">Kurzusok</div>
-          <h2 className="h2">Válaszd ki, mivel kezdenéd.</h2>
+          <h2 className="h2">Mit tanulhatsz nálam?</h2>
+          <p className="lead" style={{ margin: 0 }}>
+            Válaszd ki, mivel kezdenéd. Ha nem tudod, kezdd a Canvával – az a legkevésbé ijesztő, és a végére lesz valami, amit megmutathatsz anyukádnak.
+          </p>
         </div>
         <div className="row" style={{ '--gap': '8px' } as React.CSSProperties}>
           {tools.map((f) => (
@@ -57,7 +61,7 @@ export function WorkshopList({ courses }: { courses: ListCourse[] }) {
               <h3 className="h3">
                 <Link href={`/kurzusok/${c.slug}`}>{c.title}</Link>
               </h3>
-              <p style={{ margin: 0, fontSize: 15, lineHeight: 1.55, color: 'var(--ink-2)' }}>{c.description || c.subtitle}</p>
+              <p style={{ margin: 0, fontSize: 15, lineHeight: 1.55, color: 'var(--ink-2)' }}>{c.teaser || c.description || c.subtitle}</p>
             </div>
             <div className="ws-meta">
               <div className="stack" style={{ '--gap': '6px' } as React.CSSProperties}>
@@ -65,7 +69,7 @@ export function WorkshopList({ courses }: { courses: ListCourse[] }) {
                 <span style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 22, letterSpacing: '-.02em' }}>{formatHuf(c.price_huf)}</span>
               </div>
               <Link href={`/kurzusok/${c.slug}`} className="btn sm">
-                {c.coming_soon ? 'Értesítést kérek' : 'Részletek'}
+                {c.coming_soon ? 'Szólj, ha indul' : 'Részletek'}
               </Link>
             </div>
           </article>

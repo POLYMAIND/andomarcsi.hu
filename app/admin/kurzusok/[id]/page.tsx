@@ -80,8 +80,20 @@ export default async function EditCoursePage({ params, searchParams }: Props) {
               <input className="input" name="price_huf" type="number" min={0} step={10} placeholder="csak tagsággal" defaultValue={course ? (course.price_huf ?? '') : ''} />
             </label>
             <label className="field">Sorrend<input className="input" name="sort_order" type="number" defaultValue={course?.sort_order ?? 0} /></label>
+            <label className="field">
+              Videóanyag hossza (perc)
+              <input className="input" name="workload_min" type="number" min={0} placeholder="pl. 60" defaultValue={course?.workload_min ?? ''} />
+            </label>
           </div>
-          <label className="field">Leírás<textarea className="textarea" name="description" defaultValue={course?.description} /></label>
+          <label className="field">
+            Rövid leírás – a kártyákon és a kurzusoldal tetején (2–3 mondat, emberi hangon)
+            <textarea className="textarea" name="teaser" defaultValue={course?.teaser} style={{ minHeight: 80 }} />
+          </label>
+          <label className="field">
+            Mit tudsz majd a végére? – egy-két tényszerű mondat (ezt idézik a keresők és az AI-k)
+            <textarea className="textarea" name="outcome" defaultValue={course?.outcome} style={{ minHeight: 70 }} />
+          </label>
+          <label className="field">Részletes leírás<textarea className="textarea" name="description" defaultValue={course?.description} /></label>
           <details open={(course?.bundle_course_ids?.length ?? 0) > 0} style={{ background: 'var(--paper)', borderRadius: 14, padding: '12px 16px' }}>
             <summary style={{ cursor: 'pointer', fontWeight: 500, fontSize: 14 }}>
               Csomag – ha ezt a kurzust megveszik, ezeket is megnyitja ({course?.bundle_course_ids?.length ?? 0} kiválasztva)

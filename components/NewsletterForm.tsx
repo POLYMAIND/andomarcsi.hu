@@ -44,7 +44,12 @@ export function NewsletterForm() {
 
   return (
     <div id="hirlevel" className="newsletter">
-      <h2 className="h2" style={{ fontSize: 'clamp(28px,3.4vw,44px)' }}>Havonta egy hasznos tipp, spam nélkül.</h2>
+      <div className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
+        <h2 className="h2" style={{ fontSize: 'clamp(28px,3.4vw,44px)' }}>Havonta egy hasznos tipp, spam nélkül.</h2>
+        <p className="muted" style={{ margin: 0, fontSize: 15, lineHeight: 1.6, maxWidth: 480 }}>
+          Havonta egyszer írok, nem naponta ötször – nekem sincs időm ennyi e-mailre. Egy tipp, egy trükk, néha egy „ezt miért nem mondta senki?” pillanat.
+        </p>
+      </div>
       {state === 'ok' ? (
         <div className="notice ok">Köszönöm, feliratkoztál! 💜 Hamarosan jövök az első tippel.</div>
       ) : (
@@ -60,7 +65,7 @@ export function NewsletterForm() {
               autoComplete="email"
               aria-label="E-mail címed"
             />
-            <button className="btn" type="submit" disabled={state === 'busy'}>Feliratkozom</button>
+            <button className="btn" type="submit" disabled={state === 'busy'}>Kérem a tippet</button>
           </div>
           <label className="check" style={{ alignItems: 'flex-start', fontSize: 12.5, color: 'var(--ink-3)' }}>
             <input type="checkbox" required checked={consent} onChange={(e) => setConsent(e.target.checked)} style={{ marginTop: 2 }} />

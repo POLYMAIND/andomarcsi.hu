@@ -4,8 +4,8 @@ import { SiteFooter } from '@/components/SiteNav';
 import { SITE_URL } from '@/lib/config';
 
 export const metadata: Metadata = {
-  title: { default: 'andormarcsi.hu – Digitális eszközök félelem nélkül', template: '%s · andormarcsi.hu' },
-  description: 'Canva, Claude és Polyos – lépésről lépésre, emberi nyelven. Előre felvett online videókurzusok kezdőknek.',
+  title: { default: 'Canva és AI kezdőknek – online videókurzus | Andor Marcsi', template: '%s · andormarcsi.hu' },
+  description: 'Canva, Claude és AI-eszközök lépésről lépésre, emberi nyelven. Előre felvett videókurzusok kezdőknek és kisvállalkozóknak, Andor Marcsitól.',
   metadataBase: new URL(SITE_URL),
 };
 
