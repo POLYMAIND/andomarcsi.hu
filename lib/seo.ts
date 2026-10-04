@@ -28,8 +28,11 @@ export const article = (word: string) => (/^[aáeéiíoóöőuúüű]/i.test(wor
 const isBeginner = (c: Pick<Course, 'level'>) => /kezdő/i.test(c.level) && !/haladó/i.test(c.level);
 
 // Kurzusoldal H1: kurzusnév + „kezdőknek”, ha kezdő szintű és a címben még nincs benne.
+// „Canva Kalauz 1. – Fedezd fel…” → „Canva Kalauz 1. kezdőknek – Fedezd fel…” (a gondolatjel előtti névhez kerül).
 export function courseHeading(c: Pick<Course, 'title' | 'level'>): string {
-  return isBeginner(c) && !/kezdő/i.test(c.title) ? `${c.title} kezdőknek` : c.title;
+  if (!isBeginner(c) || /kezdő/i.test(c.title)) return c.title;
+  const i = c.title.indexOf(' – ');
+  return i > 0 ? `${c.title.slice(0, i)} kezdőknek${c.title.slice(i)}` : `${c.title} kezdőknek`;
 }
 
 const workloadText = (min: number) => (min < 90 ? `${min} perc` : `${String(Math.round((min / 60) * 2) / 2).replace('.', ',')} óra`);
