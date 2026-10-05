@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getCurrentUser, supabaseConfigured } from '@/lib/auth';
+import { CookieSettingsLink } from '@/components/CookieConsent';
 import { NewsletterForm } from '@/components/NewsletterForm';
 import { COMPANY } from '@/lib/company';
 import { SUBSCRIPTION } from '@/lib/config';
@@ -69,6 +70,7 @@ export function SiteFooter() {
           <Link href="/aszf">ÁSZF</Link>
           <Link href="/adatvedelem">Adatkezelési tájékoztató</Link>
           <Link href="/adatvedelem#sutik">Sütik</Link>
+          <CookieSettingsLink />
           <Link href="/impresszum">Impresszum</Link>
         </nav>
       </div>

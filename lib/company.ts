@@ -12,7 +12,7 @@ export const COMPANY = {
   website: 'https://www.andormarcsi.hu',
   // A székhely szerinti megyei békéltető testület (pl. Budapest: Budapesti Békéltető Testület)
   conciliationBody: 'Pest Vármegyei Békéltető Testület',
-  lastUpdated: '2026. október 2.',
+  lastUpdated: '2026. október 5.',
 };
 
 // Tárhely és adatfeldolgozók (adatvédelmi tájékoztatóhoz)
@@ -22,5 +22,6 @@ export const PROCESSORS = [
   { name: 'Stripe Payments Europe Ltd.', role: 'Online bankkártyás fizetés', site: 'https://stripe.com/privacy', transfer: false },
   { name: 'Sendinblue SAS (Brevo)', role: 'E-mail küldés (belépő linkek, értesítések)', site: 'https://www.brevo.com/legal/privacypolicy/', transfer: false },
   { name: 'Anthropic PBC', role: 'AI segítő (Claude) – a csevegőbe írt kérdések feldolgozása', site: 'https://www.anthropic.com/legal/privacy', transfer: true },
+  { name: 'Google Ireland Ltd. (Google Analytics)', role: 'Látogatottsági statisztika – csak a sütik elfogadása után', site: 'https://policies.google.com/privacy', transfer: true },
   { name: 'Google Ireland Ltd. (YouTube)', role: 'Videók lejátszása (youtube-nocookie beágyazás)', site: 'https://policies.google.com/privacy', transfer: false },
 ];

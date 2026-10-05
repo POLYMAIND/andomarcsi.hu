@@ -224,3 +224,12 @@ a.lesson-item:hover { background: #ebe7e1; color: var(--ink); }
 .hero-stats { display: flex; flex-wrap: wrap; gap: 10px; }
 .hero-stat { display: flex; align-items: center; gap: 12px; background: var(--ink); color: #fff; border-radius: 22px; padding: 10px 18px 10px 10px; font-size: 15px; font-weight: 500; line-height: 1.15; }
 .hero-stat b { width: 42px; height: 42px; border-radius: 50%; background: #fff; color: var(--ink); display: grid; place-items: center; font: 700 17px var(--display); flex-shrink: 0; }
+
+/* Sütisáv */
+.cookie-bar { position: fixed; z-index: 60; left: 16px; right: 16px; bottom: 16px; max-width: 720px; margin: 0 auto; background: var(--ink); color: #fff; border-radius: 22px; padding: 16px 18px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; box-shadow: 0 24px 48px -20px rgba(20,18,22,.5); }
+.cookie-bar p { margin: 0; flex: 1 1 320px; font-size: 14px; line-height: 1.5; }
+.cookie-bar a { color: #fff; text-decoration: underline; }
+.cookie-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.cookie-bar .btn:not(.light) { background: var(--amber); color: var(--ink); }
+.link-btn { background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; }
+.link-btn:hover { color: var(--purple); }

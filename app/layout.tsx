@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { CookieConsent } from '@/components/CookieConsent';
 import { SiteFooter } from '@/components/SiteNav';
 import { SITE_URL } from '@/lib/config';
 
@@ -17,6 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="page" style={{ paddingTop: 0 }}>
           <SiteFooter />
         </div>
+        <CookieConsent />
       </body>
     </html>
   );
