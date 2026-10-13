@@ -1,5 +1,6 @@
 import type Stripe from 'stripe';
 import { createAdminClient } from '@/lib/supabase/server';
+import { invoiceForCheckout } from '@/lib/billingo';
 import { stripe } from '@/lib/stripe';
 
 // Idempotens: a webhook és a sikeres-fizetés oldal is meghívhatja ugyanarra a sessionre.
@@ -28,6 +29,7 @@ export async function fulfillCheckoutSession(session: Stripe.Checkout.Session) {
     );
     if (error) throw error;
     await enrollBundleContents(userId, courseId, 'stripe');
+    await invoiceForCheckout(session);
   } else if (session.mode === 'subscription' && session.subscription) {
     const subId = typeof session.subscription === 'string' ? session.subscription : session.subscription.id;
     await syncSubscription(await stripe().subscriptions.retrieve(subId), userId);

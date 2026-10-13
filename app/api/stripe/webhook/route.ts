@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import type Stripe from 'stripe';
+import { invoiceForSubscription } from '@/lib/billingo';
 import { fulfillCheckoutSession, syncSubscription } from '@/lib/fulfillment';
 import { stripe } from '@/lib/stripe';
 
@@ -24,6 +25,10 @@ export async function POST(request: NextRequest) {
     case 'customer.subscription.updated':
     case 'customer.subscription.deleted':
       await syncSubscription(event.data.object);
+      break;
+    case 'invoice.paid':
+      // előfizetés havi díja → Billingo számla (a kurzusvásárlás számlája a checkout eseménynél készül)
+      if (event.data.object.parent?.type === 'subscription_details') await invoiceForSubscription(event.data.object);
       break;
   }
   return NextResponse.json({ received: true });

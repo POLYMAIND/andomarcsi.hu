@@ -67,6 +67,7 @@ export default async function AdminPage() {
             <Link href="/admin/ertesitesek" className="btn light">Értesítési lista</Link>
             <Link href="/admin/hirlevel" className="btn light">Hírlevél</Link>
             <Link href="/admin/kuponok" className="btn light">Kuponok</Link>
+            <Link href="/admin/szamlak" className="btn light">Számlák</Link>
             <Link href="/admin/elofizetok" className="btn light">Előfizetők</Link>
             <Link href="/admin/kurzusok/uj" className="btn">+ Új kurzus</Link>
           </div>
