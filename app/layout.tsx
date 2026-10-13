@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { AuthHashRedirect } from '@/components/AuthHashRedirect';
 import { CookieConsent } from '@/components/CookieConsent';
 import { SiteFooter } from '@/components/SiteNav';
 import { SITE_URL } from '@/lib/config';
@@ -19,6 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <SiteFooter />
         </div>
         <CookieConsent />
+        <AuthHashRedirect />
       </body>
     </html>
   );

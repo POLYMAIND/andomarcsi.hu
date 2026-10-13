@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { SITE_URL } from '@/lib/config';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createEmailAuthClient } from '@/lib/supabase/server';
 
 const safeNext = (n: unknown) => (typeof n === 'string' && n.startsWith('/') && !n.startsWith('//') ? n : '/dashboard');
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -39,7 +39,7 @@ export async function signUpWithPassword(formData: FormData) {
   if (!EMAIL.test(email)) redirect(back('regisztracio', { hiba: 'email', next }));
   if (password.length < MIN_PASSWORD) redirect(back('regisztracio', { hiba: 'rovid', next, email }));
 
-  const supabase = await createClient();
+  const supabase = createEmailAuthClient();
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -50,7 +50,10 @@ export async function signUpWithPassword(formData: FormData) {
     redirect(back('regisztracio', { hiba: code, next, email }));
   }
   // Ha a Supabase-ben nincs bekapcsolva az e-mail megerősítés, azonnal van session.
-  if (data.session) redirect(next);
+  if (data.session) {
+    await (await createClient()).auth.setSession(data.session);
+    redirect(next);
+  }
   redirect(back('', { kesz: 'regisztracio', email }));
 }
 
@@ -58,7 +61,7 @@ export async function signUpWithPassword(formData: FormData) {
 export async function requestPasswordReset(formData: FormData) {
   const email = String(formData.get('email') ?? '').trim().toLowerCase();
   if (!EMAIL.test(email)) redirect(back('elfelejtett', { hiba: 'email' }));
-  const supabase = await createClient();
+  const supabase = createEmailAuthClient();
   const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${SITE_URL}/auth/callback?next=/jelszo` });
   if (error) redirect(back('elfelejtett', { hiba: isRateLimit(error) ? 'limit' : 'kuldes', email }));
   redirect(back('', { kesz: 'jelszo', email }));
@@ -71,7 +74,7 @@ export async function sendMagicLink(formData: FormData) {
   const next = safeNext(formData.get('next'));
   if (!EMAIL.test(email)) redirect(back('link', { hiba: 'email', next }));
 
-  const supabase = await createClient();
+  const supabase = createEmailAuthClient();
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {

@@ -11,5 +11,8 @@ export async function GET(request: NextRequest) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) return NextResponse.redirect(`${origin}${next}`);
   }
+  // Nincs ?code= → „implicit” e-mail link: a tokenek az URL # részében vannak, amit csak a böngésző lát.
+  // Az átirányítás megtartja a # részt, a /auth/kesz oldal pedig beléptet.
+  if (!code) return NextResponse.redirect(`${origin}/auth/kesz?next=${encodeURIComponent(next)}`);
   return NextResponse.redirect(`${origin}/belepes?hiba=1`);
 }
