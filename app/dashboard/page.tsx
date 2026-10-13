@@ -10,7 +10,8 @@ import type { Lesson } from '@/lib/types';
 
 export const metadata: Metadata = { title: 'Saját tanulás' };
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const sp = await searchParams;
   const { supabase, user, profile } = await requireUser('/dashboard');
   const [catalog, access, { data: lessons }, { data: purchases }] = await Promise.all([
     getCatalog(supabase),
@@ -48,15 +49,19 @@ export default async function DashboardPage() {
   return (
     <div className="page">
       <SiteNav />
+      {sp.jelszo === 'ok' && <div className="notice ok">Elmentettük a jelszavad – legközelebb már jelszóval is be tudsz lépni.</div>}
       <section className="card stack" style={{ '--gap': '24px' } as React.CSSProperties}>
         <div className="row between" style={{ alignItems: 'flex-end' }}>
           <div className="stack" style={{ '--gap': '10px' } as React.CSSProperties}>
             <div className="eyebrow">Saját tanulás</div>
             <h1 className="h2">Szia{firstName ? `, ${firstName}` : ''}! 👋</h1>
           </div>
-          <form action="/auth/signout" method="post">
-            <button className="btn light sm" type="submit">Kijelentkezés</button>
-          </form>
+          <div className="row" style={{ '--gap': '8px' } as React.CSSProperties}>
+            <Link href="/jelszo" className="btn light sm">Jelszó beállítása</Link>
+            <form action="/auth/signout" method="post">
+              <button className="btn light sm" type="submit">Kijelentkezés</button>
+            </form>
+          </div>
         </div>
         <div className="grid" style={{ '--min': '180px', '--gap': '12px' } as React.CSSProperties}>
           <div className="stat"><span className="label">Elvégzett leckék</span><span className="value">{totalDone}</span></div>
