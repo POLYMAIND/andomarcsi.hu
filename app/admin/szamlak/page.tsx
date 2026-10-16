@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SiteNav } from '@/components/SiteNav';
+import { SubmitButton } from '@/components/SubmitButton';
 import { requireAdmin } from '@/lib/auth';
 import { billingoConfigured } from '@/lib/billingo';
 import { formatDate, formatHuf } from '@/lib/format';
@@ -30,6 +31,8 @@ export default async function InvoicesPage({ searchParams }: Props) {
         <Link href="/admin" className="tag">← Admin</Link>
       </div>
       {sp.hiba && <div className="notice err">{sp.hiba}</div>}
+      {sp.eredmeny === 'kiallitva' && <div className="notice ok">Kész: a számla elkészült, és e-mailben kiment a vevőnek.</div>}
+      {sp.eredmeny === 'hiba' && <div className="notice err">A számlát most sem sikerült kiállítani – az okát a sor alatt látod.</div>}
       <section className="card stack" style={{ '--gap': '18px' } as React.CSSProperties}>
         <div className="stack" style={{ '--gap': '10px' } as React.CSSProperties}>
           <div className="eyebrow">Admin</div>
@@ -61,7 +64,7 @@ export default async function InvoicesPage({ searchParams }: Props) {
                     {(r.status === 'failed' || stuck(r)) && (
                       <form action={retryInvoice}>
                         <input type="hidden" name="id" value={r.id} />
-                        <button className="btn light sm" type="submit">Újrapróbálás</button>
+                        <SubmitButton pending="Számla kiállítása…">Újrapróbálás</SubmitButton>
                       </form>
                     )}
                   </td>

@@ -21,5 +21,7 @@ export async function retryInvoice(formData: FormData) {
     }
   }
   revalidatePath('/admin/szamlak');
-  redirect(error ? `/admin/szamlak?hiba=${encodeURIComponent(error)}` : '/admin/szamlak');
+  if (error) redirect(`/admin/szamlak?hiba=${encodeURIComponent(error)}`);
+  const { data: after } = await supabase.from('invoices').select('status').eq('id', id).maybeSingle();
+  redirect(`/admin/szamlak?eredmeny=${after?.status === 'issued' ? 'kiallitva' : 'hiba'}`);
 }
