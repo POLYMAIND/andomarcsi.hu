@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { SiteNav } from '@/components/SiteNav';
 import { requireAdmin } from '@/lib/auth';
 import { formatDate, formatHuf, isoToBudapestLocal, TOOL_COLORS } from '@/lib/format';
+import { SubmitButton } from '@/components/SubmitButton';
 import { courseStatus, type Course, type Lesson } from '@/lib/types';
 import { youTubeThumb } from '@/lib/youtube';
 import { deleteCourse, deleteLesson, grantAccess, saveCourse, saveLesson } from '../../actions';
@@ -173,12 +174,23 @@ export default async function EditCoursePage({ params, searchParams }: Props) {
           </section>
 
           <section className="card stack" style={{ '--gap': '14px' } as React.CSSProperties}>
-            <h2 className="h3">Kézi hozzáférés</h2>
+            <h2 className="h3" id="hozzaferes">Kézi hozzáférés</h2>
+            {sp.hozzaferes && (
+              <div className="notice ok">
+                Kész: <strong>{sp.hozzaferes}</strong> mostantól hozzáfér ehhez a kurzushoz{course.bundle_course_ids?.length ? ' és a csomag összes moduljához' : ''}.
+                A „Saját tanulás” oldalán már látja.
+              </div>
+            )}
+            {sp.hozzaferes_hiba && (
+              <div className="notice err">
+                Nincs regisztrált felhasználó ezzel a címmel: <strong>{sp.hozzaferes_hiba}</strong>. Kérd meg, hogy előbb regisztráljon vagy lépjen be egyszer, aztán próbáld újra.
+              </div>
+            )}
             <p className="muted" style={{ margin: 0, fontSize: 14 }}>Pl. workshop-résztvevőknek vagy átutalással fizetőknek. A felhasználónak előbb be kell lépnie egyszer.</p>
             <form action={grantAccess} className="row">
               <input type="hidden" name="course_id" value={course.id} />
               <input className="input" name="email" type="email" required placeholder="email@pelda.hu" style={{ maxWidth: 320 }} />
-              <button className="btn sm" type="submit">Hozzáférés adása</button>
+              <SubmitButton className="btn sm" pending="Folyamatban…">Hozzáférés adása</SubmitButton>
             </form>
           </section>
 

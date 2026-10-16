@@ -104,8 +104,8 @@ export async function grantAccess(formData: FormData) {
   const courseId = str(formData, 'course_id');
   const back = `/admin/kurzusok/${courseId}`;
   const { data: user } = await supabase.from('profiles').select('id').ilike('email', email).maybeSingle();
-  if (!user) redirect(`${back}?hiba=${encodeURIComponent('Nincs ilyen e-mail címmel regisztrált felhasználó.')}`);
+  if (!user) redirect(`${back}?hozzaferes_hiba=${encodeURIComponent(email)}#hozzaferes`);
   await supabase.from('enrollments').upsert({ user_id: user.id, course_id: courseId, source: 'manual', amount_huf: 0 }, { onConflict: 'user_id,course_id', ignoreDuplicates: true });
   await enrollBundleContents(user.id, courseId, 'manual');
-  redirect(`${back}?ok=1`);
+  redirect(`${back}?hozzaferes=${encodeURIComponent(email)}#hozzaferes`);
 }
