@@ -234,3 +234,20 @@ a.lesson-item:hover { background: #ebe7e1; color: var(--ink); }
 .cookie-bar .btn:not(.light) { background: var(--amber); color: var(--ink); }
 .link-btn { background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; }
 .link-btn:hover { color: var(--purple); }
+
+/* Canva Kalauz szakasz (kezdőlap) */
+.km-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px; }
+.km-card, .km-extra { display: flex; flex-direction: column; border-radius: 22px; overflow: hidden; background: var(--paper); }
+.km-extra { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+.km-head { padding: 22px 24px; display: flex; flex-direction: column; gap: 8px; color: var(--ink); }
+.km-body { padding: 20px 24px 24px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
+.km-lessons summary { cursor: pointer; font-weight: 700; font-size: 14px; }
+.km-lessons ol { margin: 10px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; line-height: 1.4; }
+.km-lessons li span:first-child { margin-right: 6px; }
+.km-lessons li .mono { font-size: 12px; }
+.km-bundle { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 24px; padding: 24px 28px; border-radius: 22px; background: var(--ink); color: #fff; }
+.km-bundle .btn { background: var(--amber); color: var(--ink); }
+.km-gets { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 14px 24px; }
+.km-gets li { display: grid; grid-template-columns: 28px 1fr; gap: 2px 10px; font-size: 15px; line-height: 1.5; }
+.km-gets li::before { content: '✓'; grid-row: span 2; width: 28px; height: 28px; border-radius: 50%; background: var(--amber); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+.km-gets li span { color: var(--ink-2); font-size: 14px; }

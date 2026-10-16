@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { CanvaKalauzSection, type ModuleLesson } from '@/components/CanvaKalauzSection';
 import { FaqList } from '@/components/FaqList';
 import { JsonLd } from '@/components/JsonLd';
 import { SiteNav } from '@/components/SiteNav';
@@ -45,6 +46,21 @@ const NOT_FOR_YOU = [
   'egy héten belül 10 millió követőt szeretnél – én azt sem tudom, hogy kell.',
 ];
 
+// A Canva Kalauz modulok leckéi (cím és hossz) a kezdőlapi „Mit fogsz megtanulni?” részhez
+async function loadModuleLessons(courseIds: string[]): Promise<ModuleLesson[]> {
+  if (!courseIds.length) return [];
+  try {
+    const { data } = await (await createClient())
+      .from('lessons')
+      .select('course_id, title, duration_min, sort_order')
+      .in('course_id', courseIds)
+      .lte('published_at', new Date().toISOString());
+    return (data ?? []) as ModuleLesson[];
+  } catch {
+    return [];
+  }
+}
+
 async function loadCatalog() {
   try {
     return await getCatalog(await createClient());
@@ -61,6 +77,12 @@ export default async function Home() {
     .filter((c) => c.coming_soon && c.starts_at)
     .sort((a, b) => a.starts_at!.localeCompare(b.starts_at!));
   const nextLaunch = launches[0];
+  // Canva Kalauz: a csomag moduljai (1–3) + a külön vásárolható 4. modul
+  const all = catalog?.courses ?? [];
+  const canvaBundle = all.find((c) => c.slug === 'canva-kalauz') ?? null;
+  const canvaModules = canvaBundle ? all.filter((c) => canvaBundle.bundle_course_ids.includes(c.id)) : [];
+  const canvaExtra = all.find((c) => c.slug === 'canva-kalauz-4') ?? null;
+  const moduleLessons = await loadModuleLessons(canvaModules.map((m) => m.id));
   const dayOf = (iso: string) => new Date(iso).toLocaleDateString('hu-HU', { day: '2-digit', timeZone: 'Europe/Budapest' }).replace('.', '');
   const monthOf = (iso: string) => new Date(iso).toLocaleDateString('hu-HU', { month: 'long', timeZone: 'Europe/Budapest' });
   const shortDate = (iso: string) => new Date(iso).toLocaleDateString('hu-HU', { month: 'short', day: 'numeric', timeZone: 'Europe/Budapest' });
@@ -141,6 +163,9 @@ export default async function Home() {
           <span>PolyOS</span>
         </div>
       </section>
+
+      {/* CANVA KALAUZ – mit tanulsz, mit kapsz */}
+      <CanvaKalauzSection modules={canvaModules} bundle={canvaBundle} extra={canvaExtra} lessons={moduleLessons} />
 
       {/* KINEK SZÓL */}
       <section id="kinek" className="card" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,340px),1fr))', gap: '28px 56px' }}>
