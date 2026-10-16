@@ -216,7 +216,7 @@ export default async function Home() {
               <span className="stack" style={{ '--gap': '4px' } as React.CSSProperties}>
                 <span style={{ fontWeight: 700, fontSize: 17 }}>{c.title}</span>
                 <span style={{ fontSize: 14, color: '#a9a3af' }}>
-                  {catalog!.stats(c.id).count} lecke{c.subtitle ? ` · ${c.subtitle}` : ''}
+                  {c.bundle_course_ids?.length ? `${c.bundle_course_ids.length} modul` : `${catalog!.stats(c.id).count} lecke`}{c.subtitle ? ` · ${c.subtitle}` : ''}
                 </span>
               </span>
               <span className="mono" style={{ fontSize: 13, color: 'var(--amber)' }}>{priceLabel(c)}{c.coming_soon ? ` · ${soonLabel(c).toLowerCase()}` : ''}</span>

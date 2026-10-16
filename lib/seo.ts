@@ -10,12 +10,12 @@ export type Faq = { q: string; a: string };
 // Kezdőlap – minden válasz első mondata önmagában is idézhető.
 export const HOME_FAQ: Faq[] = [
   { q: 'Kell hozzá bármilyen előismeret?', a: 'Nem, a kurzusok teljesen kezdőknek készültek. Ha be tudsz kapcsolni egy laptopot és megtalálod rajta a böngészőt, a többit megmutatom.' },
-  { q: 'Hol lehet Canvát tanulni kezdőként, magyarul?', a: 'Az andormarcsi.hu-n a Canva Kalauz három, egyenként kb. 60 perces magyar nyelvű videómodulban tanítja a Canvát a teljes alapoktól: az első saját posztodtól az egységes, beütemezett Instagram-feeden át a lapozós karusszelig. A negyedik modul (weboldal, AI és extrák) külön vásárolható.' },
+  { q: 'Hol lehet Canvát tanulni kezdőként, magyarul?', a: 'Az andormarcsi.hu-n a Canva Kalauz három, egyenként kb. 60–90 perces magyar nyelvű videómodulban tanítja a Canvát a teljes alapoktól: az első saját posztodtól az egységes, beütemezett Instagram-feeden át a lapozós karusszelig. A negyedik modul (weboldal, AI és extrák) külön vásárolható.' },
   { q: 'Mennyibe kerülnek a kurzusok?', a: 'Egy Canva Kalauz-modul 9 990 Ft, az első három modul csomagban 24 990 Ft (a 4. modul külön vásárolható), a Claude Alapozó 24 900 Ft. A haladóbb anyagok tagsággal érhetők el. Alanyi adómentes vagyok, így ÁFA nem jön rá.' },
   { q: 'Élő óra vagy felvett videó?', a: 'Előre felvett videók, amiket a saját tempódban nézel, bármikor és akárhányszor. Senki nem lát, ha negyedszer tekered vissza ugyanazt a részt.' },
   { q: 'Mi az a Claude, és miben más, mint a ChatGPT?', a: 'A Claude az Anthropic mesterséges intelligencia asszisztense, ami szövegírásban, e-mailekben és ajánlatokban segít. A Claude Alapozóban megtanulod úgy beállítani, hogy a saját vállalkozásod hangján írjon – nem pedig úgy, mint egy hivatali levél.' },
   { q: 'Tényleg tudok AI-jal hirdetési képet csinálni grafikus nélkül?', a: 'Igen, referenciaképből és jó utasításokkal kis vállalkozásként is készíthetsz hirdetési kreatívot. Az AI képgenerálás kurzusban megmutatom a teljes folyamatot, a feliratok javításával együtt.' },
-  { q: 'Mennyi idő alatt végzek egy kurzussal?', a: 'Egy Canva-modul nagyjából 60 perc videó plusz egy rövid házi feladat. A Claude Alapozó 2–3 óra – egy hétvége alatt kényelmesen megvan, kávészünetekkel.' },
+  { q: 'Mennyi idő alatt végzek egy kurzussal?', a: 'Egy Canva-modul nagyjából 60–90 perc videó, rövid, 5–10 perces leckékre bontva, amit a saját tempódban nézel. A Claude Alapozó 2–3 óra – egy hétvége alatt kényelmesen megvan, kávészünetekkel.' },
   { q: 'Nem vagyok már túl öreg ehhez?', a: 'Nem. A célcsoportom pont azok, akik most ismerkednek a digitális eszközökkel, korhatár nélkül. Én is negyven felett tanultam meg mindent, amit tanítok.' },
 ];
 

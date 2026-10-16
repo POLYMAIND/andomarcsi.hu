@@ -27,6 +27,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const mine = catalog.courses
     // hozzáférhető kurzusok + az előrendelt („Hamarosan”) kurzusok
     .filter((c) => courseAccessible(c, access, profile?.is_admin) || access.enrolled.has(c.id))
+    // a csomag maga nem kurzus: a benne lévő modulok külön jelennek meg (vásárláskor mindegyikbe beiratkozik)
+    .filter((c) => !c.bundle_course_ids?.length)
     .map((c) => {
       const ls = byCourse.get(c.id) ?? [];
       const done = ls.filter((l) => access.completed.has(l.id)).length;

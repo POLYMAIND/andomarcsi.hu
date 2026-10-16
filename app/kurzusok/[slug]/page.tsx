@@ -77,7 +77,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
           {course.subtitle && <p className="lead" style={{ color: 'var(--ink)' }}>{course.subtitle}</p>}
           {course.teaser && <p style={{ margin: 0, fontSize: 17, lineHeight: 1.6, color: 'var(--ink)' }}>{course.teaser}</p>}
           <div className="row">
-            <span className="pill">{list.length} lecke</span>
+            <span className="pill">{isBundle ? `${modules.length} modul` : `${list.length} lecke`}</span>
             {totalMin > 0 && <span className="pill">{totalMin} perc videó</span>}
             {hasAccess && list.length > 0 && <span className="pill">{done}/{list.length} kész</span>}
           </div>

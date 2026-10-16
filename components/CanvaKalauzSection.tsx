@@ -8,7 +8,7 @@ export type ModuleLesson = { course_id: string; title: string; duration_min: num
 const COLORS = ['var(--amber)', 'var(--mint)', 'oklch(0.80 0.10 295)', 'var(--rose)'];
 
 const GETS = [
-  { t: 'Rövid, követhető videók', d: 'Max. 10 perces leckék – egyszerre egy dolog, lépésről lépésre.' },
+  { t: 'Rövid, követhető videók', d: 'Többnyire 5–10 perces leckék – egyszerre egy dolog, lépésről lépésre.' },
   { t: 'A saját tempódban', d: 'Akkor nézed, amikor ráérsz, és akárhányszor visszatekered.' },
   { t: 'Örökre a tiéd', d: 'Egyszeri díj, nincs előfizetés – a tudástárban korlátlan ideig eléred.' },
   { t: 'AI segítő, ha elakadsz', d: 'A kurzusoldalon egy AI chat válaszol a Canvás kérdéseidre.' },
