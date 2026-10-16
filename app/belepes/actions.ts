@@ -49,6 +49,8 @@ export async function signUpWithPassword(formData: FormData) {
     const code = isRateLimit(error) ? 'limit' : error.code === 'weak_password' ? 'gyenge' : error.code === 'user_already_exists' ? 'letezik' : 'kuldes';
     redirect(back('regisztracio', { hiba: code, next, email }));
   }
+  // Már regisztrált címnél a Supabase nem küld levelet, és üres „identities” listával válaszol – ezt jelezzük.
+  if (data.user && data.user.identities?.length === 0) redirect(back('', { hiba: 'letezik', next, email }));
   // Ha a Supabase-ben nincs bekapcsolva az e-mail megerősítés, azonnal van session.
   if (data.session) {
     await (await createClient()).auth.setSession(data.session);
