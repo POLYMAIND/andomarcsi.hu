@@ -40,6 +40,7 @@ Stripe fizetés: egyedi kurzusvásárlás és **havi előfizetés (10 990 Ft/hó
      `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted` → `STRIPE_WEBHOOK_SECRET`.
    - Customer portal bekapcsolása (Settings → Billing → Customer portal) a lemondáshoz/kártyacseréhez.
    - PolySuli: futtasd a `supabase/migrations/20261104000000_polyakademia.sql`-t is.
+   - Zsebkurzus: futtasd a `supabase/migrations/20261104010000_zsebkurzus.sql`-t is. A zsebkurzus saját, 990 Ft-os kurzussor (`pocket_for` → a tanfolyam); a letöltési linket a kurzusszerkesztőben add meg, majd állítsd „Elérhető”-re.
    - Az előfizetés ára alapból kódból jön (10 990 Ft/hó); ha Stripe-ban saját Price-t hozol létre, add meg: `STRIPE_SUBSCRIPTION_PRICE_ID`.
 3. **Környezeti változók**: lásd `.env.example` (Vercelen: Project → Settings → Environment Variables).
 4. `npm install && npm run dev`

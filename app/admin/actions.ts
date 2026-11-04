@@ -30,6 +30,7 @@ export async function saveCourse(formData: FormData) {
     academy_level: [1, 2, 3].includes(int(formData, 'academy_level') ?? 0) ? int(formData, 'academy_level') : null,
     academy_tag: str(formData, 'academy_tag'),
     academy_keyword: str(formData, 'academy_keyword').toUpperCase(),
+    pocket_for: (str(formData, 'pocket_for') && str(formData, 'pocket_for') !== id) ? str(formData, 'pocket_for') : null,
     tool: str(formData, 'tool') || 'Canva',
     level: str(formData, 'level') || 'Kezdő',
     price_huf: int(formData, 'price_huf') === null ? null : Math.max(0, int(formData, 'price_huf')!),
@@ -49,6 +50,15 @@ export async function saveCourse(formData: FormData) {
     const msg = res.error.code === '23505' ? 'Ez az URL-név (slug) már foglalt.' : res.error.message;
     redirect(`/admin/kurzusok/${id || 'uj'}?hiba=${encodeURIComponent(msg)}`);
   }
+  // Zsebkurzus letöltési linkje (külön tábla: csak jogosult olvashatja)
+  const downloadUrl = str(formData, 'download_url');
+  if (downloadUrl && !/^https:\/\//.test(downloadUrl)) {
+    redirect(`/admin/kurzusok/${res.data.id}?hiba=${encodeURIComponent('A letöltési linknek https://-sel kell kezdődnie.')}`);
+  }
+  const dl = downloadUrl
+    ? await supabase.from('course_downloads').upsert({ course_id: res.data.id, url: downloadUrl, label: str(formData, 'download_label') || 'Letöltöm a csomagot', updated_at: new Date().toISOString() })
+    : await supabase.from('course_downloads').delete().eq('course_id', res.data.id);
+  if (dl.error) redirect(`/admin/kurzusok/${res.data.id}?hiba=${encodeURIComponent(dl.error.message)}`);
   revalidatePath('/', 'layout');
   redirect(`/admin/kurzusok/${res.data.id}?ok=1`);
 }

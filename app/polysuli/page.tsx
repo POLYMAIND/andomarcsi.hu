@@ -44,7 +44,7 @@ const FAQ: Faq[] = [
   { q: 'Mi az a PolySuli?', a: 'A PolySuli a Polymaind Claude-tudástára (Polyakadémia): magyar nyelvű, előre felvett tanfolyamok arról, hogyan dolgozz Claude-dal a saját vállalkozásodban. Amit az ügyfeleinknek építünk, azt tanítjuk meg.' },
   { q: 'Melyik szinten kezdjek?', a: 'Töltsd ki az ingyenes Claude-piramis tesztet – hat kérdés, két perc –, és megmutatja, melyik szint tanfolyamaival érdemes indulnod. Ha bizonytalan vagy, az 1. szint Alapkurzusa mindenkinek jó kezdés.' },
   { q: 'Mennyibe kerül?', a: `Egy nagy tanfolyam ${formatHuf(ACADEMY_PRICES.large)}, egy kis tanfolyam ${formatHuf(ACADEMY_PRICES.small)}, egy zsebkurzus ${formatHuf(ACADEMY_PRICES.pocket)}. Előfizetéssel ${formatHuf(SUBSCRIPTION.priceHuf)}/hó áron minden tanfolyamhoz hozzáférsz. Az árak bruttó árak, ÁFA nem jön rájuk.` },
-  { q: 'Mi az a zsebkurzus?', a: `Minden tanfolyamhoz tartozik egy ${formatHuf(ACADEMY_PRICES.pocket)}-os zsebkurzus: a kész promptok és skillek, telepítési leírással. A tanfolyam kulcsszavát kommenteld bármelyik Instagram-posztunk alá, és DM-ben küldjük az ingyenes részt.` },
+  { q: 'Mi az a zsebkurzus?', a: `A zsebkurzus egy tanfolyam kész promptjai és skilljei egy letölthető csomagban, telepítési leírással, ${formatHuf(ACADEMY_PRICES.pocket)}-ért. Itt az oldalon bankkártyával megveszed, és a kurzusoldalon azonnal letöltheted. Az ingyenes részt Instagramon is kérheted: kommenteld a tanfolyam kulcsszavát bármelyik posztunk alá, és DM-ben küldjük.` },
   { q: 'Kell hozzá fizetős Claude-előfizetés?', a: 'Az 1. szint nagy része az ingyenes Claude-dal is végigcsinálható. A projektekhez, skillekhez és a haladóbb szintekhez a fizetős Claude-csomag (Pro) ajánlott – a tanfolyamokban mindig szólunk, ha valamihez kell.' },
 ];
 
@@ -60,6 +60,7 @@ export default async function PolySuliPage() {
         .lte('published_at', new Date().toISOString())
         .order('sort_order')
     : { data: [] };
+  const pocketOf = (id: string) => catalog.pockets.find((p) => p.pocket_for === id) ?? null;
   const lessonsOf = (id: string) => (lessons ?? []).filter((l) => l.course_id === id);
   const byLevel = (level: AcademyLevel) => courses.filter((c) => c.academy_level === level);
   const counts = { 1: byLevel(1).length, 2: byLevel(2).length, 3: byLevel(3).length } as Record<AcademyLevel, number>;
@@ -114,9 +115,12 @@ export default async function PolySuliPage() {
             </div>
             {list.length === 0 && <p className="muted">A tanfolyamok hamarosan érkeznek.</p>}
             <div className="stack" style={{ '--gap': '10px' } as React.CSSProperties}>
-              {list.map((c, i) => (
-                <CourseRow key={c.id} course={c} lessons={lessonsOf(c.id)} open={i === 0 && lessonsOf(c.id).length > 0} hasAccess={!!user && courseAccessible(c, access, profile?.is_admin)} />
-              ))}
+              {list.map((c, i) => {
+                const pocket = pocketOf(c.id);
+                return (
+                <CourseRow key={c.id} course={c} pocket={pocket} pocketOwned={!!pocket && !!user && courseAccessible(pocket, access, profile?.is_admin)} lessons={lessonsOf(c.id)} open={i === 0 && lessonsOf(c.id).length > 0} hasAccess={!!user && courseAccessible(c, access, profile?.is_admin)} />
+              );
+              })}
             </div>
           </section>
         );
@@ -129,7 +133,7 @@ export default async function PolySuliPage() {
           <p className="lead">Bruttó árak – alanyi adómentes vagyok, így ÁFA nem jön rájuk. A tanfolyamokat örökre megtartod, az előfizetés bármikor lemondható.</p>
         </div>
         <div className="grid" style={{ '--min': '220px', '--gap': '14px' } as React.CSSProperties}>
-          <PriceTile name="Zsebkurzus" price={formatHuf(ACADEMY_PRICES.pocket)} desc="Egy tanfolyam kész promptjai és skilljei, telepítési leírással. Instán kommenteld a kulcsszót, és DM-ben küldjük." />
+          <PriceTile name="Zsebkurzus" price={formatHuf(ACADEMY_PRICES.pocket)} desc="Egy tanfolyam kész promptjai és skilljei, telepítési leírással – itt az oldalon megveszed, és azonnal letöltöd. Az ingyenes részt Instán is kérheted kulcsszóval." />
           <PriceTile name="Kis tanfolyam" price={formatHuf(ACADEMY_PRICES.small)} desc="Egy fókuszált téma – például hírlevél, ajánlat vagy ügyfélkövetés – rövid videóleckékben." />
           <PriceTile name="Nagy tanfolyam" price={formatHuf(ACADEMY_PRICES.large)} desc="Egy teljes munkafolyamat az elejétől a végéig, skillekkel – például az Alapkurzus vagy a Reels-vágás." />
           <PriceTile
@@ -164,7 +168,7 @@ function PriceTile({ name, price, desc, featured, cta }: { name: string; price: 
 
 type LessonRow = { id: string; title: string; description: string };
 
-function CourseRow({ course: c, lessons, open, hasAccess }: { course: Course; lessons: LessonRow[]; open: boolean; hasAccess: boolean }) {
+function CourseRow({ course: c, pocket, pocketOwned, lessons, open, hasAccess }: { course: Course; pocket: Course | null; pocketOwned: boolean; lessons: LessonRow[]; open: boolean; hasAccess: boolean }) {
   return (
     <details className="ps-course" open={open}>
       <summary>
@@ -191,7 +195,20 @@ function CourseRow({ course: c, lessons, open, hasAccess }: { course: Course; le
         ) : (
           <p className="muted" style={{ margin: 0, fontSize: 14 }}>A tematika készül.{c.academy_tag ? ` Ez a tanfolyam a(z) ${c.academy_tag} témához tartozik.` : ''}</p>
         )}
-        {c.academy_keyword && (
+        {pocket ? (
+          <div className="ps-pocket">
+            <span>
+              <b>Zsebkurzus</b> · kész promptok és skillek, telepítési leírással
+              {pocket.academy_keyword && <> · ingyenes rész Instán: <span className="ps-kw">{pocket.academy_keyword}</span></>}
+            </span>
+            <span className="row" style={{ '--gap': '8px' } as React.CSSProperties}>
+              <span className="ps-pocket-price">{pocketOwned ? 'A tiéd' : priceLabel(pocket)}</span>
+              <Link href={`/kurzusok/${pocket.slug}`} className="btn sm">
+                {pocketOwned ? 'Letöltés' : pocket.coming_soon ? soonLabel(pocket) : 'Megveszem'} →
+              </Link>
+            </span>
+          </div>
+        ) : c.academy_keyword ? (
           <div className="ps-pocket">
             <span><b>Zsebkurzus</b> · kész promptok és skillek</span>
             <span className="row" style={{ '--gap': '8px' } as React.CSSProperties}>
@@ -199,7 +216,7 @@ function CourseRow({ course: c, lessons, open, hasAccess }: { course: Course; le
               <span className="ps-pocket-price">{formatHuf(ACADEMY_PRICES.pocket)}</span>
             </span>
           </div>
-        )}
+        ) : null}
         <Link href={`/kurzusok/${c.slug}`} className="btn sm" style={{ alignSelf: 'flex-start' }}>
           {c.coming_soon ? 'Részletek · szólj, ha indul' : hasAccess ? 'Megnyitom' : 'Részletek'}
         </Link>

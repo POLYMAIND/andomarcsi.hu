@@ -69,7 +69,7 @@ export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref,
             <button className="btn light block" type="submit">Hozzáadom a tanulásaimhoz</button>
           </form>
         )}
-        {firstLessonHref && <Link href={firstLessonHref} className="btn block">Indulhat a tanulás →</Link>}
+        {firstLessonHref && <Link href={firstLessonHref} className="btn block">{course.pocket_for ? 'Letöltés ↓' : 'Indulhat a tanulás →'}</Link>}
       </div>
     );
   }
@@ -115,7 +115,7 @@ export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref,
       <div className="plan-price" style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 36, letterSpacing: '-.03em' }}>
         {formatHuf(course.price_huf as number)}
       </div>
-      <span className="muted" style={{ fontSize: 14 }}>Egyszeri díj, a kurzushoz korlátlan ideig hozzáférsz.</span>
+      <span className="muted" style={{ fontSize: 14 }}>{course.pocket_for ? 'Egyszeri díj – a fizetés után azonnal letöltheted a csomagot, és bármikor újra letöltheted.' : 'Egyszeri díj, a kurzushoz korlátlan ideig hozzáférsz.'}</span>
       <form action="/api/checkout" method="post">
         <input type="hidden" name="plan" value="course" />
         <input type="hidden" name="course_id" value={course.id} />

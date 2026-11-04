@@ -30,8 +30,8 @@ const isBeginner = (c: Pick<Course, 'level'>) => /kezdő/i.test(c.level) && !/ha
 
 // Kurzusoldal H1: kurzusnév + „kezdőknek”, ha kezdő szintű és a címben még nincs benne.
 // „Canva Kalauz 1. – Fedezd fel…” → „Canva Kalauz 1. kezdőknek – Fedezd fel…” (a gondolatjel előtti névhez kerül).
-export function courseHeading(c: Pick<Course, 'title' | 'level'>): string {
-  if (!isBeginner(c) || /kezdő/i.test(c.title)) return c.title;
+export function courseHeading(c: Pick<Course, 'title' | 'level'> & { pocket_for?: string | null }): string {
+  if (c.pocket_for || !isBeginner(c) || /kezdő/i.test(c.title)) return c.title;
   const i = c.title.indexOf(' – ');
   return i > 0 ? `${c.title.slice(0, i)} kezdőknek${c.title.slice(i)}` : `${c.title} kezdőknek`;
 }
@@ -61,6 +61,13 @@ export function courseFaq(c: Course): Faq[] {
   });
   if (c.workload_min) {
     faq.push({ q: 'Mennyi idő alatt végzek vele?', a: `${name} nagyjából ${workloadText(c.workload_min)} videó, amit a saját tempódban nézel – akár több részletben is.` });
+  }
+  if (c.pocket_for) {
+    faq.push({
+      q: 'Mit kapok pontosan?',
+      a: `${name} egy letölthető csomag: kész promptok és skillek, telepítési leírással. Nincs benne videó – a fizetés után a kurzusoldalon azonnal letöltheted, és bármikor újra letöltheted.${c.coming_soon ? ' A csomag hamarosan elérhető – kérj értesítést, és szólok.' : ''}`,
+    });
+    return faq;
   }
   const start = c.starts_at ? new Date(c.starts_at).toLocaleDateString('hu-HU', { month: 'long', day: 'numeric', timeZone: 'Europe/Budapest' }) : null;
   faq.push({
