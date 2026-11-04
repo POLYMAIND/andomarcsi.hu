@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { AcademyQuiz, type PyramidCourse } from '@/components/AcademyQuiz';
 import { FaqList } from '@/components/FaqList';
 import { JsonLd } from '@/components/JsonLd';
+import { ScrollFadeNav } from '@/components/ScrollFadeNav';
 import { SiteNav } from '@/components/SiteNav';
 import { getCurrentUser } from '@/lib/auth';
 import { COMPANY } from '@/lib/company';
@@ -127,9 +128,7 @@ export default async function PolyakademiaPage({ searchParams }: { searchParams:
         </p>
       </section>
 
-      <nav className="ps-toc" aria-label="Fejezetek">
-        {TOC.map(([href, label]) => <a key={href} href={href}>{label}</a>)}
-      </nav>
+      <ScrollFadeNav items={TOC} />
 
       <section id="kinek" className="card stack ps-anchor" style={{ '--gap': '22px' } as React.CSSProperties}>
         <div className="stack" style={{ '--gap': '10px' } as React.CSSProperties}>

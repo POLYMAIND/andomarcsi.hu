@@ -334,6 +334,10 @@ a.lesson-item:hover { background: #ebe7e1; color: var(--ink); }
 .ps-toc::-webkit-scrollbar { display: none; }
 .ps-toc a { color: #f3f5ef; font-weight: 700; font-size: 14px; padding: 8px 14px; border-radius: 999px; white-space: nowrap; }
 .ps-toc a:hover, .ps-toc a:focus-visible { background: var(--lime); color: var(--lime-ink); outline: none; }
+/* Elhalványulás a menü szélén, ha arra még lehet görgetni */
+.ps-toc[data-fade-right] { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 56px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 56px), transparent); }
+.ps-toc[data-fade-left] { -webkit-mask-image: linear-gradient(to right, transparent, #000 56px); mask-image: linear-gradient(to right, transparent, #000 56px); }
+.ps-toc[data-fade-left][data-fade-right] { -webkit-mask-image: linear-gradient(to right, transparent, #000 56px, #000 calc(100% - 56px), transparent); mask-image: linear-gradient(to right, transparent, #000 56px, #000 calc(100% - 56px), transparent); }
 .ps-anchor { scroll-margin-top: 72px; }
 .ps-chip-dark { background: #2e2b33; color: #f3f5ef; border-radius: 8px 8px 18px 8px; padding: 8px 14px; font-size: 15px; }
 .ps-chip-dark:hover { color: #f3f5ef; background: #4a4652; }
