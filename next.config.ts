@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       { source: '/polyakademia', destination: '/polysuli', permanent: true },
+      { source: '/claude-tanfolyamok', destination: '/polysuli', permanent: true },
     ];
   },
   async headers() {

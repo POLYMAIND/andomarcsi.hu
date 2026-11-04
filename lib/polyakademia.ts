@@ -59,3 +59,9 @@ export function academyLevelFrom(picks: number[]): AcademyLevel {
 }
 
 export const isAcademyLevel = (n: unknown): n is AcademyLevel => n === 1 || n === 2 || n === 3;
+
+// Letölthető csomag egy tanfolyam alatt (courses.pocket_for): 0 Ft = ingyenes anyag, egyébként zsebkurzus.
+export const packageKind = (c: { price_huf: number | null }) => (c.price_huf === 0 ? 'Ingyenes anyag' : 'Zsebkurzus');
+// Sorrend a listákban: előbb az ingyenes anyagok, aztán a zsebkurzusok.
+export const byPackageOrder = <T extends { price_huf: number | null; sort_order: number }>(a: T, b: T) =>
+  (a.price_huf === 0 ? 0 : 1) - (b.price_huf === 0 ? 0 : 1) || a.sort_order - b.sort_order;
