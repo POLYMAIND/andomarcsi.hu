@@ -27,7 +27,7 @@ export async function SiteNav({ bare = false }: { bare?: boolean }) {
       </Link>
       <div className="nav-links">
         <Link href="/#kurzusok">Kurzusok</Link>
-        <Link href={ACADEMY.path}>{ACADEMY.name}</Link>
+        <Link href={ACADEMY.path}>{ACADEMY.menu}</Link>
         <Link href="/kurzusok">Tudástár</Link>
         {SUBSCRIPTION.enabled && <Link href="/elofizetes">Előfizetés</Link>}
         {profile?.is_admin && <Link href="/admin">Admin</Link>}
@@ -66,7 +66,7 @@ export function SiteFooter() {
           <span className="muted" style={{ fontSize: 13, maxWidth: 420 }}>andormarcsi.hu – online videókurzusok kezdőknek: Canva, Claude, AI-eszközök és PolyOS. Emberi nyelven, félelem nélkül.</span>
         </div>
         <nav className="footer-links" aria-label="Lábléc">
-          <Link href={ACADEMY.path}>{ACADEMY.name} – Claude-tanfolyamok</Link>
+          <Link href={ACADEMY.path}>{ACADEMY.menu} – Claude-tanfolyamok</Link>
           <Link href="/kurzusok">Tudástár</Link>
           {SUBSCRIPTION.enabled && <Link href="/elofizetes">Előfizetés</Link>}
           <a href={`mailto:${COMPANY.email}`}>Kapcsolat</a>
