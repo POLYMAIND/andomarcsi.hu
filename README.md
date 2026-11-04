@@ -10,6 +10,7 @@ Stripe fizetés: egyedi kurzusvásárlás és **havi előfizetés (10 990 Ft/hó
 | Rész | Útvonal | Mit tud |
 |---|---|---|
 | Főoldal | `/` | A Claude Design dizájn; a tudástár blokk élő kurzusokat mutat |
+| PolySuli | `/polysuli` | A Polyakadémia Claude-tanfolyamai: oktatási piramis (3 szint), szintfelmérő kvíz, szintenkénti tanfolyamok, árak (nagy 19 990 · kis 5 990 · zsebkurzus 990 · előfizetés 10 990 Ft/hó). A kurzusok POLYSULI jelvényt kapnak; szint/címke/kulcsszó a kurzusszerkesztőben. `/polyakademia` → ide irányít |
 | Tudástár | `/kurzusok` | Kurzuslista, „legújabb anyagok”, „+N új” jelvények |
 | Kurzus | `/kurzusok/[slug]` | Tananyag, ingyenes előzetes leckék, vásárlás / előfizetés |
 | Lecke | `/kurzusok/[slug]/[id]` | YouTube lejátszó (youtube-nocookie), „Kész vagyok vele”, előző/következő |
@@ -38,6 +39,7 @@ Stripe fizetés: egyedi kurzusvásárlás és **havi előfizetés (10 990 Ft/hó
      `checkout.session.completed`, `checkout.session.async_payment_succeeded`,
      `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted` → `STRIPE_WEBHOOK_SECRET`.
    - Customer portal bekapcsolása (Settings → Billing → Customer portal) a lemondáshoz/kártyacseréhez.
+   - PolySuli: futtasd a `supabase/migrations/20261104000000_polyakademia.sql`-t is.
    - Az előfizetés ára alapból kódból jön (10 990 Ft/hó); ha Stripe-ban saját Price-t hozol létre, add meg: `STRIPE_SUBSCRIPTION_PRICE_ID`.
 3. **Környezeti változók**: lásd `.env.example` (Vercelen: Project → Settings → Environment Variables).
 4. `npm install && npm run dev`
