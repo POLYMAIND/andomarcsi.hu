@@ -24,7 +24,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   for (const l of lessons ?? []) byCourse.set(l.course_id, [...(byCourse.get(l.course_id) ?? []), l]);
 
   // "Saját" kurzusok: amibe beiratkozott/megvette, vagy amibe már belekezdett (előfizetőként / ingyenesként).
-  const mine = catalog.courses
+  const mine = [...catalog.courses, ...catalog.pockets.filter((p) => access.enrolled.has(p.id))]
     // hozzáférhető kurzusok + az előrendelt („Hamarosan”) kurzusok
     .filter((c) => courseAccessible(c, access, profile?.is_admin) || access.enrolled.has(c.id))
     // a csomag maga nem kurzus: a benne lévő modulok külön jelennek meg (vásárláskor mindegyikbe beiratkozik)

@@ -17,6 +17,7 @@ export default async function SuccessPage({ searchParams }: { searchParams: Prom
   let courseSlug: string | null = null;
   let isSub = false;
   let preorder = false;
+  let pocket = false;
 
   if (session_id && user && /^cs_[A-Za-z0-9_]+$/.test(session_id)) {
     try {
@@ -27,9 +28,10 @@ export default async function SuccessPage({ searchParams }: { searchParams: Prom
         ok = true;
         isSub = session.mode === 'subscription';
         if (session.metadata?.course_id) {
-          const { data } = await createAdminClient().from('courses').select('slug, coming_soon, starts_at').eq('id', session.metadata.course_id).maybeSingle();
+          const { data } = await createAdminClient().from('courses').select('slug, coming_soon, starts_at, pocket_for').eq('id', session.metadata.course_id).maybeSingle();
           courseSlug = data?.slug ?? null;
           preorder = !!data && withStart(data).coming_soon;
+          pocket = !!data?.pocket_for;
         }
       }
     } catch {
@@ -46,11 +48,11 @@ export default async function SuccessPage({ searchParams }: { searchParams: Prom
             <div className="eyebrow">Sikeres fizetés</div>
             <h1 className="h2">Köszönöm! Indulhat a tanulás. 🎉</h1>
             <p className="lead">
-              {isSub ? 'Az előfizetésed aktív – minden videóhoz hozzáférsz.' : preorder ? 'Az előrendelésed rögzítve! A kurzus indulásakor azonnal hozzáférsz, erről e-mailt is küldök.' : 'A kurzus mostantól a tiéd, bármikor visszanézheted.'} A számlát e-mailben
+              {isSub ? 'Az előfizetésed aktív – minden videóhoz hozzáférsz.' : preorder ? 'Az előrendelésed rögzítve! A kurzus indulásakor azonnal hozzáférsz, erről e-mailt is küldök.' : pocket ? 'A zsebkurzus a tiéd – a kurzusoldalon letöltheted a csomagot, és bármikor újra letöltheted.' : 'A kurzus mostantól a tiéd, bármikor visszanézheted.'} A számlát e-mailben
               küldjük.
             </p>
             <div className="row">
-              {courseSlug && <Link href={`/kurzusok/${courseSlug}`} className="btn">Kurzus megnyitása</Link>}
+              {courseSlug && <Link href={`/kurzusok/${courseSlug}`} className="btn">{pocket ? 'Letöltés' : 'Kurzus megnyitása'}</Link>}
               <Link href="/dashboard" className={courseSlug ? 'btn light' : 'btn'}>Saját tanulás</Link>
             </div>
           </>

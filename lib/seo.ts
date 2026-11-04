@@ -11,10 +11,11 @@ export type Faq = { q: string; a: string };
 export const HOME_FAQ: Faq[] = [
   { q: 'Kell hozzá bármilyen előismeret?', a: 'Nem, a kurzusok teljesen kezdőknek készültek. Ha be tudsz kapcsolni egy laptopot és megtalálod rajta a böngészőt, a többit megmutatom.' },
   { q: 'Hol lehet Canvát tanulni kezdőként, magyarul?', a: 'Az andormarcsi.hu-n a Canva Kalauz három, egyenként kb. 60–90 perces magyar nyelvű videómodulban tanítja a Canvát a teljes alapoktól: az első saját posztodtól az egységes, beütemezett Instagram-feeden át a lapozós karusszelig. A negyedik modul (weboldal, AI és extrák) külön vásárolható.' },
-  { q: 'Mennyibe kerülnek a kurzusok?', a: 'Egy Canva Kalauz-modul 9 990 Ft, az első három modul csomagban 24 990 Ft (a 4. modul külön vásárolható), a Claude Alapozó 24 900 Ft. A haladóbb anyagok tagsággal érhetők el. Alanyi adómentes vagyok, így ÁFA nem jön rá.' },
+  { q: 'Mennyibe kerülnek a kurzusok?', a: 'Egy Canva Kalauz-modul 9 990 Ft, az első három modul csomagban 24 990 Ft (a 4. modul külön vásárolható), a PolySuli Claude-tanfolyamai közül a nagyok 19 990 Ft-ba, a kicsik 5 990 Ft-ba kerülnek, a zsebkurzusok 990 Ft-ba. Előfizetéssel (10 990 Ft/hó) minden tanfolyamhoz hozzáférsz. Alanyi adómentes vagyok, így ÁFA nem jön rá.' },
   { q: 'Élő óra vagy felvett videó?', a: 'Előre felvett videók, amiket a saját tempódban nézel, bármikor és akárhányszor. Senki nem lát, ha negyedszer tekered vissza ugyanazt a részt.' },
   { q: 'Mi az a Claude, és miben más, mint a ChatGPT?', a: 'A Claude az Anthropic mesterséges intelligencia asszisztense, ami szövegírásban, e-mailekben és ajánlatokban segít. A Claude Alapozóban megtanulod úgy beállítani, hogy a saját vállalkozásod hangján írjon – nem pedig úgy, mint egy hivatali levél.' },
   { q: 'Tényleg tudok AI-jal hirdetési képet csinálni grafikus nélkül?', a: 'Igen, referenciaképből és jó utasításokkal kis vállalkozásként is készíthetsz hirdetési kreatívot. Az AI képgenerálás kurzusban megmutatom a teljes folyamatot, a feliratok javításával együtt.' },
+  { q: 'Mi az a PolySuli?', a: 'A PolySuli a Polymaind Claude-tudástára: magyar nyelvű Claude-tanfolyamok három szinten – Claude a mindennapi munkában, saját munkafolyamatok és skillek, végül ügynökök és saját appok. Egy ingyenes, kétperces teszt megmutatja, melyik szinten érdemes kezdened.' },
   { q: 'Mennyi idő alatt végzek egy kurzussal?', a: 'Egy Canva-modul nagyjából 60–90 perc videó, rövid, 5–10 perces leckékre bontva, amit a saját tempódban nézel. A Claude Alapozó 2–3 óra – egy hétvége alatt kényelmesen megvan, kávészünetekkel.' },
   { q: 'Nem vagyok már túl öreg ehhez?', a: 'Nem. A célcsoportom pont azok, akik most ismerkednek a digitális eszközökkel, korhatár nélkül. Én is negyven felett tanultam meg mindent, amit tanítok.' },
 ];
@@ -29,8 +30,8 @@ const isBeginner = (c: Pick<Course, 'level'>) => /kezdő/i.test(c.level) && !/ha
 
 // Kurzusoldal H1: kurzusnév + „kezdőknek”, ha kezdő szintű és a címben még nincs benne.
 // „Canva Kalauz 1. – Fedezd fel…” → „Canva Kalauz 1. kezdőknek – Fedezd fel…” (a gondolatjel előtti névhez kerül).
-export function courseHeading(c: Pick<Course, 'title' | 'level'>): string {
-  if (!isBeginner(c) || /kezdő/i.test(c.title)) return c.title;
+export function courseHeading(c: Pick<Course, 'title' | 'level'> & { pocket_for?: string | null }): string {
+  if (c.pocket_for || !isBeginner(c) || /kezdő/i.test(c.title)) return c.title;
   const i = c.title.indexOf(' – ');
   return i > 0 ? `${c.title.slice(0, i)} kezdőknek${c.title.slice(i)}` : `${c.title} kezdőknek`;
 }
@@ -60,6 +61,13 @@ export function courseFaq(c: Course): Faq[] {
   });
   if (c.workload_min) {
     faq.push({ q: 'Mennyi idő alatt végzek vele?', a: `${name} nagyjából ${workloadText(c.workload_min)} videó, amit a saját tempódban nézel – akár több részletben is.` });
+  }
+  if (c.pocket_for) {
+    faq.push({
+      q: 'Mit kapok pontosan?',
+      a: `${name} egy letölthető csomag: kész promptok és skillek, telepítési leírással. Nincs benne videó – a fizetés után a kurzusoldalon azonnal letöltheted, és bármikor újra letöltheted.${c.coming_soon ? ' A csomag hamarosan elérhető – kérj értesítést, és szólok.' : ''}`,
+    });
+    return faq;
   }
   const start = c.starts_at ? new Date(c.starts_at).toLocaleDateString('hu-HU', { month: 'long', day: 'numeric', timeZone: 'Europe/Budapest' }) : null;
   faq.push({

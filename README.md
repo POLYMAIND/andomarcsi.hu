@@ -1,7 +1,7 @@
 # andormarcsi.hu – oktatási platform
 
 Workshop-landing + videós tudástár (YouTube-leckék), tanulói dashboard, admin felület,
-Stripe fizetés: egyedi kurzusvásárlás és **havi előfizetés (14 990 Ft/hó, heti 2 új anyag)**.
+Stripe fizetés: egyedi kurzusvásárlás és **havi előfizetés (10 990 Ft/hó, heti 2 új anyag)**.
 
 **Stack:** Next.js 16 (App Router) · Supabase (belépés + Postgres + RLS) · Stripe Checkout / Billing · Vercel
 
@@ -10,6 +10,7 @@ Stripe fizetés: egyedi kurzusvásárlás és **havi előfizetés (14 990 Ft/hó
 | Rész | Útvonal | Mit tud |
 |---|---|---|
 | Főoldal | `/` | A Claude Design dizájn; a tudástár blokk élő kurzusokat mutat |
+| PolySuli | `/polysuli` | A Polyakadémia Claude-tanfolyamai: oktatási piramis (3 szint), szintfelmérő kvíz, szintenkénti tanfolyamok, árak (nagy 19 990 · kis 5 990 · zsebkurzus 990 · előfizetés 10 990 Ft/hó). A kurzusok POLYSULI jelvényt kapnak; szint/címke/kulcsszó a kurzusszerkesztőben. `/polyakademia` → ide irányít |
 | Tudástár | `/kurzusok` | Kurzuslista, „legújabb anyagok”, „+N új” jelvények |
 | Kurzus | `/kurzusok/[slug]` | Tananyag, ingyenes előzetes leckék, vásárlás / előfizetés |
 | Lecke | `/kurzusok/[slug]/[id]` | YouTube lejátszó (youtube-nocookie), „Kész vagyok vele”, előző/következő |
@@ -38,7 +39,9 @@ Stripe fizetés: egyedi kurzusvásárlás és **havi előfizetés (14 990 Ft/hó
      `checkout.session.completed`, `checkout.session.async_payment_succeeded`,
      `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted` → `STRIPE_WEBHOOK_SECRET`.
    - Customer portal bekapcsolása (Settings → Billing → Customer portal) a lemondáshoz/kártyacseréhez.
-   - Az előfizetés ára alapból kódból jön (14 990 Ft/hó); ha Stripe-ban saját Price-t hozol létre, add meg: `STRIPE_SUBSCRIPTION_PRICE_ID`.
+   - PolySuli: futtasd a `supabase/migrations/20261104000000_polyakademia.sql`-t is.
+   - Zsebkurzus: futtasd a `supabase/migrations/20261104010000_zsebkurzus.sql`-t is. A zsebkurzus saját, 990 Ft-os kurzussor (`pocket_for` → a tanfolyam); a letöltési linket a kurzusszerkesztőben add meg, majd állítsd „Elérhető”-re.
+   - Az előfizetés ára alapból kódból jön (10 990 Ft/hó); ha Stripe-ban saját Price-t hozol létre, add meg: `STRIPE_SUBSCRIPTION_PRICE_ID`.
 3. **Környezeti változók**: lásd `.env.example` (Vercelen: Project → Settings → Environment Variables).
 4. `npm install && npm run dev`
 

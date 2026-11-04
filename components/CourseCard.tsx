@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { formatHuf, priceLabel, toolColor } from '@/lib/format';
+import { ACADEMY } from '@/lib/polyakademia';
 import { soonLabel, type Course } from '@/lib/types';
 
 export function CourseCard({
@@ -23,6 +24,7 @@ export function CourseCard({
         <div className="stack" style={{ '--gap': '6px' } as React.CSSProperties}>
           <span className="tool">{course.tool}</span>
           <span className="tag">{course.level}</span>
+          {course.academy_level && <span className="ps-badge">{ACADEMY.badge}</span>}
         </div>
         {course.coming_soon ? <span className="pill new">{soonLabel(course)}</span> : newCount > 0 && <span className="pill new">+{newCount} új</span>}
       </div>
@@ -41,7 +43,7 @@ export function CourseCard({
         )}
         <div className="foot">
           <span className="muted" style={{ fontSize: 14 }}>
-            {course.bundle_course_ids?.length ? `Csomag · ${course.bundle_course_ids.length} modul` : `${lessonCount} lecke`}
+            {course.pocket_for ? 'Zsebkurzus · letölthető' : course.bundle_course_ids?.length ? `Csomag · ${course.bundle_course_ids.length} modul` : `${lessonCount} lecke`}
           </span>
           <span className="price">{owned ? 'Megvetted' : hasAccess ? 'Hozzáférsz' : priceLabel(course)}</span>
         </div>

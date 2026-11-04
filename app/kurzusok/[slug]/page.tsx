@@ -11,6 +11,7 @@ import { courseAccessible, getUserAccess } from '@/lib/data';
 import { formatHuf, priceLabel, toolColor } from '@/lib/format';
 import { courseFaq, courseHeading, courseSchema, faqPage, graph, ORGANIZATION } from '@/lib/seo';
 import { createClient } from '@/lib/supabase/server';
+import { ACADEMY } from '@/lib/polyakademia';
 import { withStart, withStartAll, type Course, type Lesson } from '@/lib/types';
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | undefined>> };
@@ -18,7 +19,7 @@ type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<s
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const supabase = await createClient();
-  const { data } = await supabase.from('courses').select('title, subtitle, teaser, level').eq('slug', slug).maybeSingle();
+  const { data } = await supabase.from('courses').select('title, subtitle, teaser, level, pocket_for').eq('slug', slug).maybeSingle();
   if (!data) return {};
   const description = (data.teaser || data.subtitle || '').slice(0, 160);
   return {
@@ -48,6 +49,15 @@ export default async function CoursePage({ params, searchParams }: Props) {
     supabase.from('courses').select('*').contains('bundle_course_ids', [course.id]).eq('published', true).returns<Course[]>(),
   ]);
   const modules = withStartAll(bundleItems);
+  // Zsebkurzus: a szülő tanfolyam és a letöltési link (az RLS csak jogosultnak adja ki); tanfolyamnál: a hozzá tartozó zsebkurzus.
+  const isPocket = !!course.pocket_for;
+  const [{ data: rawRelated }, { data: download }] = await Promise.all([
+    isPocket
+      ? supabase.from('courses').select('*').eq('id', course.pocket_for!).eq('published', true).maybeSingle<Course>()
+      : supabase.from('courses').select('*').eq('pocket_for', course.id).eq('published', true).limit(1).maybeSingle<Course>(),
+    isPocket ? supabase.from('course_downloads').select('url, label').eq('course_id', course.id).maybeSingle() : Promise.resolve({ data: null }),
+  ]);
+  const related = rawRelated ? withStart(rawRelated) : null;
   const { data: waitRow } = user
     ? await supabase.from('course_waitlist').select('id').eq('course_id', course.id).eq('user_id', user.id).maybeSingle()
     : { data: null };
@@ -70,14 +80,17 @@ export default async function CoursePage({ params, searchParams }: Props) {
       <section className="card" style={{ background: toolColor(course.tool) }}>
         <div className="stack" style={{ '--gap': '16px', maxWidth: 780 } as React.CSSProperties}>
           <div className="row">
-            <Link href="/kurzusok" className="tag">← Tudástár</Link>
-            <span className="tag">· {course.tool} · {course.level}</span>
+            {course.academy_level
+              ? <Link href={`${ACADEMY.path}#szint-${course.academy_level}`} className="tag">← {ACADEMY.name}</Link>
+              : <Link href="/kurzusok" className="tag">← Tudástár</Link>}
+            <span className="tag">· {course.tool} · {course.level}{course.academy_level ? ` · ${course.academy_level}. szint` : ''}</span>
+            {course.academy_level && <span className="ps-badge">{ACADEMY.badge}</span>}
           </div>
           <h1 className="h1">{courseHeading(course)}</h1>
           {course.subtitle && <p className="lead" style={{ color: 'var(--ink)' }}>{course.subtitle}</p>}
           {course.teaser && <p style={{ margin: 0, fontSize: 17, lineHeight: 1.6, color: 'var(--ink)' }}>{course.teaser}</p>}
           <div className="row">
-            <span className="pill">{isBundle ? `${modules.length} modul` : `${list.length} lecke`}</span>
+            <span className="pill">{isPocket ? 'Letölthető csomag' : isBundle ? `${modules.length} modul` : `${list.length} lecke`}</span>
             {totalMin > 0 && <span className="pill">{totalMin} perc videó</span>}
             {hasAccess && list.length > 0 && <span className="pill">{done}/{list.length} kész</span>}
           </div>
@@ -118,8 +131,32 @@ export default async function CoursePage({ params, searchParams }: Props) {
               )}
             </>
           )}
-          {!isBundle && <h2 className="h3">Tananyag</h2>}
-          {!isBundle && list.length === 0 && <p className="muted">A leckék hamarosan érkeznek.</p>}
+          {isPocket && (
+            <div id="letoltes" className="ps-pocket" style={{ padding: '18px 20px' }}>
+              {hasAccess && download ? (
+                <>
+                  <span><b>A csomag a tiéd.</b> Bármikor újra letöltheted innen.</span>
+                  <a href={download.url} target="_blank" rel="noopener noreferrer" className="btn ps-lime sm">{download.label || 'Letöltöm a csomagot'} ↓</a>
+                </>
+              ) : hasAccess ? (
+                <span><b>Hozzáférsz.</b> A csomag hamarosan felkerül ide – e-mailben is szólok.</span>
+              ) : (
+                <span><b>Letölthető csomag</b> · kész promptok és skillek, telepítési leírással{course.academy_keyword ? <> · Instán kommenteld: <span className="ps-kw">{course.academy_keyword}</span></> : null}</span>
+              )}
+            </div>
+          )}
+          {isPocket && related && (
+            <Link href={`/kurzusok/${related.slug}`} className="lesson-item">
+              <span className="lesson-num">▶</span>
+              <span className="stack" style={{ '--gap': '2px' } as React.CSSProperties}>
+                <strong>A teljes tanfolyam videókkal: {related.title}</strong>
+                <span className="muted" style={{ fontSize: 13 }}>A teljes folyamat lépésről lépésre, videóleckékben</span>
+              </span>
+              <span className="muted mono" style={{ fontSize: 12 }}>{priceLabel(related)}</span>
+            </Link>
+          )}
+          {!isBundle && !isPocket && <h2 className="h3">Tananyag</h2>}
+          {!isBundle && !isPocket && list.length === 0 && <p className="muted">A leckék hamarosan érkeznek.</p>}
           <ol className="lesson-list">
             {list.map((l, i) => {
               const open = hasAccess || (l.is_preview && !course.coming_soon);
@@ -138,6 +175,15 @@ export default async function CoursePage({ params, searchParams }: Props) {
               );
             })}
           </ol>
+          {!isPocket && related && (
+            <div className="ps-pocket">
+              <span><b>Zsebkurzus</b> · a tanfolyam kész promptjai és skilljei, telepítési leírással</span>
+              <span className="row" style={{ '--gap': '8px' } as React.CSSProperties}>
+                <span className="ps-pocket-price">{priceLabel(related)}</span>
+                <Link href={`/kurzusok/${related.slug}`} className="btn sm">{related.coming_soon ? 'Részletek' : 'Megveszem'} →</Link>
+              </span>
+            </div>
+          )}
         </section>
         <aside className="card" style={{ position: 'sticky', top: 24 }}>
           <BuyBox
@@ -145,7 +191,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
             loggedIn={!!user}
             hasAccess={hasAccess}
             enrolled={access.enrolled.has(course.id)}
-            firstLessonHref={next ? `/kurzusok/${course.slug}/${next.id}` : isBundle && modules[0] ? `/kurzusok/${modules[0].slug}` : null}
+            firstLessonHref={isPocket ? (download ? '#letoltes' : null) : next ? `/kurzusok/${course.slug}/${next.id}` : isBundle && modules[0] ? `/kurzusok/${modules[0].slug}` : null}
             bundle={bundle && !access.enrolled.has(bundle.id) ? bundle : null}
             userEmail={user?.email ?? null}
             waitlisted={!!waitRow || sp.ertesites === 'ok'}

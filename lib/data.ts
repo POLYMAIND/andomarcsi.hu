@@ -18,8 +18,11 @@ export async function getCatalog(supabase: SupabaseClient) {
     byCourse.set(l.course_id, e);
   }
   const latest = [...(lessons ?? [])].sort((a, b) => b.published_at.localeCompare(a.published_at)).slice(0, 6);
+  const all = withStartAll(courses);
   return {
-    courses: withStartAll(courses),
+    // a zsebkurzusok nem önálló tanfolyamok: a szülő tanfolyamnál és a PolySuli-oldalon jelennek meg
+    courses: all.filter((c) => !c.pocket_for),
+    pockets: all.filter((c) => !!c.pocket_for),
     stats: (id: string) => byCourse.get(id) ?? { count: 0, fresh: 0 },
     latest,
     totalLessons: lessons?.length ?? 0,

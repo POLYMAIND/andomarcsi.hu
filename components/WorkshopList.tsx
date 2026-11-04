@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { priceLabel, toolColor } from '@/lib/format';
+import { ACADEMY } from '@/lib/polyakademia';
 import { soonLabel } from '@/lib/types';
 
 export type ListCourse = {
@@ -19,6 +20,7 @@ export type ListCourse = {
   coming_soon: boolean;
   starts_at: string | null;
   bundle_course_ids: string[];
+  academy_level: number | null;
 };
 
 // Főoldali kurzuslista témaszűrővel – az adatbázisban lévő (publikus) kurzusokból.
@@ -57,6 +59,7 @@ export function WorkshopList({ courses }: { courses: ListCourse[] }) {
             <div className="ws-tool" style={{ background: toolColor(c.tool) }}>
               <span style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 26, letterSpacing: '-.03em' }}>{c.tool}</span>
               <span className="tag">{c.bundle_course_ids?.length ? `Csomag · ${c.bundle_course_ids.length} modul` : c.level}</span>
+              {c.academy_level && <span className="ps-badge">{ACADEMY.badge}</span>}
             </div>
             <div className="ws-body">
               <h3 className="h3">

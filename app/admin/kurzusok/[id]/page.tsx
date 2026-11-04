@@ -30,11 +30,12 @@ export default async function EditCoursePage({ params, searchParams }: Props) {
   const [{ id }, sp] = await Promise.all([params, searchParams]);
   const { supabase } = await requireAdmin();
   const isNew = id === 'uj';
-  const { data: allCourses } = await supabase.from('courses').select('id, title, price_huf').order('sort_order');
+  const { data: allCourses } = await supabase.from('courses').select('id, title, price_huf, pocket_for').order('sort_order');
 
   let course: Course | null = null;
   let lessons: Lesson[] = [];
   let videos = new Map<string, string>();
+  let download: { url: string; label: string } | null = null;
   if (!isNew) {
     const { data } = await supabase.from('courses').select('*').eq('id', id).maybeSingle<Course>();
     if (!data) notFound();
@@ -44,6 +45,8 @@ export default async function EditCoursePage({ params, searchParams }: Props) {
       supabase.from('lesson_videos').select('lesson_id, youtube_id, lessons!inner(course_id)').eq('lessons.course_id', id),
     ]);
     lessons = ls ?? [];
+    const { data: dl } = await supabase.from('course_downloads').select('url, label').eq('course_id', id).maybeSingle();
+    download = dl;
     videos = new Map((vs ?? []).map((v) => [v.lesson_id as string, v.youtube_id as string]));
   }
   const now = Date.now();
@@ -86,6 +89,23 @@ export default async function EditCoursePage({ params, searchParams }: Props) {
             </label>
             <label className="field">Sorrend<input className="input" name="sort_order" type="number" defaultValue={course?.sort_order ?? 0} /></label>
             <label className="field">
+              PolySuli-szint (POLYSULI jelvény)
+              <select className="select" name="academy_level" defaultValue={course?.academy_level ?? ''}>
+                <option value="">– nem PolySuli-kurzus –</option>
+                <option value="1">1. szint · Claude a mindennapi munkában</option>
+                <option value="2">2. szint · Saját munkafolyamatok és skillek</option>
+                <option value="3">3. szint · Ügynökök</option>
+              </select>
+            </label>
+            <label className="field">
+              PolySuli-címke (nem kötelező)
+              <input className="input" name="academy_tag" placeholder="pl. Itt kezdj, CRM, Élő workshop" defaultValue={course?.academy_tag ?? ''} />
+            </label>
+            <label className="field">
+              Zsebkurzus kulcsszó (Instagram, nem kötelező)
+              <input className="input" name="academy_keyword" placeholder="pl. CLAUDE" defaultValue={course?.academy_keyword ?? ''} />
+            </label>
+            <label className="field">
               Videóanyag hossza (perc)
               <input className="input" name="workload_min" type="number" min={0} placeholder="pl. 60" defaultValue={course?.workload_min ?? ''} />
             </label>
@@ -99,6 +119,31 @@ export default async function EditCoursePage({ params, searchParams }: Props) {
             <textarea className="textarea" name="outcome" defaultValue={course?.outcome} style={{ minHeight: 70 }} />
           </label>
           <label className="field">Részletes leírás<textarea className="textarea" name="description" defaultValue={course?.description} /></label>
+          <details open={!!course?.pocket_for} style={{ background: 'var(--paper)', borderRadius: 14, padding: '12px 16px' }}>
+            <summary style={{ cursor: 'pointer', fontWeight: 500, fontSize: 14 }}>
+              Zsebkurzus – letölthető csomag videó nélkül {course?.pocket_for ? '(ez egy zsebkurzus)' : ''}
+            </summary>
+            <div className="grid" style={{ '--min': '240px', '--gap': '14px', marginTop: 10 } as React.CSSProperties}>
+              <label className="field">
+                Ennek a tanfolyamnak a zsebkurzusa
+                <select className="select" name="pocket_for" defaultValue={course?.pocket_for ?? ''}>
+                  <option value="">– nem zsebkurzus –</option>
+                  {(allCourses ?? []).filter((c) => c.id !== course?.id && !c.pocket_for).map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
+                </select>
+              </label>
+              <label className="field">
+                Letöltési link (https://, pl. Google Drive / Dropbox mappa)
+                <input className="input" name="download_url" type="url" placeholder="https://…" defaultValue={download?.url ?? ''} />
+              </label>
+              <label className="field">
+                Letöltés gomb felirata
+                <input className="input" name="download_label" placeholder="Letöltöm a csomagot" defaultValue={download?.label ?? ''} />
+              </label>
+            </div>
+            <p className="muted" style={{ margin: '10px 0 0', fontSize: 13 }}>
+              A link csak a vásárlóknak, az előfizetőknek és az adminnak jelenik meg. Ha üresre állítod, a link törlődik. Állítsd „Elérhető”-re, amikor a link fent van – onnantól megvásárolható.
+            </p>
+          </details>
           <details open={(course?.bundle_course_ids?.length ?? 0) > 0} style={{ background: 'var(--paper)', borderRadius: 14, padding: '12px 16px' }}>
             <summary style={{ cursor: 'pointer', fontWeight: 500, fontSize: 14 }}>
               Csomag – ha ezt a kurzust megveszik, ezeket is megnyitja ({course?.bundle_course_ids?.length ?? 0} kiválasztva)

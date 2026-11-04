@@ -251,3 +251,64 @@ a.lesson-item:hover { background: #ebe7e1; color: var(--ink); }
 .km-gets li { display: grid; grid-template-columns: 28px 1fr; gap: 2px 10px; font-size: 15px; line-height: 1.5; }
 .km-gets li::before { content: '✓'; grid-row: span 2; width: 28px; height: 28px; border-radius: 50%; background: var(--amber); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
 .km-gets li span { color: var(--ink-2); font-size: 14px; }
+
+/* PolySuli (Polyakadémia) – egy lime kiemelés, buborék-sarok */
+:root { --lime: #dafd55; --lime-ink: #193e2f; }
+.ps-hero { background: #242228; }
+.ps-mark { background: var(--lime); color: var(--lime-ink); padding: 0 .12em; border-radius: 10px 10px 24px 10px; }
+.btn.ps-lime { background: var(--lime); color: var(--lime-ink); }
+.btn.ps-lime:hover { color: var(--lime-ink); }
+.ps-anchor { scroll-margin-top: 16px; }
+.ps-badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 6px 6px 14px 6px; background: var(--lime); color: var(--lime-ink); font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: .1em; }
+.ps-kw { display: inline-block; background: var(--lime); color: var(--lime-ink); border-radius: 6px 6px 12px 6px; padding: 2px 8px; font-family: var(--mono); font-size: 12px; letter-spacing: .06em; }
+.ps-progress { display: flex; gap: 6px; }
+.ps-progress i { width: 26px; height: 8px; border-radius: 4px; background: var(--line); }
+.ps-progress i.done { background: var(--ink); }
+.ps-progress i.now { background: var(--lime); outline: 1.5px solid var(--lime-ink); }
+.ps-answer { display: flex; gap: 12px; align-items: center; text-align: left; width: 100%; background: var(--paper); border: 1.5px solid var(--line); border-radius: 12px 12px 26px 12px; padding: 14px 18px; font: 500 16px 'DM Sans', sans-serif; color: var(--ink); cursor: pointer; }
+.ps-answer:hover { border-color: var(--ink); }
+.ps-answer.picked { background: var(--lime); border-color: var(--lime); color: var(--lime-ink); }
+.ps-letter { font-family: var(--display); font-weight: 700; font-size: 18px; width: 24px; flex: none; color: var(--purple); }
+.ps-answer.picked .ps-letter { color: var(--lime-ink); }
+.ps-result { display: flex; flex-direction: column; gap: 12px; background: #242228; color: #f3f5ef; border-radius: 18px 18px 44px 18px; padding: clamp(20px, 3vw, 32px); }
+.ps-result .eyebrow { color: #a9a6b0; }
+.ps-result-level { font-family: var(--display); font-weight: 700; font-size: clamp(30px, 5vw, 52px); line-height: 1; letter-spacing: -.03em; color: var(--lime); }
+.ps-result p { margin: 0; font-size: 17px; line-height: 1.55; max-width: 60ch; opacity: .92; }
+.ps-pyramid { display: grid; gap: 8px; justify-items: center; }
+.ps-level { width: 100%; display: grid; gap: 4px; justify-items: center; text-align: center; padding: 16px 18px; border-radius: 12px 12px 26px 12px; border: 1.5px solid var(--line); background: var(--paper); color: var(--ink); font: inherit; cursor: pointer; transition: border-color .15s, background .15s; }
+.ps-level:hover { border-color: var(--ink); }
+.ps-level[data-level="3"] { max-width: 440px; }
+.ps-level[data-level="2"] { max-width: 680px; }
+.ps-level b { font-family: var(--display); font-size: 20px; line-height: 1.15; letter-spacing: -.02em; }
+.ps-lnum { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.ps-ldesc { font-size: 14.5px; color: var(--ink-2); }
+.ps-level.mine { background: #242228; border-color: #242228; color: #f3f5ef; }
+.ps-level.mine .ps-lnum, .ps-level.mine .ps-ldesc { color: #a9a6b0; }
+.ps-you { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; background: var(--lime); color: var(--lime-ink); border-radius: 6px 6px 12px 6px; padding: 2px 8px; }
+.ps-entry { width: 100%; margin: 0; border: 1.5px dashed var(--muted); border-radius: 12px 12px 26px 12px; padding: 12px 18px; text-align: center; font-size: 15px; color: var(--ink-2); }
+.ps-step { align-self: flex-start; background: var(--lime); color: var(--lime-ink); border-radius: 6px 6px 14px 6px; padding: 3px 10px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+.ps-gets { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 15px; line-height: 1.45; }
+.ps-course { border: 1.5px solid var(--line); border-radius: 12px 12px 26px 12px; background: #fff; }
+.ps-course[open] { border-color: var(--ink); }
+.ps-course summary { list-style: none; cursor: pointer; padding: 14px 18px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; align-items: center; }
+.ps-course summary::-webkit-details-marker { display: none; }
+.ps-cname { font-family: var(--display); font-weight: 700; font-size: 19px; line-height: 1.2; letter-spacing: -.02em; }
+.ps-chev { grid-row: 1 / span 2; grid-column: 2; font-family: var(--display); font-size: 22px; color: var(--muted); transition: transform .15s; }
+.ps-course[open] .ps-chev { transform: rotate(90deg); }
+.ps-tag { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; padding: 3px 8px; border-radius: 6px 6px 12px 6px; background: var(--paper); color: var(--ink-2); white-space: nowrap; }
+.ps-tag.first { background: var(--ink); color: #fff; }
+.ps-tag.new { background: var(--purple); color: #fff; }
+.ps-tag.soon { background: #fff; border: 1px dashed var(--muted); }
+.ps-lessons { margin: 0; padding: 0; list-style: none; counter-reset: l; }
+.ps-lessons li { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 2px 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+.ps-lessons li::before { counter-increment: l; content: counter(l); font-family: var(--display); font-weight: 700; font-size: 18px; line-height: 1.2; color: var(--purple); }
+.ps-lessons b { font-size: 16px; }
+.ps-lessons span { grid-column: 2; font-size: 14.5px; color: var(--ink-2); }
+.ps-pocket { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; background: var(--paper); border-radius: 12px 12px 26px 12px; padding: 12px 14px; font-size: 15px; }
+.ps-pocket-price { font-family: var(--display); font-weight: 700; font-size: 18px; color: var(--lime-ink); background: var(--lime); padding: 2px 10px; border-radius: 8px 8px 18px 8px; }
+.ps-price { display: flex; flex-direction: column; gap: 10px; padding: 22px; border-radius: 18px 18px 40px 18px; background: var(--paper); }
+.ps-price.featured { background: #242228; color: #f3f5ef; }
+.ps-price-amount { font-family: var(--display); font-size: 34px; line-height: 1; letter-spacing: -.03em; }
+.ps-price.featured .ps-price-amount { color: var(--lime); }
+.course-card .ps-badge { align-self: flex-start; }
+@media (prefers-reduced-motion: reduce) { .ps-level, .ps-chev { transition: none; } }

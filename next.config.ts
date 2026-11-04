@@ -2,6 +2,11 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   images: { remotePatterns: [{ protocol: 'https', hostname: 'i.ytimg.com' }] },
+  async redirects() {
+    return [
+      { source: '/polyakademia', destination: '/polysuli', permanent: true },
+    ];
+  },
   async headers() {
     return [
       {
