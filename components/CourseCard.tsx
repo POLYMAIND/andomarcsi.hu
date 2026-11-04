@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { formatHuf, priceLabel, toolColor } from '@/lib/format';
+import { ACADEMY } from '@/lib/polyakademia';
 import { soonLabel, type Course } from '@/lib/types';
 
 export function CourseCard({
@@ -23,6 +24,7 @@ export function CourseCard({
         <div className="stack" style={{ '--gap': '6px' } as React.CSSProperties}>
           <span className="tool">{course.tool}</span>
           <span className="tag">{course.level}</span>
+          {course.academy_level && <span className="ps-badge">{ACADEMY.badge}</span>}
         </div>
         {course.coming_soon ? <span className="pill new">{soonLabel(course)}</span> : newCount > 0 && <span className="pill new">+{newCount} új</span>}
       </div>

@@ -6,6 +6,7 @@ import { getCurrentUser } from '@/lib/auth';
 import { SUBSCRIPTION } from '@/lib/config';
 import { courseAccessible, getCatalog, getUserAccess } from '@/lib/data';
 import { formatDate, formatHuf } from '@/lib/format';
+import { ACADEMY } from '@/lib/polyakademia';
 import { soonLabel } from '@/lib/types';
 
 export const metadata: Metadata = { title: 'Tudástár' };
@@ -34,6 +35,15 @@ export default async function CoursesPage({ searchParams }: { searchParams: Prom
           </div>
         )}
         {access.subscribed && <div className="notice ok">Aktív előfizetésed van – minden tartalomhoz hozzáférsz. 🎉</div>}
+      </section>
+
+      <section className="card dark ps-hero row between" style={{ '--gap': '16px', padding: 'clamp(22px, 3vw, 36px)' } as React.CSSProperties}>
+        <div className="stack" style={{ '--gap': '8px', maxWidth: 640 } as React.CSSProperties}>
+          <span className="ps-badge" style={{ alignSelf: 'flex-start' }}>{ACADEMY.badge}</span>
+          <h2 className="h3" style={{ fontSize: 26 }}>Claude-tanfolyamok három szinten</h2>
+          <p style={{ margin: 0, color: '#cfcad4', fontSize: 16, lineHeight: 1.5 }}>Két perces teszt, és megmutatjuk, hol tartasz az oktatási piramisban – és melyik tanfolyammal érdemes indulnod.</p>
+        </div>
+        <Link href={ACADEMY.path} className="btn ps-lime">Irány a PolySuli →</Link>
       </section>
 
       {catalog.latest.length > 0 && (

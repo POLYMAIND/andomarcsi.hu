@@ -11,6 +11,7 @@ import { courseAccessible, getUserAccess } from '@/lib/data';
 import { formatHuf, priceLabel, toolColor } from '@/lib/format';
 import { courseFaq, courseHeading, courseSchema, faqPage, graph, ORGANIZATION } from '@/lib/seo';
 import { createClient } from '@/lib/supabase/server';
+import { ACADEMY } from '@/lib/polyakademia';
 import { withStart, withStartAll, type Course, type Lesson } from '@/lib/types';
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | undefined>> };
@@ -70,8 +71,11 @@ export default async function CoursePage({ params, searchParams }: Props) {
       <section className="card" style={{ background: toolColor(course.tool) }}>
         <div className="stack" style={{ '--gap': '16px', maxWidth: 780 } as React.CSSProperties}>
           <div className="row">
-            <Link href="/kurzusok" className="tag">← Tudástár</Link>
-            <span className="tag">· {course.tool} · {course.level}</span>
+            {course.academy_level
+              ? <Link href={`${ACADEMY.path}#szint-${course.academy_level}`} className="tag">← {ACADEMY.name}</Link>
+              : <Link href="/kurzusok" className="tag">← Tudástár</Link>}
+            <span className="tag">· {course.tool} · {course.level}{course.academy_level ? ` · ${course.academy_level}. szint` : ''}</span>
+            {course.academy_level && <span className="ps-badge">{ACADEMY.badge}</span>}
           </div>
           <h1 className="h1">{courseHeading(course)}</h1>
           {course.subtitle && <p className="lead" style={{ color: 'var(--ink)' }}>{course.subtitle}</p>}
