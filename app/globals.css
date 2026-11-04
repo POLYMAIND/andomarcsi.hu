@@ -255,7 +255,9 @@ a.lesson-item:hover { background: #ebe7e1; color: var(--ink); }
 /* PolySuli (Polyakadémia) – egy lime kiemelés, buborék-sarok */
 :root { --lime: #dafd55; --lime-ink: #193e2f; }
 .ps-hero { background: #242228; }
-.ps-mark { background: var(--lime); color: var(--lime-ink); padding: 0 .12em; border-radius: 10px 10px 24px 10px; }
+.ps-mark { color: var(--lime-ink); padding: 0 .1em; border-radius: 8px 8px 18px 8px; -webkit-box-decoration-break: clone; box-decoration-break: clone;
+  background: linear-gradient(to bottom, transparent 22%, var(--lime) 22%, var(--lime) 90%, transparent 90%); }
+.ps-hero .h1 { line-height: 1.08; }
 .btn.ps-lime { background: var(--lime); color: var(--lime-ink); }
 .btn.ps-lime:hover { color: var(--lime-ink); }
 .ps-anchor { scroll-margin-top: 16px; }

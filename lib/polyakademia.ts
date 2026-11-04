@@ -4,6 +4,7 @@
 
 export const ACADEMY = {
   name: 'Polyakadémia',
+  menu: 'PolySuli', // a menüben és a láblécben ez a felirat
   badge: 'POLYSULI',
   path: '/polyakademia',
   entryKeyword: 'CLAUDE',
