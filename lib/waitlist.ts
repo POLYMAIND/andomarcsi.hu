@@ -10,7 +10,8 @@ export type WaitlistEvent =
       consent_at: string;
       source: string;
     }
-  | { event: 'newsletter.signup'; email: string; name: string | null; consent_at: string; source: string };
+  | { event: 'newsletter.signup'; email: string; name: string | null; consent_at: string; source: string }
+  | { event: 'mentor.application'; email: string; name: string; phone: string | null; business: string; consent_at: string; source: string };
 
 export async function forwardToPolyos(payload: WaitlistEvent) {
   const url = process.env.POLYOS_WEBHOOK_URL;

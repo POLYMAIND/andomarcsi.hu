@@ -6,7 +6,7 @@ import { PurchaseConsents } from '@/components/PurchaseConsents';
 import { FORM_TS_FIELD } from '@/lib/honeypot';
 
 // Vásárlás / beiratkozás doboz egy kurzushoz.
-export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref, bundle = null, userEmail = null, waitlisted = false, waitlistError = null }: {
+export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref, bundle = null, userEmail = null, waitlisted = false, waitlistError = null, credit = 0 }: {
   course: Course;
   loggedIn: boolean;
   hasAccess: boolean;
@@ -16,6 +16,7 @@ export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref,
   userEmail?: string | null;
   waitlisted?: boolean; // már kért értesítést
   waitlistError?: string | null; // a beküldés hibája — az ŰRLAP MELLETT, mert az átirányítás ide (#ertesites) görget
+  credit?: number; // megvett zsebcsomag ára, amit levonunk
 }) {
   const upsell = bundle && !hasAccess && !enrolled ? (
     <Link href={`/kurzusok/${bundle.slug}`} className="btn light block" style={{ whiteSpace: 'normal', textAlign: 'center' }}>
@@ -113,8 +114,11 @@ export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref,
   return (
     <div className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
       <div className="plan-price" style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 36, letterSpacing: '-.03em' }}>
-        {formatHuf(course.price_huf as number)}
+        {formatHuf(credit > 0 && credit < (course.price_huf as number) ? (course.price_huf as number) - credit : (course.price_huf as number))}
       </div>
+      {credit > 0 && credit < (course.price_huf as number) && (
+        <span className="pill ok" style={{ alignSelf: 'flex-start' }}>A zsebcsomagod árát ({formatHuf(credit)}) levonjuk</span>
+      )}
       <span className="muted" style={{ fontSize: 14 }}>{course.pocket_for ? 'Egyszeri díj – a fizetés után azonnal letöltheted a csomagot, és bármikor újra letöltheted.' : 'Egyszeri díj, a kurzushoz korlátlan ideig hozzáférsz.'}</span>
       <form action="/api/checkout" method="post">
         <input type="hidden" name="plan" value="course" />

@@ -15,8 +15,8 @@ export async function GET() {
 
 > Andor Marcsi magyar nyelvű, előre felvett online videókurzusai kezdőknek és kisvállalkozóknak: Canva, Claude, AI képgenerálás, social hirdetés és PolyOS. Szakzsargon nélkül, saját tempóban.
 
-## PolySuli – Claude-tanfolyamok három szinten
-A Polymaind Claude-tudástára (Polyakadémia): 1. szint – Claude a mindennapi munkában; 2. szint – saját munkafolyamatok és skillek; 3. szint – ügynökök, automatizáció, saját app. Ingyenes szintfelmérő teszt: ${SITE_URL}/polysuli. Árak: nagy tanfolyam 19 990 Ft, kis tanfolyam 5 990 Ft, zsebkurzus 990 Ft, előfizetés ${formatHuf(SUBSCRIPTION.priceHuf)}/hó.
+## Polyakadémia – kész AI-skillek vállalkozóknak
+Online skill-anyagok vállalkozóknak (elsősorban Claude-ra): ${SITE_URL}/polyakademia. Lépcsőfokok: ingyenes kóstoló 0 Ft, zsebcsomag 990 Ft, skill-anyag 9 990 Ft, Skill modul egyben 39 900 Ft, havidíjas tagság ${formatHuf(SUBSCRIPTION.priceHuf)}/hó (heti online Q&A + zárt közösség), mentorprogram 249 000 Ft (10 személyes alkalom).
 ${courses.filter((c) => c.academy_level).map(line).join('\n')}
 
 ## További kurzusok
@@ -30,7 +30,7 @@ ${HOME_FAQ.map((f) => `- ${f.q} ${f.a}`).join('\n')}
 
 ## Oldalak
 - [Kezdőlap](${SITE_URL}/)
-- [PolySuli – Claude-tanfolyamok](${SITE_URL}/polysuli)
+- [Polyakadémia – kész AI-skillek vállalkozóknak](${SITE_URL}/polyakademia)
 - [Videós tudástár](${SITE_URL}/kurzusok)
 - [Impresszum](${SITE_URL}/impresszum)
 `;

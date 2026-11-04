@@ -21,6 +21,7 @@ export type Course = {
   academy_level: number | null; // Polyakadémia piramisszint (1–3); null = nem Polyakadémia-kurzus → POLYSULI jelvény
   academy_tag: string; // rövid címke a Polyakadémia-oldalon (pl. „Itt kezdj”, „CRM”)
   academy_keyword: string; // Instagram-kulcsszó a 990 Ft-os zsebcsomaghoz
+  skill_material: number | null; // 1–6: a hat skill-anyag sorszáma a Polyakadémia-oldalon
   pocket_for: string | null; // zsebkurzus: ennek a tanfolyamnak a kész promptjai/skilljei (letölthető csomag, nincs videó)
 };
 

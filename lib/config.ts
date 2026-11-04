@@ -6,7 +6,10 @@ export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || (vercelUrl ? `https
 export const SUBSCRIPTION = {
   // Kikapcsolva, amíg nincs elég videó (cél: 20). Bekapcsolás: NEXT_PUBLIC_SUBSCRIPTION_ENABLED=true
   enabled: process.env.NEXT_PUBLIC_SUBSCRIPTION_ENABLED === 'true',
-  priceHuf: Number(process.env.NEXT_PUBLIC_SUBSCRIPTION_PRICE_HUF ?? 10990),
-  name: 'andormarcsi.hu Tudástár – havi előfizetés',
+  priceHuf: Number(process.env.NEXT_PUBLIC_SUBSCRIPTION_PRICE_HUF ?? 19900),
+  name: 'Polyakadémia tagság – havi előfizetés',
   weeklyNew: 2,
+  // Tagoknak a Saját tanulás oldalon: heti online Q&A és zárt közösség (pl. Discord) linkje
+  qaUrl: process.env.NEXT_PUBLIC_MEMBER_QA_URL ?? '',
+  communityUrl: process.env.NEXT_PUBLIC_MEMBER_COMMUNITY_URL ?? '',
 };

@@ -40,10 +40,10 @@ export default async function CoursesPage({ searchParams }: { searchParams: Prom
       <section className="card dark ps-hero row between" style={{ '--gap': '16px', padding: 'clamp(22px, 3vw, 36px)' } as React.CSSProperties}>
         <div className="stack" style={{ '--gap': '8px', maxWidth: 640 } as React.CSSProperties}>
           <span className="ps-badge" style={{ alignSelf: 'flex-start' }}>{ACADEMY.badge}</span>
-          <h2 className="h3" style={{ fontSize: 26 }}>Claude-tanfolyamok három szinten</h2>
-          <p style={{ margin: 0, color: '#cfcad4', fontSize: 16, lineHeight: 1.5 }}>Két perces teszt, és megmutatjuk, hol tartasz az oktatási piramisban – és melyik tanfolyammal érdemes indulnod.</p>
+          <h2 className="h3" style={{ fontSize: 26 }}>Polyakadémia – kész skillek vállalkozóknak</h2>
+          <p style={{ margin: 0, color: '#cfcad4', fontSize: 16, lineHeight: 1.5 }}>Kész Claude-skillek, amik a te márkádban, a te hangodon dolgoznak – 990 Ft-os zsebcsomagtól a mentorprogramig.</p>
         </div>
-        <Link href={ACADEMY.path} className="btn ps-lime">Irány a PolySuli →</Link>
+        <Link href={ACADEMY.path} className="btn ps-lime">Irány a Polyakadémia →</Link>
       </section>
 
       {catalog.latest.length > 0 && (

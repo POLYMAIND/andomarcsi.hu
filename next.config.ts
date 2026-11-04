@@ -4,7 +4,8 @@ const nextConfig: NextConfig = {
   images: { remotePatterns: [{ protocol: 'https', hostname: 'i.ytimg.com' }] },
   async redirects() {
     return [
-      { source: '/polyakademia', destination: '/polysuli', permanent: true },
+      { source: '/polysuli', destination: '/polyakademia', permanent: true },
+      { source: '/claude-tanfolyamok', destination: '/polyakademia', permanent: true },
     ];
   },
   async headers() {
