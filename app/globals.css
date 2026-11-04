@@ -371,3 +371,47 @@ a.lesson-item:hover { background: #ebe7e1; color: var(--ink); }
 }
 @media (max-width: 420px) { .ps-ladder { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: reduce) { .ps-who, .ps-pack, .ps-rung { transition: none; } }
+
+/* Polyakadémia aloldal: kinek szól, lépcsőház, skill-anyagok, modul, mentor */
+.ps-yes, .ps-no { border-radius: 18px 18px 40px 18px; padding: 22px; }
+.ps-yes { background: var(--lime); color: var(--lime-ink); }
+.ps-no { background: var(--paper); border: 1.5px dashed var(--muted); }
+.ps-yes ul, .ps-no ul { margin: 12px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 10px; font-size: 16px; line-height: 1.5; }
+.ps-stairs { display: flex; flex-direction: column; gap: 8px; }
+.ps-stair { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto 24px; gap: 14px; align-items: center; padding: 14px 18px; border-radius: 12px 12px 26px 12px; border: 1.5px solid var(--line); background: var(--paper); color: var(--ink); margin-left: calc(var(--i) * clamp(0px, 2.4vw, 28px)); transition: transform .15s, border-color .15s; }
+.ps-stair:hover { border-color: var(--ink); color: var(--ink); transform: translateX(4px); }
+.ps-stair-step { font-family: var(--display); font-weight: 700; font-size: 26px; letter-spacing: -.03em; color: var(--purple); }
+.ps-stair b { font-family: var(--display); font-size: 19px; letter-spacing: -.02em; }
+.ps-stair-what { font-size: 14.5px; color: var(--ink-2); }
+.ps-stair-price { font-family: var(--display); font-weight: 700; font-size: 20px; white-space: nowrap; }
+.ps-stair-go { font-family: var(--display); font-size: 20px; color: var(--muted); }
+.ps-stair.lime { background: var(--lime); border-color: var(--lime); }
+.ps-stair.lime, .ps-stair.lime:hover, .ps-stair.lime .ps-stair-step, .ps-stair.lime .ps-stair-what, .ps-stair.lime .ps-stair-go { color: var(--lime-ink); }
+.ps-stair.dark { background: #242228; border-color: #242228; color: #f3f5ef; }
+.ps-stair.dark:hover { color: #f3f5ef; border-color: var(--lime); }
+.ps-stair.dark .ps-stair-what { color: #a9a6b0; }
+.ps-stair.dark .ps-stair-step, .ps-stair.dark .ps-stair-price { color: var(--lime); }
+.ps-note { margin: 0; background: var(--paper); border-radius: 12px 12px 26px 12px; padding: 12px 16px; font-size: 15px; font-weight: 500; }
+.ps-material { position: relative; padding-top: 22px; }
+.ps-material-num { position: absolute; top: 14px; right: 18px; font-family: var(--display); font-weight: 700; font-size: 34px; line-height: 1; color: var(--purple); opacity: .85; }
+.ps-module { background: var(--lime); }
+.ps-module .ps-step { background: #242228; color: var(--lime); }
+.ps-module .lead { color: var(--lime-ink); }
+.ps-order { margin: 0; padding: 0; list-style: none; counter-reset: o; display: flex; flex-direction: column; gap: 6px; }
+.ps-order li { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 2px 10px; align-items: baseline; background: rgba(255, 255, 255, .55); border-radius: 10px 10px 22px 10px; padding: 10px 14px; }
+.ps-order li::before { counter-increment: o; content: counter(o) "."; font-family: var(--display); font-weight: 700; font-size: 18px; color: var(--lime-ink); }
+.ps-order a { font-weight: 700; color: var(--ink); text-decoration: underline; text-decoration-color: rgba(25, 62, 47, .3); text-underline-offset: 3px; }
+.ps-order a:hover { text-decoration-color: var(--ink); }
+.ps-order span:not(.ps-tag) { grid-column: 2; font-size: 14px; color: var(--lime-ink); }
+.ps-topics { margin: 0; padding: 0; list-style: none; counter-reset: t; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 8px; }
+.ps-topics li { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 8px; background: #2e2b33; border-radius: 10px 10px 22px 10px; padding: 12px 14px; font-size: 15px; color: #cfcad4; }
+.ps-topics li::before { counter-increment: t; content: counter(t); font-family: var(--display); font-weight: 700; font-size: 20px; line-height: 1.1; color: var(--lime); }
+.ps-topics b { color: #f3f5ef; }
+.ps-mentor-form .notice { color: var(--ink); }
+.ps-mentor-form { display: flex; flex-direction: column; gap: 12px; background: #2e2b33; border-radius: 18px 18px 40px 18px; padding: clamp(18px, 3vw, 28px); max-width: 860px; }
+@media (max-width: 640px) {
+  .ps-stair { grid-template-columns: 40px minmax(0, 1fr); margin-left: 0; }
+  .ps-stair-price { grid-column: 2; }
+  .ps-stair-go { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .ps-stair { transition: none; } }

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { ACADEMY, ACADEMY_LEVELS, ACADEMY_QUIZ, academyLevelFrom, isAcademyLevel, type AcademyLevel } from '@/lib/polyakademia';
 
-const STORE_KEY = 'polysuli-level';
+const STORE_KEY = 'polyakademia-level';
 const LEVEL_ORDER: AcademyLevel[] = [3, 2, 1];
 
 export type PyramidCourse = { slug: string; title: string; mark: 'first' | 'new' | null };
@@ -17,8 +17,8 @@ function save(level: AcademyLevel | null) {
 }
 
 // Az oktatási piramis (szintenként a tanfolyamokkal) + a belépő Claude-piramis teszt.
-// A teszt eredménye kijelöli a piramis szintjét („Itt tartasz”), és a szint tanfolyamaihoz görget (#szint-1..3).
-export function PolySuliQuiz({ pyramid }: { pyramid: Record<AcademyLevel, PyramidCourse[]> }) {
+// A teszt eredménye kijelöli a piramis szintjét („Itt tartasz”), és odagörget (#szint-1..3).
+export function AcademyQuiz({ pyramid }: { pyramid: Record<AcademyLevel, PyramidCourse[]> }) {
   const [idx, setIdx] = useState(0);
   const [picks, setPicks] = useState<(number | null)[]>(() => ACADEMY_QUIZ.map(() => null));
   const [mine, setMine] = useState<AcademyLevel | null>(null);
@@ -50,7 +50,7 @@ export function PolySuliQuiz({ pyramid }: { pyramid: Record<AcademyLevel, Pyrami
     setMine(null);
     save(null);
   }
-  const goTo = (level: AcademyLevel) => document.getElementById(`szint-${level}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const goTo = (level: AcademyLevel) => document.getElementById(`szint-${level}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
   return (
     <>
@@ -65,7 +65,7 @@ export function PolySuliQuiz({ pyramid }: { pyramid: Record<AcademyLevel, Pyrami
         </div>
         <div className="ps-pyramid">
           {LEVEL_ORDER.map((level) => (
-            <div key={level} className={`ps-level${level === 3 ? ' top' : ''}${mine === level ? ' mine' : ''}`} data-level={level}>
+            <div key={level} id={`szint-${level}`} className={`ps-level ps-anchor${level === 3 ? ' top' : ''}${mine === level ? ' mine' : ''}`} data-level={level}>
               <button type="button" className="ps-level-head" onClick={() => goTo(level)}>
                 <span className="mono ps-lnum">{level}. szint · {pyramid[level].length} tanfolyam</span>
                 <b>{ACADEMY_LEVELS[level].short}</b>
@@ -109,7 +109,7 @@ export function PolySuliQuiz({ pyramid }: { pyramid: Record<AcademyLevel, Pyrami
             <div className="ps-result-level">{ACADEMY_LEVELS[mine].name}</div>
             <p>{ACADEMY_LEVELS[mine].result}</p>
             <div className="row">
-              <button type="button" className="btn ps-lime" onClick={() => goTo(mine)}>Mutasd a tanfolyamaimat ↓</button>
+              <button type="button" className="btn ps-lime" onClick={() => goTo(mine)}>Mutasd a szintemet a piramison ↑</button>
               <button type="button" className="btn light" onClick={retry}>Újra kitöltöm</button>
             </div>
           </div>

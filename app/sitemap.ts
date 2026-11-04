@@ -14,7 +14,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   });
   return [
     page('/', 1, 'weekly'),
-    page('/polysuli', 0.9, 'weekly'),
+    page('/polyakademia', 0.9, 'weekly'),
     page('/kurzusok', 0.9, 'weekly'),
     ...courses.map((c) => page(`/kurzusok/${c.slug}`, 0.8, 'weekly')),
     page('/aszf', 0.2, 'yearly'),

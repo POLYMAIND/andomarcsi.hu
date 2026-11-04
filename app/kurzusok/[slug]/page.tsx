@@ -12,6 +12,7 @@ import { formatHuf, priceLabel, toolColor } from '@/lib/format';
 import { courseFaq, courseHeading, courseSchema, faqPage, graph, ORGANIZATION } from '@/lib/seo';
 import { createClient } from '@/lib/supabase/server';
 import { ACADEMY, byPackageOrder, packageKind } from '@/lib/polyakademia';
+import { pocketCredit } from '@/lib/pocket-credit';
 import { withStart, withStartAll, type Course, type Lesson } from '@/lib/types';
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | undefined>> };
@@ -48,7 +49,8 @@ export default async function CoursePage({ params, searchParams }: Props) {
     // modul esetén: azok a csomagok, amikben benne van (csomagajánlathoz)
     supabase.from('courses').select('*').contains('bundle_course_ids', [course.id]).eq('published', true).returns<Course[]>(),
   ]);
-  const modules = withStartAll(bundleItems);
+  // a csomag tartalma a bundle_course_ids sorrendjében (ajánlott sorrend)
+  const modules = withStartAll(bundleItems).sort((a, b) => course.bundle_course_ids.indexOf(a.id) - course.bundle_course_ids.indexOf(b.id));
   // Letölthető csomag (ingyenes anyag / zsebkurzus): a szülő tanfolyam és a letöltési link (az RLS csak jogosultnak adja ki).
   // Tanfolyamnál: a hozzá tartozó ingyenes anyagok és zsebkurzusok.
   const isPocket = !!course.pocket_for;
@@ -58,6 +60,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
     isPocket ? supabase.from('course_downloads').select('url, label').eq('course_id', course.id).maybeSingle() : Promise.resolve({ data: null }),
   ]);
   const related = rawParent ? withStart(rawParent) : null;
+  const credit = isPocket || isBundle ? 0 : await pocketCredit(supabase, user?.id, course.id);
   const packages = withStartAll(rawPackages).sort(byPackageOrder);
   const isFree = course.price_huf === 0;
   const { data: waitRow } = user
@@ -207,6 +210,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
             bundle={bundle && !access.enrolled.has(bundle.id) ? bundle : null}
             userEmail={user?.email ?? null}
             waitlisted={!!waitRow || sp.ertesites === 'ok'}
+            credit={credit}
             waitlistError={
               sp.ertesites === 'email' ? 'Kérlek, adj meg egy érvényes e-mail címet.'
               : sp.ertesites === 'hozzajarulas' ? 'A feliratkozáshoz pipáld be a hozzájárulást.'

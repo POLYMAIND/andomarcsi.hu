@@ -1,20 +1,37 @@
-// PolySuli – a Polymaind Claude-tudástára (Polyakadémia): háromszintű oktatási piramis + szintfelmérő kvíz.
+// Polyakadémia – Andor Marcsi / Polymaind Claude-tudástára az andormarcsi.hu-n (a kurzusokon POLYSULI jelvény):
+// lépcsőház (ingyenes kóstoló → zsebcsomag → skill-anyag → Skill modul → tagság → mentorprogram), oktatási piramis + szintfelmérő kvíz.
 // A kurzusok az adatbázisból jönnek (courses.academy_level), itt csak a szöveges váz és az árlista él.
 
 export const ACADEMY = {
-  name: 'PolySuli',
+  name: 'Polyakadémia',
   badge: 'POLYSULI',
-  path: '/polysuli',
+  path: '/polyakademia',
   entryKeyword: 'CLAUDE',
 };
 
 // Árlista (bruttó; alanyi adómentes, ÁFA nem jön rá). A kurzusok tényleges ára az adatbázisban van.
 export const ACADEMY_PRICES = {
-  pocket: 990, // zsebkurzus: kész promptok és skillek telepítési leírással
-  small: 5990, // kis tanfolyam
-  large: 19990, // nagy tanfolyam
-  // a havi előfizetés ára: SUBSCRIPTION.priceHuf (lib/config.ts, alapból 10 990 Ft/hó)
+  pocket: 990, // zsebcsomag: 1 kész skill vagy prompt-pack, útmutatóval (levonjuk, ha utána a hozzá tartozó anyagot is megveszi)
+  material: 9990, // skill-anyag: 1 téma, 1 online anyag, a végén működő saját skill
+  module: 39900, // Skill modul egyben: mind a 6 skill-anyag + bónuszok
+  mentor: 249000, // mentorprogram: 10 személyes alkalom (jelentkezéssel)
+  // a havidíjas tagság ára: SUBSCRIPTION.priceHuf (lib/config.ts, alapból 19 900 Ft/hó)
 };
+
+export const SKILL_MODULE_SLUG = 'skill-modul';
+
+export const MENTOR_TOPICS = [
+  ['Folyamattérkép', 'mi automatizálható, és mennyi időt hoz vissza'],
+  ['Összekötések', 'e-mail, naptár, Drive, Meta, CRM az AI mellé'],
+  ['Ütemezett feladatok', 'riport, emlékeztetők, napló magától'],
+  ['Ajánlatkérés és pipeline', 'az űrlaptól a CRM-ig'],
+  ['Hírlevél-automatizáció', ''],
+  ['AI-ügynök ügyfélszolgálatra', 'foglalás, GYIK, árajánlat-előkészítés'],
+  ['Hirdetések AI-val', 'kreatív, riport, optimalizálási rutin'],
+  ['Saját mini app vagy kalkulátor', ''],
+  ['Mérés és karbantartás', ''],
+  ['Záróprojekt', 'egy élesben futó automatizáció'],
+] as const;
 
 export type AcademyLevel = 1 | 2 | 3;
 

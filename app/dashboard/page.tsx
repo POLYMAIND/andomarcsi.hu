@@ -135,11 +135,25 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         )}
       </section>
 
+      {access.subscribed && (
+        <section className="card dark row between">
+          <div className="stack" style={{ '--gap': '8px' } as React.CSSProperties}>
+            <div className="eyebrow">Polyakadémia tagság</div>
+            <strong style={{ fontSize: 20 }}>Heti online Q&amp;A és zárt közösség – kérdezz bátran.</strong>
+          </div>
+          <div className="row" style={{ '--gap': '8px' } as React.CSSProperties}>
+            {SUBSCRIPTION.qaUrl && <a href={SUBSCRIPTION.qaUrl} target="_blank" rel="noopener noreferrer" className="btn amber">Heti Q&amp;A</a>}
+            {SUBSCRIPTION.communityUrl && <a href={SUBSCRIPTION.communityUrl} target="_blank" rel="noopener noreferrer" className="btn light">Közösség</a>}
+            {!SUBSCRIPTION.qaUrl && !SUBSCRIPTION.communityUrl && <span className="muted" style={{ fontSize: 14 }}>A Q&amp;A és a közösség linkjét e-mailben küldjük.</span>}
+          </div>
+        </section>
+      )}
+
       {!access.subscribed && SUBSCRIPTION.enabled && (
         <section className="card dark row between">
           <div className="stack" style={{ '--gap': '8px' } as React.CSSProperties}>
-            <div className="eyebrow">Tudástár előfizetés</div>
-            <strong style={{ fontSize: 20 }}>Minden videó + heti {SUBSCRIPTION.weeklyNew} új anyag – {formatHuf(SUBSCRIPTION.priceHuf)}/hó</strong>
+            <div className="eyebrow">Polyakadémia tagság</div>
+            <strong style={{ fontSize: 20 }}>Minden anyag + heti Q&amp;A + zárt közösség – {formatHuf(SUBSCRIPTION.priceHuf)}/hó</strong>
           </div>
           <Link href="/elofizetes" className="btn amber">Részletek</Link>
         </section>

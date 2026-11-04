@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import type Stripe from 'stripe';
 import { getCurrentUser } from '@/lib/auth';
 import { SITE_URL, SUBSCRIPTION } from '@/lib/config';
+import { pocketCredit, priceAfterCredit } from '@/lib/pocket-credit';
 import { hufToStripe, stripe } from '@/lib/stripe';
 import { withStart, type Course } from '@/lib/types';
 
@@ -82,6 +83,9 @@ export async function POST(request: NextRequest) {
     const { data: access } = await supabase.rpc('has_course_access', { cid: course.id });
     if (access) return NextResponse.redirect(new URL(`/kurzusok/${course.slug}`, SITE_URL), 303);
 
+    const credit = course.pocket_for || course.bundle_course_ids?.length ? 0 : await pocketCredit(supabase, user.id, course.id);
+    const amount = priceAfterCredit(course.price_huf as number, credit);
+
     session = await stripe().checkout.sessions.create({
       ...common,
       mode: 'payment',
@@ -92,12 +96,15 @@ export async function POST(request: NextRequest) {
           quantity: 1,
           price_data: {
             currency: 'huf',
-            unit_amount: hufToStripe(course.price_huf as number),
-            product_data: { name: course.title, description: course.subtitle || undefined },
+            unit_amount: hufToStripe(amount),
+            product_data: {
+              name: course.title,
+              description: amount < (course.price_huf as number) ? `A zsebcsomag ára (${course.price_huf! - amount} Ft) levonva` : course.subtitle || undefined,
+            },
           },
         },
       ],
-      metadata: { user_id: user.id, course_id: course.id, plan: 'course', consent_aszf_at: consentAt, consent_digital_at: consentAt },
+      metadata: { user_id: user.id, course_id: course.id, plan: 'course', consent_aszf_at: consentAt, consent_digital_at: consentAt, ...(amount < (course.price_huf as number) ? { pocket_credit_huf: String(course.price_huf! - amount) } : {}) },
       success_url: `${SITE_URL}/fizetes/sikeres?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${SITE_URL}/kurzusok/${course.slug}?megszakitva=1`,
     });

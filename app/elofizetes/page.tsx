@@ -8,7 +8,7 @@ import { getCatalog, getUserAccess } from '@/lib/data';
 import { formatHuf, priceLabel } from '@/lib/format';
 import { soonLabel } from '@/lib/types';
 
-export const metadata: Metadata = { title: 'Előfizetés' };
+export const metadata: Metadata = { title: 'Polyakadémia tagság' };
 
 export default async function SubscriptionPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const sp = await searchParams;
@@ -22,10 +22,10 @@ export default async function SubscriptionPage({ searchParams }: { searchParams:
       {sp.hiba === 'nyilatkozat' && <div className="notice err">A vásárláshoz el kell fogadnod az ÁSZF-et és a nyilatkozatot.</div>}
       {sp.megszakitva && <div className="notice">A fizetés megszakadt – semmit nem terheltünk.</div>}
       <section className="card stack" style={{ '--gap': '20px' } as React.CSSProperties}>
-        <div className="eyebrow">Tudástár előfizetés</div>
-        <h1 className="h1">Minden videó, egy havidíjért.</h1>
+        <div className="eyebrow">Polyakadémia tagság</div>
+        <h1 className="h1">A skill megvan, de jön egy kérdés kedd este?</h1>
         <p className="lead">
-          Jelenleg {catalog.totalLessons} videólecke, és hetente {SUBSCRIPTION.weeklyNew} új anyag érkezik. Bármikor lemondhatod, a hónap végéig minden
+          Erre van a tagság: minden anyag, heti 1 online Q&A és zárt közösség, ahol a többiek is megosztják, mi működik nekik. Bármikor lemondhatod, a hónap végéig minden
           elérhető marad.
         </p>
       </section>
@@ -42,8 +42,9 @@ export default async function SubscriptionPage({ searchParams }: { searchParams:
               <span className="muted"> / hó</span>
             </div>
             <ul>
-              <li>Hozzáférés az összes videóleckéhez</li>
-              <li>Hetente {SUBSCRIPTION.weeklyNew} új anyag</li>
+              <li>Hozzáférés az összes anyaghoz és videóleckéhez</li>
+              <li>Heti 1 online Q&amp;A, ahol bármit kérdezhetsz a skillekről</li>
+              <li>Zárt közösség, ahol a többiek is megosztják, mi működik nekik</li>
               <li>Haladáskövetés a saját dashboardodon</li>
               <li>Bármikor lemondható, nincs hűségidő</li>
             </ul>
