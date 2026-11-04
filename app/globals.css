@@ -334,6 +334,11 @@ a.lesson-item:hover { background: #ebe7e1; color: var(--ink); }
 .ps-toc::-webkit-scrollbar { display: none; }
 .ps-toc a { color: #f3f5ef; font-weight: 700; font-size: 14px; padding: 8px 14px; border-radius: 999px; white-space: nowrap; }
 .ps-toc a:hover, .ps-toc a:focus-visible { background: var(--lime); color: var(--lime-ink); outline: none; }
+/* Mobilon a fejezetmenü több sorba tördel (nem vágódik le), és nem tapad, hogy ne takarja a tartalmat */
+@media (max-width: 760px) {
+  .ps-toc { position: static; flex-wrap: wrap; justify-content: center; overflow: visible; border-radius: 22px; padding: 8px; gap: 6px; }
+  .ps-toc a { padding: 7px 12px; font-size: 13px; background: #2e2b33; }
+}
 .ps-anchor { scroll-margin-top: 72px; }
 .ps-chip-dark { background: #2e2b33; color: #f3f5ef; border-radius: 8px 8px 18px 8px; padding: 8px 14px; font-size: 15px; }
 .ps-chip-dark:hover { color: #f3f5ef; background: #4a4652; }
