@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: courseHeading(data),
     description,
     alternates: { canonical: `/kurzusok/${slug}` },
-    openGraph: { title: courseHeading(data), description, url: `/kurzusok/${slug}`, siteName: 'andormarcsi.hu', locale: 'hu_HU', type: 'website' },
+    openGraph: { title: courseHeading(data), description, url: `/kurzusok/${slug}`, siteName: 'andormarcsi.hu', locale: 'hu_HU', type: 'website', images: ['/opengraph-image.png'] },
   };
 }
 

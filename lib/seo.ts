@@ -144,6 +144,8 @@ export const ORGANIZATION = {
   url: `${SITE_URL}/`,
   founder: { '@id': PERSON_ID },
   email: COMPANY.email,
+  logo: `${SITE_URL}/icon.png`,
+  image: `${SITE_URL}/opengraph-image.png`,
   inLanguage: 'hu',
 };
 

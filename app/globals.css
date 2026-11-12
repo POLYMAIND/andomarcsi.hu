@@ -350,7 +350,7 @@ a.lesson-hero:hover .lesson-hero-play { transform: translate(-50%, -50%) scale(1
 .ps .ps-hero { background: var(--ink); padding: clamp(28px, 5vw, 64px); }
 .ps-hero-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 56px; align-items: center; }
 .ps .ps-hero .h1 { font-size: clamp(38px, 5vw, 60px); line-height: 1.05; }
-.ps .ps-mark { background: var(--lime); color: var(--green); padding: 0 10px; border-radius: 12px; }
+.ps .ps-mark { display: inline-block; background: var(--lime); color: var(--green); padding: .1em .28em .16em; margin: .1em 0; line-height: 1; border-radius: 16px; }
 .ps-start { position: relative; padding-top: 30px; }
 .ps-start-note { position: absolute; top: 0; left: 12px; color: var(--lime); }
 .ps-start-card { background: #f3f5ef; color: #242228; border-radius: 20px; padding: 22px; box-shadow: 0 0 0 6px rgba(218, 253, 85, .18); }

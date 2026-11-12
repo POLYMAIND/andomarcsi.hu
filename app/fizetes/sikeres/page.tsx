@@ -7,7 +7,7 @@ import { stripe } from '@/lib/stripe';
 import { createAdminClient } from '@/lib/supabase/server';
 import { withStart } from '@/lib/types';
 
-export const metadata: Metadata = { title: 'Sikeres fizetés' };
+export const metadata: Metadata = { title: 'Sikeres fizetés', robots: { index: false, follow: false } };
 
 // A webhook is rögzíti a vásárlást; itt azonnal is lezárjuk, hogy ne kelljen várni rá.
 export default async function SuccessPage({ searchParams }: { searchParams: Promise<{ session_id?: string }> }) {

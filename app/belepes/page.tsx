@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { SiteNav } from '@/components/SiteNav';
 import { requestPasswordReset, sendMagicLink, signInWithPassword, signUpWithPassword } from './actions';
 
-export const metadata: Metadata = { title: 'Belépés' };
+export const metadata: Metadata = { title: 'Belépés', robots: { index: false, follow: false } };
 
 const ERRORS: Record<string, string> = {
   email: 'Kérlek, adj meg egy érvényes e-mail címet.',

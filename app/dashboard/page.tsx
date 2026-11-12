@@ -8,7 +8,7 @@ import { courseAccessible, getCatalog, getUserAccess } from '@/lib/data';
 import { formatDate, formatHuf } from '@/lib/format';
 import type { Lesson } from '@/lib/types';
 
-export const metadata: Metadata = { title: 'Saját tanulás' };
+export const metadata: Metadata = { title: 'Saját tanulás', robots: { index: false, follow: false } };
 
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const sp = await searchParams;
