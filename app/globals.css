@@ -333,7 +333,7 @@ a.lesson-hero:hover .lesson-hero-play { transform: translate(-50%, -50%) scale(1
 .ps-pill.lime { background: var(--lime); color: var(--green); }
 .ps-pill.rose { background: #ffe3e8; color: #8a1730; }
 .ps-pill.grey { background: #eceae6; color: var(--ink-3); }
-.ps-pill.green { background: oklch(0.9 0.1 158); color: oklch(0.33 0.08 160); }
+.ps-pill.green { background: var(--lime); color: var(--green); }
 .ps-pill.num { background: var(--green); color: var(--lime); min-width: 52px; justify-content: center; }
 .ps-small { margin: 0; font-size: 13px; color: #a9a6b0; }
 .ps-small-dark { font-size: 13px; color: var(--ink-3); }
