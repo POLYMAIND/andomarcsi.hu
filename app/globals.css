@@ -276,7 +276,6 @@ a.lesson-hero:hover .lesson-hero-play { transform: translate(-50%, -50%) scale(1
 .btn.ps-lime { background: var(--lime); color: var(--lime-ink); }
 .btn.ps-lime:hover { color: var(--lime-ink); }
 .ps-badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 6px 6px 14px 6px; background: var(--lime); color: var(--lime-ink); font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: .1em; }
-.ps-kw { display: inline-block; background: var(--lime); color: var(--lime-ink); border-radius: 6px 6px 12px 6px; padding: 2px 8px; font-family: var(--mono); font-size: 12px; letter-spacing: .06em; }
 .ps-progress { display: flex; gap: 6px; }
 .ps-progress i { width: 26px; height: 8px; border-radius: 4px; background: var(--line); }
 .ps-progress i.done { background: var(--ink); }
@@ -334,6 +333,7 @@ a.lesson-hero:hover .lesson-hero-play { transform: translate(-50%, -50%) scale(1
 .ps-pill.lime { background: var(--lime); color: var(--green); }
 .ps-pill.rose { background: #ffe3e8; color: #8a1730; }
 .ps-pill.grey { background: #eceae6; color: var(--ink-3); }
+.ps-pill.green { background: oklch(0.9 0.1 158); color: oklch(0.33 0.08 160); }
 .ps-pill.num { background: var(--green); color: var(--lime); min-width: 52px; justify-content: center; }
 .ps-small { margin: 0; font-size: 13px; color: #a9a6b0; }
 .ps-small-dark { font-size: 13px; color: var(--ink-3); }
@@ -507,3 +507,14 @@ a.lesson-hero:hover .lesson-hero-play { transform: translate(-50%, -50%) scale(1
 .guide-locked .mono { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--lime-ink); }
 .guide-locked b { font-family: var(--display); font-size: 19px; line-height: 1.3; }
 .guide-locked .muted { font-size: 14.5px; }
+/* Kurzusoldal oldalsáv: vásárlás/letöltés + (online anyagnál) tartalomjegyzék külön dobozban, együtt ragadnak */
+.side-stack { position: sticky; top: 24px; display: flex; flex-direction: column; gap: 16px; max-height: calc(100vh - 48px); }
+.side-stack > .card { padding: 28px; }
+.guide-toc-side { overflow-y: auto; min-height: 0; background: var(--card); }
+.guide-toc-side ol { columns: auto; font-size: 14.5px; line-height: 1.5; display: flex; flex-direction: column; gap: 6px; }
+.guide-toc-inline { display: none; }
+@media (max-width: 960px) {
+  .side-stack { position: static; max-height: none; }
+  .guide-toc-side { display: none; }
+  .guide-toc-inline { display: block; }
+}

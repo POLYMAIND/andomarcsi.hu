@@ -7,7 +7,6 @@ export const ACADEMY = {
   menu: 'PolySuli', // a menüben és a láblécben ez a felirat
   badge: 'POLYSULI',
   path: '/polysuli',
-  entryKeyword: 'CLAUDE',
 };
 
 // Árlista (bruttó; alanyi adómentes, ÁFA nem jön rá). A kurzusok tényleges ára az adatbázisban van.

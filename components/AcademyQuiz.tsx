@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { ACADEMY, ACADEMY_LEVELS, ACADEMY_QUIZ, academyLevelFrom, isAcademyLevel, type AcademyLevel } from '@/lib/polyakademia';
+import { ACADEMY_LEVELS, ACADEMY_QUIZ, academyLevelFrom, isAcademyLevel, type AcademyLevel } from '@/lib/polyakademia';
 
 const STORE_KEY = 'polyakademia-level';
 const LEVEL_ORDER: AcademyLevel[] = [3, 2, 1];
@@ -58,7 +58,6 @@ export function AcademyQuiz({ pyramid }: { pyramid: Record<AcademyLevel, Pyramid
         <div className="row between">
           <div className="stack" style={{ '--gap': '8px' } as React.CSSProperties}>
             <div className="eyebrow">Hol tartasz? · Claude-piramis teszt · ingyenes · 2 perc</div>
-            <span className="muted" style={{ fontSize: 14 }}>Instán is megkapod: kommenteld, hogy <span className="ps-kw">{ACADEMY.entryKeyword}</span></span>
           </div>
           <div className="row" style={{ '--gap': '12px' } as React.CSSProperties}>
             <div className="ps-progress" aria-hidden="true">

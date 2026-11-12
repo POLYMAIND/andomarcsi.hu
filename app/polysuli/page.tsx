@@ -64,7 +64,7 @@ const TOC = [
 ] as const;
 
 const DEPTHS = [
-  { n: '01', price: '0 Ft', name: 'Kóstolsz', tone: 'mint', text: 'Ingyenes útmutató, prompt vagy mini skill. Ingyenes regisztráció után itt az oldalon olvasod, vagy kommenteld a kulcsszót, és megy DM-ben.' },
+  { n: '01', price: '0 Ft', name: 'Kóstolsz', tone: 'mint', text: 'Ingyenes útmutató, prompt vagy mini skill. Ingyenes regisztráció után itt az oldalon olvasod, és PDF-ben is letöltheted.' },
   { n: '02', price: formatHuf(ACADEMY_PRICES.pocket), name: 'Kipróbálod', tone: 'amber', text: 'Zsebcsomag: egy kész skill vagy prompt-pack, egyoldalas útmutatóval. Kevesebb, mint egy kávé és egy kifli.' },
   { n: '03', price: formatHuf(ACADEMY_PRICES.material), name: 'Megépíted', tone: 'purple', text: 'Skill-anyag: online videó, munkalap, letölthető skill – a végén egy működő, a te márkádra szabott eszköz.' },
 ] as const;
@@ -412,7 +412,7 @@ function MxCell({ col, items, canUse }: { col: string; items: Course[]; canUse: 
           <Link key={c.id} href={`/kurzusok/${c.slug}`} className="ps-mx-item">
             <b>{shortTitle(c.title)}</b>
             {c.subtitle && <span>{c.subtitle}</span>}
-            {c.coming_soon ? <span className="ps-pill grey">{soonLabel(c)}</span> : <span className={`ps-pill ${owned ? 'grey' : 'lime'} ps-cta`}>{owned ? `A tiéd · ${cta}` : cta}</span>}
+            {c.coming_soon ? <span className="ps-pill grey">{soonLabel(c)}</span> : <span className="ps-pill green ps-cta">{owned ? `A tiéd · ${cta}` : cta}</span>}
           </Link>
         );
       })}

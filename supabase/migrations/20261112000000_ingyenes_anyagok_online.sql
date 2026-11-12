@@ -601,7 +601,7 @@ Az ADHD-s agy nehezen pörög fel a távoli jutalomra („majd a negyedév vég�
 
 ## A nyomtatható lapok
 
-A csomag lapjait töltsd le lent, és nyomtasd ki. A matricaívet öntapadós A4-es matricapapírra nyomtasd (vagy sima papírra, és ragasztóstift).
+A csomag lapjait töltsd le a „Letöltöm PDF-ben” gombbal, és nyomtasd ki. A matricaívet öntapadós A4-es matricapapírra nyomtasd (vagy sima papírra, és ragasztóstift).
 
 - **Matricás heti tervező:** a heti nagy cél 3 lépésben, naponta fő cél, két bónusz, hiperfókusz-percek, matricagyűjtő és heti jutalom.
 - **Matricaív – 40 vicces felirat:** „Ma ezt tényleg befejeztem”, „Hiperfókusz: ON”, „Elkezdtem. Ez volt a nehéz rész.”, „Ma én győztem, nem a káosz” és még 36 másik.
