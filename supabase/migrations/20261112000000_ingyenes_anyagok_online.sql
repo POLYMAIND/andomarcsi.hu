@@ -258,7 +258,7 @@ Ezen az oldalon minden benne van, hogy magad megcsináld. De ha nincs kedved el�
 - **4 990 Ft / hó** bruttó. A teljes összeg kreditként a Snitt Bukszádba kerül, és videókra költöd el.
 - Nem kell hozzá AI-előfizetés, fizetés előtt látod az árat, a saját színeiddel és betűiddel dolgozik, és a kredit nem jár le.
 
-Iratkozz fel a várólistára: indításkor elsőként jutsz be, és az első storyboardod ajándék. [getsnitt.hu →](https://getsnitt.hu/?utm_source=andormarcsi&utm_medium=lead_magnet&utm_campaign=reels_utmutato)
+A getsnitt már elérhető, itt kipróbálhatod: [getsnitt.hu →](https://getsnitt.hu/?utm_source=andormarcsi&utm_medium=lead_magnet&utm_campaign=reels_utmutato)
 
 | Havi 8 Reels | Magad, Claude-dal | getsnitt | Külsős vágó |
 |---|---|---|---|
