@@ -70,7 +70,7 @@ export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref,
             <button className="btn light block" type="submit">Hozzáadom a tanulásaimhoz</button>
           </form>
         )}
-        {firstLessonHref && <Link href={firstLessonHref} className="btn block">{course.pocket_for ? 'Letöltés ↓' : 'Indulhat a tanulás →'}</Link>}
+        {firstLessonHref && <Link href={firstLessonHref} className="btn block">{course.pocket_for ? (firstLessonHref === '#anyag' ? 'Olvasom ↓' : 'Letöltés ↓') : 'Indulhat a tanulás →'}</Link>}
       </div>
     );
   }
@@ -106,7 +106,7 @@ export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref,
   if (course.price_huf === 0) {
     return (
       <Link href={`/belepes?next=${encodeURIComponent(`/kurzusok/${course.slug}`)}`} className="btn block">
-        Ingyenes – belépek és kezdem
+        {course.pocket_for ? 'Regisztrálok és olvasom' : 'Ingyenes – belépek és kezdem'}
       </Link>
     );
   }

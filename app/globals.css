@@ -468,3 +468,42 @@ a.lesson-hero:hover .lesson-hero-play { transform: translate(-50%, -50%) scale(1
 .ps-final .h2 { font-size: clamp(30px, 3.6vw, 44px); max-width: 760px; line-height: 1.08; }
 .ps-final .lead { color: var(--green); max-width: 560px; }
 .ps-final .btn.outline { border-color: var(--green); color: var(--green); }
+
+/* Online tananyag (ingyenes anyagok, zsebcsomagok) – /kurzusok/[slug] */
+.guide { display: flex; flex-direction: column; gap: 16px; font-size: 17px; line-height: 1.65; color: var(--ink-2); max-width: 760px; }
+.guide h2, .guide h3, .guide h4 { color: var(--ink); scroll-margin-top: 24px; }
+.guide .guide-h1 { font-size: clamp(26px, 3vw, 34px); }
+.guide .guide-h2 { font-size: clamp(22px, 2.6vw, 28px); margin-top: 22px; padding-top: 22px; border-top: 1px solid var(--line); }
+.guide .guide-h2:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+.guide .guide-h3 { font-size: 19px; margin-top: 6px; }
+.guide p { margin: 0; }
+.guide b { color: var(--ink); }
+.guide ul, .guide ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; }
+.guide ol li::marker { font-family: var(--display); font-weight: 700; color: var(--purple); }
+.guide a { color: var(--purple); text-decoration: underline; text-underline-offset: 3px; font-weight: 700; }
+.guide code { font-family: var(--mono); font-size: .88em; background: var(--paper); border-radius: 6px; padding: 1px 6px; }
+.guide hr { border: 0; border-top: 1px solid var(--line); margin: 8px 0; }
+.guide-tip { background: var(--lime); color: var(--lime-ink); border-radius: 16px; padding: 16px 20px; display: flex; flex-direction: column; gap: 6px; font-size: 16px; }
+.guide-tip .mono { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.guide-tip b { color: var(--lime-ink); }
+.guide-prompt { margin: 0; background: var(--ink); color: #f3f5ef; border-radius: 16px; overflow: hidden; }
+.guide-prompt figcaption { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 12px 10px 18px; border-bottom: 1px solid #2e2b33; }
+.guide-prompt figcaption .mono { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--lime); }
+.guide-prompt pre { margin: 0; padding: 16px 18px 18px; white-space: pre-wrap; word-break: break-word; font: 15px/1.6 var(--mono); }
+.guide-prompt.code pre { font-size: 13px; }
+.guide-copy { border: 1px solid #4a4550; background: transparent; color: #f3f5ef; border-radius: 999px; padding: 6px 14px; font: 700 13px 'DM Sans', sans-serif; cursor: pointer; white-space: nowrap; }
+.guide-copy:hover { background: var(--lime); color: var(--lime-ink); border-color: var(--lime); }
+.guide-table { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
+.guide-table table { width: 100%; border-collapse: collapse; font-size: 15px; line-height: 1.45; }
+.guide-table th { background: var(--paper); color: var(--ink); text-align: left; font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; }
+.guide-table th, .guide-table td { padding: 10px 14px; vertical-align: top; border-top: 1px solid var(--line); }
+.guide-table tr:first-child th { border-top: 0; }
+.guide-toc { background: var(--paper); border-radius: 16px; padding: 16px 20px; }
+.guide-toc .mono { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.guide-toc ol { margin: 8px 0 0; padding-left: 20px; columns: 2 240px; column-gap: 28px; font-size: 15px; line-height: 1.7; }
+.guide-toc a { color: var(--ink); }
+.guide-toc a:hover { color: var(--purple); }
+.guide-locked { display: flex; flex-direction: column; gap: 10px; border: 2px dashed var(--lime-ink); background: #f1f7e4; border-radius: 18px; padding: 20px 22px; }
+.guide-locked .mono { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--lime-ink); }
+.guide-locked b { font-family: var(--display); font-size: 19px; line-height: 1.3; }
+.guide-locked .muted { font-size: 14.5px; }

@@ -43,6 +43,7 @@ Stripe fizetés: egyedi kurzusvásárlás és **havidíjas tagság (19 900 Ft/h�
    - Zsebkurzus: futtasd a `supabase/migrations/20261104010000_zsebkurzus.sql`-t is. A zsebkurzus saját, 990 Ft-os kurzussor (`pocket_for` → a tanfolyam); a letöltési linket a kurzusszerkesztőben add meg, majd állítsd „Elérhető”-re.
    - Ingyenes anyagok és zsebkurzusok a terv szerint: `supabase/migrations/20261104020000_polysuli_csomagok.sql`. A 0 Ft-os csomag ingyenes anyag (belépéssel letölthető), a 990 Ft-os zsebkurzus.
    - PolySuli aloldal (lépcsőház, 6 skill-anyag, Skill modul, mentor-jelentkezés): `supabase/migrations/20261104030000_polyakademia_aloldal.sql`. Tagoknak a Q&A és a közösség linkje: `NEXT_PUBLIC_MEMBER_QA_URL`, `NEXT_PUBLIC_MEMBER_COMMUNITY_URL`. Mentor-jelentkezések: `/admin/mentor`.
+   - Ingyenes anyagok online (regisztrációhoz kötve): `supabase/migrations/20261112000000_ingyenes_anyagok_online.sql` – `course_guides` tábla (az anyag szövege, csak belépett jogosult olvashatja), a letöltési link is csak belépve jön le, és a 3 ingyenes anyag tartalma. Az anyag szövegét az adminban, a kurzus „Online tananyag” mezőjében lehet szerkeszteni.
    - Az előfizetés ára alapból kódból jön (19 900 Ft/hó); ha Stripe-ban saját Price-t hozol létre, add meg: `STRIPE_SUBSCRIPTION_PRICE_ID`.
 3. **Környezeti változók**: lásd `.env.example` (Vercelen: Project → Settings → Environment Variables).
 4. `npm install && npm run dev`

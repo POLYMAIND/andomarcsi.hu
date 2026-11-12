@@ -64,7 +64,7 @@ const TOC = [
 ] as const;
 
 const DEPTHS = [
-  { n: '01', price: '0 Ft', name: 'Kóstolsz', tone: 'mint', text: 'Ingyenes prompt, mini skill vagy PDF. Belépés után letöltöd, vagy kommenteld a kulcsszót, és megy DM-ben.' },
+  { n: '01', price: '0 Ft', name: 'Kóstolsz', tone: 'mint', text: 'Ingyenes útmutató, prompt vagy mini skill. Ingyenes regisztráció után itt az oldalon olvasod, vagy kommenteld a kulcsszót, és megy DM-ben.' },
   { n: '02', price: formatHuf(ACADEMY_PRICES.pocket), name: 'Kipróbálod', tone: 'amber', text: 'Zsebcsomag: egy kész skill vagy prompt-pack, egyoldalas útmutatóval. Kevesebb, mint egy kávé és egy kifli.' },
   { n: '03', price: formatHuf(ACADEMY_PRICES.material), name: 'Megépíted', tone: 'purple', text: 'Skill-anyag: online videó, munkalap, letölthető skill – a végén egy működő, a te márkádra szabott eszköz.' },
 ] as const;
@@ -162,7 +162,7 @@ export default async function PolySuliPage({ searchParams }: { searchParams: Pro
               </div>
               {[
                 ['01', 'Claude-piramis teszt', '6 kérdés · megmutatja, hol kezdj', '0 Ft', '#teszt'],
-                ['02', 'Ingyenes kóstoló', 'prompt, mini skill, letölthető PDF', '0 Ft', '#anyagok'],
+                ['02', 'Ingyenes kóstoló', 'útmutató, prompt, mini skill', '0 Ft', '#anyagok'],
                 ['03', 'Első kész skilled', 'zsebcsomag, útmutatóval', formatHuf(ACADEMY_PRICES.pocket), '#anyagok'],
               ].map(([n, t, d, p, href]) => (
                 <a key={n} href={href} className="ps-start-row">
@@ -407,7 +407,7 @@ function MxCell({ col, items, canUse }: { col: string; items: Course[]; canUse: 
       {items.map((c) => {
         const owned = canUse(c);
         const free = c.price_huf === 0;
-        const cta = owned ? (c.pocket_for ? 'Letöltés →' : 'Megnyitom →') : free ? 'Letöltöm →' : 'Megveszem →';
+        const cta = owned ? 'Megnyitom →' : free ? 'Olvasom →' : 'Megveszem →';
         return (
           <Link key={c.id} href={`/kurzusok/${c.slug}`} className="ps-mx-item">
             <b>{shortTitle(c.title)}</b>
