@@ -215,7 +215,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
           {guideBlocks && (
             <div id="anyag" className="stack" style={{ '--gap': '18px' } as React.CSSProperties}>
               {outline.length > 2 && (
-                <nav className="guide-toc" aria-label="Tartalom">
+                <nav className="guide-toc guide-toc-inline" aria-label="Tartalom">
                   <span className="mono">Tartalom</span>
                   <ol>{outline.map((o) => <li key={o.id}><a href={`#${o.id}`}>{o.text}</a></li>)}</ol>
                 </nav>
@@ -227,11 +227,11 @@ export default async function CoursePage({ params, searchParams }: Props) {
             <div id="letoltes" className="guide-locked">
               <span className="mono">Ingyenes · csak regisztráció kell</span>
               <b>Az anyag itt, az oldalon olvasható – lépj be, vagy regisztrálj ingyen egy e-mail címmel.</b>
-              <span className="muted">Jelszó nem kell: e-mailben kapsz egy belépő linket, és utána bármikor visszajöhetsz ide.{course.academy_keyword ? <> Instán is kérheted: <span className="ps-kw">{course.academy_keyword}</span></> : null}</span>
+              <span className="muted">Jelszó nem kell: e-mailben kapsz egy belépő linket, és utána bármikor visszajöhetsz ide.</span>
               <Link href={loginHref} className="btn ps-lime" style={{ alignSelf: 'flex-start' }}>Regisztrálok és olvasom →</Link>
             </div>
           )}
-          {isPocket && (download || !guideBlocks) && !(isFree && !hasAccess) && (
+          {isPocket && !guideBlocks && !(isFree && !hasAccess) && (
             <div id="letoltes" className="ps-pocket" style={{ padding: '18px 20px' }}>
               {hasAccess && download ? (
                 <>
@@ -241,9 +241,9 @@ export default async function CoursePage({ params, searchParams }: Props) {
               ) : hasAccess ? (
                 <span><b>Hozzáférsz.</b> Az anyag hamarosan felkerül ide – e-mailben is szólok.</span>
               ) : isFree ? (
-                <span><b>Ingyenes anyag</b> · lépj be (az ingyenes regisztráció is ennyi), és azonnal letöltheted{course.academy_keyword ? <> · Instán is kérheted: <span className="ps-kw">{course.academy_keyword}</span></> : null}</span>
+                <span><b>Ingyenes anyag</b> · lépj be (az ingyenes regisztráció is ennyi), és azonnal letöltheted</span>
               ) : (
-                <span><b>Letölthető csomag</b> · kész promptok és skillek, telepítési leírással{course.academy_keyword ? <> · Instán kommenteld: <span className="ps-kw">{course.academy_keyword}</span></> : null}</span>
+                <span><b>Letölthető csomag</b> · kész promptok és skillek, telepítési leírással</span>
               )}
             </div>
           )}
@@ -275,13 +275,14 @@ export default async function CoursePage({ params, searchParams }: Props) {
             </>
           )}
         </section>
-        <aside className="card" style={{ position: 'sticky', top: 24 }}>
+        <aside className="side-stack">
+          <div className="card">
           <BuyBox
             course={course}
             loggedIn={!!user}
             hasAccess={hasAccess}
             enrolled={access.enrolled.has(course.id)}
-            firstLessonHref={isPocket ? (guideBlocks ? '#anyag' : download ? '#letoltes' : null) : next ? `/kurzusok/${course.slug}/${next.id}` : isBundle && modules[0] ? `/kurzusok/${modules[0].slug}` : null}
+            firstLessonHref={isPocket ? (guideBlocks ? null : download ? '#letoltes' : null) : next ? `/kurzusok/${course.slug}/${next.id}` : isBundle && modules[0] ? `/kurzusok/${modules[0].slug}` : null}
             bundle={bundle && !access.enrolled.has(bundle.id) ? bundle : null}
             userEmail={user?.email ?? null}
             waitlisted={!!waitRow || sp.ertesites === 'ok'}
@@ -293,6 +294,16 @@ export default async function CoursePage({ params, searchParams }: Props) {
               : null
             }
           />
+          {guideBlocks && download && (
+            <a href={download.url} target="_blank" rel="noopener noreferrer" className="btn ps-lime block" style={{ marginTop: 12 }}>Letöltöm PDF-ben ↓</a>
+          )}
+          </div>
+          {outline.length > 0 && (
+            <nav className="card guide-toc guide-toc-side" aria-label="Tartalom">
+              <span className="mono">Tartalom</span>
+              <ol>{outline.map((o) => <li key={o.id}><a href={`#${o.id}`}>{o.text}</a></li>)}</ol>
+            </nav>
+          )}
         </aside>
       </div>
       <section className="card stack" style={{ '--gap': '24px' } as React.CSSProperties}>
