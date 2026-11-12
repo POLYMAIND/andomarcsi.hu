@@ -138,7 +138,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       {access.subscribed && (
         <section className="card dark row between">
           <div className="stack" style={{ '--gap': '8px' } as React.CSSProperties}>
-            <div className="eyebrow">Polyakadémia tagság</div>
+            <div className="eyebrow">PolySuli tagság</div>
             <strong style={{ fontSize: 20 }}>Heti online Q&amp;A és zárt közösség – kérdezz bátran.</strong>
           </div>
           <div className="row" style={{ '--gap': '8px' } as React.CSSProperties}>
@@ -152,7 +152,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       {!access.subscribed && SUBSCRIPTION.enabled && (
         <section className="card dark row between">
           <div className="stack" style={{ '--gap': '8px' } as React.CSSProperties}>
-            <div className="eyebrow">Polyakadémia tagság</div>
+            <div className="eyebrow">PolySuli tagság</div>
             <strong style={{ fontSize: 20 }}>Minden anyag + heti Q&amp;A + zárt közösség – {formatHuf(SUBSCRIPTION.priceHuf)}/hó</strong>
           </div>
           <Link href="/elofizetes" className="btn amber">Részletek</Link>

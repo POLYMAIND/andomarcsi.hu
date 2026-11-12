@@ -8,7 +8,7 @@ import { getCatalog, getUserAccess } from '@/lib/data';
 import { formatHuf, priceLabel } from '@/lib/format';
 import { soonLabel } from '@/lib/types';
 
-export const metadata: Metadata = { title: 'Polyakadémia tagság' };
+export const metadata: Metadata = { title: 'PolySuli tagság' };
 
 export default async function SubscriptionPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const sp = await searchParams;
@@ -22,7 +22,7 @@ export default async function SubscriptionPage({ searchParams }: { searchParams:
       {sp.hiba === 'nyilatkozat' && <div className="notice err">A vásárláshoz el kell fogadnod az ÁSZF-et és a nyilatkozatot.</div>}
       {sp.megszakitva && <div className="notice">A fizetés megszakadt – semmit nem terheltünk.</div>}
       <section className="card stack" style={{ '--gap': '20px' } as React.CSSProperties}>
-        <div className="eyebrow">Polyakadémia tagság</div>
+        <div className="eyebrow">PolySuli tagság</div>
         <h1 className="h1">A skill megvan, de jön egy kérdés kedd este?</h1>
         <p className="lead">
           Erre van a tagság: minden anyag, heti 1 online Q&A és zárt közösség, ahol a többiek is megosztják, mi működik nekik. Bármikor lemondhatod, a hónap végéig minden

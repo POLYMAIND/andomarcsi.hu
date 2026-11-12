@@ -21,7 +21,7 @@ export default async function MentorApplicationsPage() {
       </div>
       <section className="card stack" style={{ '--gap': '18px' } as React.CSSProperties}>
         <div className="stack" style={{ '--gap': '8px' } as React.CSSProperties}>
-          <div className="eyebrow">Admin · Polyakadémia</div>
+          <div className="eyebrow">Admin · PolySuli</div>
           <h1 className="h2">Mentor-jelentkezések</h1>
           <p className="muted" style={{ margin: 0 }}>A mentorprogramra (249 000 Ft, 10 alkalom) jelentkezők. Hívd vissza őket, és ha egyeztettetek, jelöld „Elintézve”-nek.</p>
         </div>
@@ -41,7 +41,7 @@ export default async function MentorApplicationsPage() {
                     <td className="mono" style={{ whiteSpace: 'nowrap' }}>{formatDate(r.created_at)}</td>
                     <td><strong>{r.name}</strong></td>
                     <td>
-                      <a href={`mailto:${r.email}?subject=${encodeURIComponent('Polyakadémia mentorprogram')}`}>{r.email}</a>
+                      <a href={`mailto:${r.email}?subject=${encodeURIComponent('PolySuli mentorprogram')}`}>{r.email}</a>
                       {r.phone && <div><a href={`tel:${r.phone}`}>{r.phone}</a></div>}
                     </td>
                     <td style={{ maxWidth: 420, whiteSpace: 'pre-line' }}>{r.business || '—'}</td>
