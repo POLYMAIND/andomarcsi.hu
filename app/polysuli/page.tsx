@@ -218,9 +218,6 @@ export default async function PolySuliPage({ searchParams }: { searchParams: Pro
             </div>
           ))}
         </div>
-        <p className="ps-good">
-          <span className="mono">Jó tudni</span>A zsebcsomag {formatHuf(ACADEMY_PRICES.pocket)}-ját levonjuk, ha utána megveszed a hozzá tartozó skill-anyagot – a fizetésnél automatikusan.
-        </p>
       </section>
 
       {/* ── Hol tartasz? Teszt + piramis ── */}

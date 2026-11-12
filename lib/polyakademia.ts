@@ -11,7 +11,7 @@ export const ACADEMY = {
 
 // Árlista (bruttó; alanyi adómentes, ÁFA nem jön rá). A kurzusok tényleges ára az adatbázisban van.
 export const ACADEMY_PRICES = {
-  pocket: 990, // zsebcsomag: 1 kész skill vagy prompt-pack, útmutatóval (levonjuk, ha utána a hozzá tartozó anyagot is megveszi)
+  pocket: 990, // zsebcsomag: 1 kész skill vagy prompt-pack, útmutatóval
   material: 9990, // skill-anyag: 1 téma, 1 online anyag, a végén működő saját skill
   module: 39900, // Skill modul egyben: mind a 6 skill-anyag + bónuszok
   mentor: 249000, // mentorprogram: 10 személyes alkalom (jelentkezéssel)

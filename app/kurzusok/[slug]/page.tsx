@@ -14,7 +14,6 @@ import { guideOutline, parseGuide } from '@/lib/guide';
 import { courseFaq, courseHeading, courseSchema, faqPage, graph, ORGANIZATION } from '@/lib/seo';
 import { createClient } from '@/lib/supabase/server';
 import { ACADEMY, byPackageOrder, packageKind } from '@/lib/polyakademia';
-import { pocketCredit } from '@/lib/pocket-credit';
 import { withStart, withStartAll, type Course, type Lesson } from '@/lib/types';
 import { youTubeThumb } from '@/lib/youtube';
 
@@ -67,7 +66,6 @@ export default async function CoursePage({ params, searchParams }: Props) {
   const guideBlocks = guide?.body_md ? parseGuide(guide.body_md) : null;
   const outline = guideBlocks ? guideOutline(guideBlocks) : [];
   const related = rawParent ? withStart(rawParent) : null;
-  const credit = isPocket || isBundle ? 0 : await pocketCredit(supabase, user?.id, course.id);
   const packages = withStartAll(rawPackages).sort(byPackageOrder);
   const isFree = course.price_huf === 0;
   const { data: waitRow } = user
@@ -286,7 +284,6 @@ export default async function CoursePage({ params, searchParams }: Props) {
             bundle={bundle && !access.enrolled.has(bundle.id) ? bundle : null}
             userEmail={user?.email ?? null}
             waitlisted={!!waitRow || sp.ertesites === 'ok'}
-            credit={credit}
             waitlistError={
               sp.ertesites === 'email' ? 'Kérlek, adj meg egy érvényes e-mail címet.'
               : sp.ertesites === 'hozzajarulas' ? 'A feliratkozáshoz pipáld be a hozzájárulást.'
