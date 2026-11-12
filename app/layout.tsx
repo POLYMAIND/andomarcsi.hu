@@ -9,6 +9,10 @@ export const metadata: Metadata = {
   title: { default: 'Canva és AI kezdőknek – online videókurzus | Andor Marcsi', template: '%s · andormarcsi.hu' },
   description: 'Canva, Claude és AI-eszközök lépésről lépésre, emberi nyelven. Előre felvett videókurzusok kezdőknek és kisvállalkozóknak, Andor Marcsitól.',
   metadataBase: new URL(SITE_URL),
+  applicationName: 'andormarcsi.hu',
+  // Alapértelmezés minden oldalra; a megosztási kép az app/opengraph-image.png (a /polysuli alatt saját).
+  openGraph: { siteName: 'andormarcsi.hu', locale: 'hu_HU', type: 'website' },
+  twitter: { card: 'summary_large_image' },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

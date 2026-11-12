@@ -3,7 +3,7 @@ import { SiteNav } from '@/components/SiteNav';
 import { requireUser } from '@/lib/auth';
 import { setPassword } from './actions';
 
-export const metadata: Metadata = { title: 'Jelszó beállítása' };
+export const metadata: Metadata = { title: 'Jelszó beállítása', robots: { index: false, follow: false } };
 
 const ERRORS: Record<string, string> = {
   rovid: 'A jelszó legyen legalább 8 karakter.',

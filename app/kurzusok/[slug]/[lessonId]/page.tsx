@@ -12,7 +12,7 @@ import { toggleComplete } from './actions';
 
 type Props = { params: Promise<{ slug: string; lessonId: string }> };
 
-export const metadata: Metadata = { title: 'Lecke' };
+export const metadata: Metadata = { title: 'Lecke', robots: { index: false, follow: false } };
 
 const UUID = /^[0-9a-f-]{36}$/i;
 

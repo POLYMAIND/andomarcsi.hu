@@ -9,7 +9,12 @@ import { formatDate, formatHuf } from '@/lib/format';
 import { ACADEMY } from '@/lib/polyakademia';
 import { soonLabel } from '@/lib/types';
 
-export const metadata: Metadata = { title: 'Tudástár' };
+export const metadata: Metadata = {
+  title: 'Tudástár – Canva, Claude és AI videókurzusok',
+  description: 'Az összes kurzus egy helyen: Canva Kalauz, Claude- és AI-kurzusok, ingyenes anyagok és zsebcsomagok. Előre felvett videók, saját tempóban, magyarul.',
+  alternates: { canonical: '/kurzusok' },
+  openGraph: { title: 'Tudástár – Canva, Claude és AI videókurzusok', url: '/kurzusok', images: ['/opengraph-image.png'] },
+};
 
 export default async function CoursesPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const sp = await searchParams;

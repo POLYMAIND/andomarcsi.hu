@@ -8,7 +8,11 @@ import { getCatalog, getUserAccess } from '@/lib/data';
 import { formatHuf, priceLabel } from '@/lib/format';
 import { soonLabel } from '@/lib/types';
 
-export const metadata: Metadata = { title: 'PolySuli tagság' };
+export const metadata: Metadata = {
+  title: 'PolySuli tagság',
+  description: 'Havidíjas tagság: minden zsebcsomag és skill-anyag, heti online Q&A és zárt közösség. Bármikor lemondható, nincs hűségidő.',
+  alternates: { canonical: '/elofizetes' },
+};
 
 export default async function SubscriptionPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const sp = await searchParams;

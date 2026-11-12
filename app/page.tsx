@@ -23,7 +23,6 @@ export const metadata: Metadata = {
     siteName: 'andormarcsi.hu',
     locale: 'hu_HU',
     type: 'website',
-    images: ['/marcsi.png'],
   },
 };
 
