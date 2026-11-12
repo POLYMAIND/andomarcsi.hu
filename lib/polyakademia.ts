@@ -1,12 +1,12 @@
-// Polyakadémia – Andor Marcsi / Polymaind Claude-tudástára az andormarcsi.hu-n (a kurzusokon POLYSULI jelvény):
+// PolySuli – Andor Marcsi / Polymaind Claude-tudástára az andormarcsi.hu-n (a kurzusokon POLYSULI jelvény):
 // lépcsőház (ingyenes kóstoló → zsebcsomag → skill-anyag → Skill modul → tagság → mentorprogram), oktatási piramis + szintfelmérő kvíz.
 // A kurzusok az adatbázisból jönnek (courses.academy_level), itt csak a szöveges váz és az árlista él.
 
 export const ACADEMY = {
-  name: 'Polyakadémia',
+  name: 'PolySuli',
   menu: 'PolySuli', // a menüben és a láblécben ez a felirat
   badge: 'POLYSULI',
-  path: '/polyakademia',
+  path: '/polysuli',
   entryKeyword: 'CLAUDE',
 };
 
@@ -20,6 +20,20 @@ export const ACADEMY_PRICES = {
 };
 
 export const SKILL_MODULE_SLUG = 'skill-modul';
+
+// Témák a PolySuli-oldal mátrixában: egy téma = egy sor (balról jobbra: ingyenes → zsebcsomag → skill-anyag).
+// A sort a szülő tanfolyam slugja azonosítja (a csomagok pocket_for-ja erre mutat, a skill-anyag maga a szülő).
+// Ami itt nincs felsorolva, de van hozzá csomag vagy skill-anyag, az a lista végére kerül a tanfolyam címével.
+export const ACADEMY_TOPICS: { slug: string; name: string; hint?: string }[] = [
+  { slug: 'claude-alapozo', name: 'Skill-írás', hint: 'a Claude Alapozóhoz' },
+  { slug: 'markahang-skill', name: 'Márkahang', hint: 'erre épül minden más' },
+  { slug: 'design-system-alapozo', name: 'Design system', hint: 'a Karusszel előfeltétele' },
+  { slug: 'karusszel-skill-workshop', name: 'Karusszel' },
+  { slug: 'reels-vagas-claude-dal', name: 'Reels és vágás' },
+  { slug: 'fotobump-skill', name: 'Fotóból videó' },
+  { slug: 'urlap-ai-elominosites', name: 'Ügyfélszerzés' },
+  { slug: 'claude-celok-heti-terv', name: 'Heti terv' },
+];
 
 export const MENTOR_TOPICS = [
   ['Folyamattérkép', 'mi automatizálható, és mennyi időt hoz vissza'],

@@ -7,7 +7,7 @@ export const SUBSCRIPTION = {
   // Kikapcsolva, amíg nincs elég videó (cél: 20). Bekapcsolás: NEXT_PUBLIC_SUBSCRIPTION_ENABLED=true
   enabled: process.env.NEXT_PUBLIC_SUBSCRIPTION_ENABLED === 'true',
   priceHuf: Number(process.env.NEXT_PUBLIC_SUBSCRIPTION_PRICE_HUF ?? 19900),
-  name: 'Polyakadémia tagság – havi előfizetés',
+  name: 'PolySuli tagság – havi előfizetés',
   weeklyNew: 2,
   // Tagoknak a Saját tanulás oldalon: heti online Q&A és zárt közösség (pl. Discord) linkje
   qaUrl: process.env.NEXT_PUBLIC_MEMBER_QA_URL ?? '',

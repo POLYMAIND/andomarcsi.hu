@@ -17,7 +17,7 @@ function save(level: AcademyLevel | null) {
 }
 
 // Az oktatási piramis (szintenként a tanfolyamokkal) + a belépő Claude-piramis teszt.
-// A teszt eredménye kijelöli a piramis szintjét („Itt tartasz”), és odagörget (#szint-1..3).
+// Előbb a teszt, alatta a piramis. A teszt eredménye kijelöli a piramis szintjét („Itt tartasz”), és odagörget (#szint-1..3).
 export function AcademyQuiz({ pyramid }: { pyramid: Record<AcademyLevel, PyramidCourse[]> }) {
   const [idx, setIdx] = useState(0);
   const [picks, setPicks] = useState<(number | null)[]>(() => ACADEMY_QUIZ.map(() => null));
@@ -54,6 +54,50 @@ export function AcademyQuiz({ pyramid }: { pyramid: Record<AcademyLevel, Pyramid
 
   return (
     <>
+      <section id="teszt" className="card stack ps-anchor" style={{ '--gap': '18px' } as React.CSSProperties} aria-live="polite">
+        <div className="row between">
+          <div className="stack" style={{ '--gap': '8px' } as React.CSSProperties}>
+            <div className="eyebrow">Hol tartasz? · Claude-piramis teszt · ingyenes · 2 perc</div>
+            <span className="muted" style={{ fontSize: 14 }}>Instán is megkapod: kommenteld, hogy <span className="ps-kw">{ACADEMY.entryKeyword}</span></span>
+          </div>
+          <div className="row" style={{ '--gap': '12px' } as React.CSSProperties}>
+            <div className="ps-progress" aria-hidden="true">
+              {ACADEMY_QUIZ.map((_, i) => (
+                <i key={i} className={mine || i < idx ? 'done' : i === idx ? 'now' : ''} />
+              ))}
+            </div>
+            <span className="mono muted" style={{ fontSize: 12 }}>{mine ? 'Kész' : `${idx + 1} / ${ACADEMY_QUIZ.length}`}</span>
+          </div>
+        </div>
+
+        {mine ? (
+          <div className="ps-result">
+            <span className="eyebrow">Az eredményed</span>
+            <div className="ps-result-level">{ACADEMY_LEVELS[mine].name}</div>
+            <p>{ACADEMY_LEVELS[mine].result}</p>
+            <div className="row">
+              <button type="button" className="btn ps-lime" onClick={() => goTo(mine)}>Mutasd a szintemet a piramison ↓</button>
+              <button type="button" className="btn light" onClick={retry}>Újra kitöltöm</button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <h2 className="h3" style={{ fontSize: 'clamp(22px, 3vw, 30px)' }}>{q.q}</h2>
+            <div className="stack" style={{ '--gap': '10px' } as React.CSSProperties}>
+              {q.a.map((text, i) => (
+                <button key={i} type="button" className={`ps-answer${picked === i ? ' picked' : ''}`} aria-pressed={picked === i} onClick={() => pick(i)}>
+                  <span className="ps-letter">{'ABC'[i]}</span>
+                  <span>{text}</span>
+                </button>
+              ))}
+            </div>
+            <div className="row between">
+              <button type="button" className="btn light sm" onClick={() => setIdx(Math.max(0, idx - 1))} disabled={idx === 0}>← Vissza</button>
+              <button type="button" className="btn sm" onClick={next} disabled={picked === null}>{last ? 'Megnézem az eredményt →' : 'Tovább →'}</button>
+            </div>
+          </>
+        )}
+      </section>
       <section id="piramis" className="card stack ps-anchor" style={{ '--gap': '22px' } as React.CSSProperties}>
         <div className="stack" style={{ '--gap': '10px' } as React.CSSProperties}>
           <div className="eyebrow">Az oktatási piramis</div>
@@ -79,10 +123,6 @@ export function AcademyQuiz({ pyramid }: { pyramid: Record<AcademyLevel, Pyramid
               </div>
             </div>
           ))}
-          <a href="#teszt" className="ps-entry">
-            <b>Belépő: Claude-piramis teszt · ingyenes</b>
-            <span>Az eredménye mondja meg, melyik szinten kezdesz. Instán is megkapod: kommenteld <span className="ps-kw">{ACADEMY.entryKeyword}</span></span>
-          </a>
           <div className="ps-legend">
             <span><i className="first" />ezzel kezdj</span>
             <span><i className="new" />új tanfolyam</span>
@@ -90,47 +130,6 @@ export function AcademyQuiz({ pyramid }: { pyramid: Record<AcademyLevel, Pyramid
         </div>
       </section>
 
-      <section id="teszt" className="card stack ps-anchor" style={{ '--gap': '18px' } as React.CSSProperties} aria-live="polite">
-        <div className="row between">
-          <div className="eyebrow">Claude-piramis teszt · ingyenes · 2 perc</div>
-          <div className="row" style={{ '--gap': '12px' } as React.CSSProperties}>
-            <div className="ps-progress" aria-hidden="true">
-              {ACADEMY_QUIZ.map((_, i) => (
-                <i key={i} className={mine || i < idx ? 'done' : i === idx ? 'now' : ''} />
-              ))}
-            </div>
-            <span className="mono muted" style={{ fontSize: 12 }}>{mine ? 'Kész' : `${idx + 1} / ${ACADEMY_QUIZ.length}`}</span>
-          </div>
-        </div>
-
-        {mine ? (
-          <div className="ps-result">
-            <span className="eyebrow">Az eredményed</span>
-            <div className="ps-result-level">{ACADEMY_LEVELS[mine].name}</div>
-            <p>{ACADEMY_LEVELS[mine].result}</p>
-            <div className="row">
-              <button type="button" className="btn ps-lime" onClick={() => goTo(mine)}>Mutasd a szintemet a piramison ↑</button>
-              <button type="button" className="btn light" onClick={retry}>Újra kitöltöm</button>
-            </div>
-          </div>
-        ) : (
-          <>
-            <h2 className="h3" style={{ fontSize: 'clamp(22px, 3vw, 30px)' }}>{q.q}</h2>
-            <div className="stack" style={{ '--gap': '10px' } as React.CSSProperties}>
-              {q.a.map((text, i) => (
-                <button key={i} type="button" className={`ps-answer${picked === i ? ' picked' : ''}`} aria-pressed={picked === i} onClick={() => pick(i)}>
-                  <span className="ps-letter">{'ABC'[i]}</span>
-                  <span>{text}</span>
-                </button>
-              ))}
-            </div>
-            <div className="row between">
-              <button type="button" className="btn light sm" onClick={() => setIdx(Math.max(0, idx - 1))} disabled={idx === 0}>← Vissza</button>
-              <button type="button" className="btn sm" onClick={next} disabled={picked === null}>{last ? 'Megnézem az eredményt →' : 'Tovább →'}</button>
-            </div>
-          </>
-        )}
-      </section>
     </>
   );
 }

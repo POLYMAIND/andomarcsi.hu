@@ -89,16 +89,16 @@ export default async function EditCoursePage({ params, searchParams }: Props) {
             </label>
             <label className="field">Sorrend<input className="input" name="sort_order" type="number" defaultValue={course?.sort_order ?? 0} /></label>
             <label className="field">
-              Polyakadémia-szint (POLYSULI jelvény)
+              PolySuli-szint (POLYSULI jelvény)
               <select className="select" name="academy_level" defaultValue={course?.academy_level ?? ''}>
-                <option value="">– nem Polyakadémia-kurzus –</option>
+                <option value="">– nem PolySuli-kurzus –</option>
                 <option value="1">1. szint · Claude a mindennapi munkában</option>
                 <option value="2">2. szint · Saját munkafolyamatok és skillek</option>
                 <option value="3">3. szint · Ügynökök</option>
               </select>
             </label>
             <label className="field">
-              Polyakadémia-címke (nem kötelező)
+              PolySuli-címke (nem kötelező)
               <input className="input" name="academy_tag" placeholder="pl. Itt kezdj, CRM, Élő workshop" defaultValue={course?.academy_tag ?? ''} />
             </label>
             <label className="field">
