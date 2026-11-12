@@ -59,6 +59,12 @@ export async function saveCourse(formData: FormData) {
     ? await supabase.from('course_downloads').upsert({ course_id: res.data.id, url: downloadUrl, label: str(formData, 'download_label') || 'Letöltöm a csomagot', updated_at: new Date().toISOString() })
     : await supabase.from('course_downloads').delete().eq('course_id', res.data.id);
   if (dl.error) redirect(`/admin/kurzusok/${res.data.id}?hiba=${encodeURIComponent(dl.error.message)}`);
+  // Online tananyag (külön tábla: csak belépett, jogosult felhasználó olvashatja)
+  const guideMd = String(formData.get('guide_md') ?? '').trim();
+  const gd = guideMd
+    ? await supabase.from('course_guides').upsert({ course_id: res.data.id, body_md: guideMd, updated_at: new Date().toISOString() })
+    : await supabase.from('course_guides').delete().eq('course_id', res.data.id);
+  if (gd.error) redirect(`/admin/kurzusok/${res.data.id}?hiba=${encodeURIComponent(gd.error.message)}`);
   revalidatePath('/', 'layout');
   redirect(`/admin/kurzusok/${res.data.id}?ok=1`);
 }

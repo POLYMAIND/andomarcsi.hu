@@ -4,11 +4,13 @@ import { notFound } from 'next/navigation';
 import { BuyBox } from '@/components/BuyBox';
 import { ChatWidget } from '@/components/ChatWidget';
 import { FaqList } from '@/components/FaqList';
+import { GuideView } from '@/components/GuideView';
 import { JsonLd } from '@/components/JsonLd';
 import { SiteNav } from '@/components/SiteNav';
 import { getCurrentUser } from '@/lib/auth';
 import { courseAccessible, getUserAccess } from '@/lib/data';
 import { formatHuf, priceLabel, toolColor } from '@/lib/format';
+import { guideOutline, parseGuide } from '@/lib/guide';
 import { courseFaq, courseHeading, courseSchema, faqPage, graph, ORGANIZATION } from '@/lib/seo';
 import { createClient } from '@/lib/supabase/server';
 import { ACADEMY, byPackageOrder, packageKind } from '@/lib/polyakademia';
@@ -55,11 +57,15 @@ export default async function CoursePage({ params, searchParams }: Props) {
   // Letölthető csomag (ingyenes anyag / zsebkurzus): a szülő tanfolyam és a letöltési link (az RLS csak jogosultnak adja ki).
   // Tanfolyamnál: a hozzá tartozó ingyenes anyagok és zsebkurzusok.
   const isPocket = !!course.pocket_for;
-  const [{ data: rawParent }, { data: rawPackages }, { data: download }] = await Promise.all([
+  const [{ data: rawParent }, { data: rawPackages }, { data: download }, { data: guide }] = await Promise.all([
     isPocket ? supabase.from('courses').select('*').eq('id', course.pocket_for!).eq('published', true).maybeSingle<Course>() : Promise.resolve({ data: null }),
     isPocket ? Promise.resolve({ data: [] as Course[] }) : supabase.from('courses').select('*').eq('pocket_for', course.id).eq('published', true).returns<Course[]>(),
     isPocket ? supabase.from('course_downloads').select('url, label').eq('course_id', course.id).maybeSingle() : Promise.resolve({ data: null }),
+    // Online tananyag (ingyenes anyag / zsebcsomag): az RLS csak belépett, jogosult felhasználónak adja ki.
+    isPocket && user ? supabase.from('course_guides').select('body_md').eq('course_id', course.id).maybeSingle<{ body_md: string }>() : Promise.resolve({ data: null }),
   ]);
+  const guideBlocks = guide?.body_md ? parseGuide(guide.body_md) : null;
+  const outline = guideBlocks ? guideOutline(guideBlocks) : [];
   const related = rawParent ? withStart(rawParent) : null;
   const credit = isPocket || isBundle ? 0 : await pocketCredit(supabase, user?.id, course.id);
   const packages = withStartAll(rawPackages).sort(byPackageOrder);
@@ -70,6 +76,12 @@ export default async function CoursePage({ params, searchParams }: Props) {
   const bundle = withStartAll(bundlesWithThis)[0] ?? null;
   const list = lessons ?? [];
   const hasAccess = !!user && courseAccessible(course, access, profile?.is_admin);
+  // Ingyenes anyag megnyitása = felvétel a Saját tanulásba (így az adminban is látszik, ki mit olvasott).
+  if (user && isFree && isPocket && guideBlocks && !access.enrolled.has(course.id)) {
+    await supabase.from('enrollments').insert({ user_id: user.id, course_id: course.id, source: 'free', amount_huf: 0 });
+    access.enrolled.add(course.id);
+  }
+  const loginHref = `/belepes?next=${encodeURIComponent(`/kurzusok/${course.slug}`)}`;
   const done = list.filter((l) => access.completed.has(l.id)).length;
   const next = list.find((l) => !access.completed.has(l.id)) ?? list[0];
   // Videó-előnézet: az RLS csak a jogosultnak (vagy az ingyenes előzetesnél) adja ki a YouTube-azonosítót.
@@ -102,7 +114,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
           {course.subtitle && <p className="lead" style={{ color: 'var(--ink)' }}>{course.subtitle}</p>}
           {course.teaser && <p style={{ margin: 0, fontSize: 17, lineHeight: 1.6, color: 'var(--ink)' }}>{course.teaser}</p>}
           <div className="row">
-            <span className="pill">{isPocket ? 'Letölthető csomag' : isBundle ? `${modules.length} modul` : `${list.length} lecke`}</span>
+            <span className="pill">{isPocket ? (isFree ? 'Ingyenes online anyag' : 'Letölthető csomag') : isBundle ? `${modules.length} modul` : `${list.length} lecke`}</span>
             {totalMin > 0 && <span className="pill">{totalMin} perc videó</span>}
             {hasAccess && list.length > 0 && <span className="pill">{done}/{list.length} kész</span>}
           </div>
@@ -175,7 +187,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
             </>
           )}
           {course.description && course.outcome && <h2 className="h3">Miről szól?</h2>}
-          {course.description && <p style={{ margin: 0, fontSize: 17, lineHeight: 1.65, color: 'var(--ink-2)', whiteSpace: 'pre-line' }}>{course.description}</p>}
+          {course.description && !guideBlocks && <p style={{ margin: 0, fontSize: 17, lineHeight: 1.65, color: 'var(--ink-2)', whiteSpace: 'pre-line' }}>{course.description}</p>}
           {isBundle && (
             <>
               <h2 className="h3">A csomag tartalma</h2>
@@ -200,11 +212,30 @@ export default async function CoursePage({ params, searchParams }: Props) {
               )}
             </>
           )}
-          {isPocket && (
+          {guideBlocks && (
+            <div id="anyag" className="stack" style={{ '--gap': '18px' } as React.CSSProperties}>
+              {outline.length > 2 && (
+                <nav className="guide-toc" aria-label="Tartalom">
+                  <span className="mono">Tartalom</span>
+                  <ol>{outline.map((o) => <li key={o.id}><a href={`#${o.id}`}>{o.text}</a></li>)}</ol>
+                </nav>
+              )}
+              <GuideView blocks={guideBlocks} />
+            </div>
+          )}
+          {isPocket && !guideBlocks && !hasAccess && isFree && (
+            <div id="letoltes" className="guide-locked">
+              <span className="mono">Ingyenes · csak regisztráció kell</span>
+              <b>Az anyag itt, az oldalon olvasható – lépj be, vagy regisztrálj ingyen egy e-mail címmel.</b>
+              <span className="muted">Jelszó nem kell: e-mailben kapsz egy belépő linket, és utána bármikor visszajöhetsz ide.{course.academy_keyword ? <> Instán is kérheted: <span className="ps-kw">{course.academy_keyword}</span></> : null}</span>
+              <Link href={loginHref} className="btn ps-lime" style={{ alignSelf: 'flex-start' }}>Regisztrálok és olvasom →</Link>
+            </div>
+          )}
+          {isPocket && (download || !guideBlocks) && !(isFree && !hasAccess) && (
             <div id="letoltes" className="ps-pocket" style={{ padding: '18px 20px' }}>
               {hasAccess && download ? (
                 <>
-                  <span><b>{isFree ? 'Itt az ingyenes anyagod.' : 'A csomag a tiéd.'}</b> Bármikor újra letöltheted innen.</span>
+                  <span><b>{guideBlocks ? 'A nyomtatható lapok.' : isFree ? 'Itt az ingyenes anyagod.' : 'A csomag a tiéd.'}</b> Bármikor újra letöltheted innen.</span>
                   <a href={download.url} target="_blank" rel="noopener noreferrer" className="btn ps-lime sm">{download.label || 'Letöltöm a csomagot'} ↓</a>
                 </>
               ) : hasAccess ? (
@@ -237,7 +268,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
                   </span>
                   <span className="row" style={{ '--gap': '8px' } as React.CSSProperties}>
                     <span className="ps-pocket-price">{priceLabel(p)}</span>
-                    <span className="btn sm">{p.coming_soon ? 'Részletek' : p.price_huf === 0 ? 'Letöltöm' : 'Megveszem'} →</span>
+                    <span className="btn sm">{p.coming_soon ? 'Részletek' : p.price_huf === 0 ? 'Olvasom' : 'Megveszem'} →</span>
                   </span>
                 </Link>
               ))}
@@ -250,7 +281,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
             loggedIn={!!user}
             hasAccess={hasAccess}
             enrolled={access.enrolled.has(course.id)}
-            firstLessonHref={isPocket ? (download ? '#letoltes' : null) : next ? `/kurzusok/${course.slug}/${next.id}` : isBundle && modules[0] ? `/kurzusok/${modules[0].slug}` : null}
+            firstLessonHref={isPocket ? (guideBlocks ? '#anyag' : download ? '#letoltes' : null) : next ? `/kurzusok/${course.slug}/${next.id}` : isBundle && modules[0] ? `/kurzusok/${modules[0].slug}` : null}
             bundle={bundle && !access.enrolled.has(bundle.id) ? bundle : null}
             userEmail={user?.email ?? null}
             waitlisted={!!waitRow || sp.ertesites === 'ok'}

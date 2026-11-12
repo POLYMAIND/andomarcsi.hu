@@ -36,6 +36,7 @@ export default async function EditCoursePage({ params, searchParams }: Props) {
   let lessons: Lesson[] = [];
   let videos = new Map<string, string>();
   let download: { url: string; label: string } | null = null;
+  let guideMd = '';
   if (!isNew) {
     const { data } = await supabase.from('courses').select('*').eq('id', id).maybeSingle<Course>();
     if (!data) notFound();
@@ -47,6 +48,8 @@ export default async function EditCoursePage({ params, searchParams }: Props) {
     lessons = ls ?? [];
     const { data: dl } = await supabase.from('course_downloads').select('url, label').eq('course_id', id).maybeSingle();
     download = dl;
+    const { data: g } = await supabase.from('course_guides').select('body_md').eq('course_id', id).maybeSingle<{ body_md: string }>();
+    guideMd = g?.body_md ?? '';
     videos = new Map((vs ?? []).map((v) => [v.lesson_id as string, v.youtube_id as string]));
   }
   const now = Date.now();
@@ -140,8 +143,13 @@ export default async function EditCoursePage({ params, searchParams }: Props) {
                 <input className="input" name="download_label" placeholder="Letöltöm a csomagot" defaultValue={download?.label ?? ''} />
               </label>
             </div>
+            <label className="field" style={{ marginTop: 12 }}>
+              Online tananyag (az oldalon olvasható szöveg – csak belépett, jogosult felhasználó látja)
+              <textarea className="textarea" name="guide_md" defaultValue={guideMd} style={{ minHeight: 260, fontFamily: 'var(--mono)', fontSize: 13 }}
+                placeholder={'## 1. lépés: Cím\nBekezdés **félkövérrel**.\n\n- lista\n1. számozott lista\n\n> **Tipp:** kiemelt doboz\n\n```prompt Cím\nbemásolható prompt\n```\n\n| Oszlop | Oszlop |\n|---|---|\n| cella | cella |'} />
+            </label>
             <p className="muted" style={{ margin: '10px 0 0', fontSize: 13 }}>
-              A link csak a vásárlóknak, az előfizetőknek és az adminnak jelenik meg. Ha üresre állítod, a link törlődik. Állítsd „Elérhető”-re, amikor a link fent van – onnantól megvásárolható.
+              Ha van online tananyag, a kurzusoldalon az jelenik meg (a ## címekből tartalomjegyzék lesz); a letöltési link mellette maradhat, pl. nyomtatható lapokhoz. A link csak a vásárlóknak, az előfizetőknek és az adminnak jelenik meg. Ha üresre állítod, a link törlődik. Állítsd „Elérhető”-re, amikor a link fent van – onnantól megvásárolható.
             </p>
           </details>
           <details open={(course?.bundle_course_ids?.length ?? 0) > 0} style={{ background: 'var(--paper)', borderRadius: 14, padding: '12px 16px' }}>
