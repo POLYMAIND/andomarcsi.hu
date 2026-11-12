@@ -14,6 +14,7 @@ import { createClient } from '@/lib/supabase/server';
 import { ACADEMY, byPackageOrder, packageKind } from '@/lib/polyakademia';
 import { pocketCredit } from '@/lib/pocket-credit';
 import { withStart, withStartAll, type Course, type Lesson } from '@/lib/types';
+import { youTubeThumb } from '@/lib/youtube';
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | undefined>> };
 
@@ -71,6 +72,12 @@ export default async function CoursePage({ params, searchParams }: Props) {
   const hasAccess = !!user && courseAccessible(course, access, profile?.is_admin);
   const done = list.filter((l) => access.completed.has(l.id)).length;
   const next = list.find((l) => !access.completed.has(l.id)) ?? list[0];
+  // Videó-előnézet: az RLS csak a jogosultnak (vagy az ingyenes előzetesnél) adja ki a YouTube-azonosítót.
+  const { data: videoRows } = list.length
+    ? await supabase.from('lesson_videos').select('lesson_id, youtube_id').in('lesson_id', list.map((l) => l.id))
+    : { data: [] as { lesson_id: string; youtube_id: string }[] };
+  const thumbs = new Map((videoRows ?? []).map((v) => [v.lesson_id as string, youTubeThumb(v.youtube_id as string)]));
+  const featured = list.length ? (hasAccess ? next : list.find((l) => l.is_preview && !course.coming_soon) ?? list[0]) : null;
   const totalMin = list.reduce((s, l) => s + (l.duration_min ?? 0), 0);
   const faq = courseFaq(course);
 
@@ -104,6 +111,63 @@ export default async function CoursePage({ params, searchParams }: Props) {
 
       <div className="layout-sidebar">
         <section className="card stack" style={{ '--gap': '20px' } as React.CSSProperties}>
+          {!isBundle && (list.length > 0 || !isPocket) && (
+            <div className="stack" style={{ '--gap': '14px' } as React.CSSProperties}>
+              <h2 className="h3">Tananyag</h2>
+              {list.length === 0 && <p className="muted" style={{ margin: 0 }}>A leckék hamarosan érkeznek.</p>}
+              {featured && (() => {
+                const open = hasAccess || (featured.is_preview && !course.coming_soon);
+                const idx = list.indexOf(featured);
+                const thumb = thumbs.get(featured.id);
+                const started = done > 0 && !access.completed.has(featured.id);
+                return (
+                  <Link href={`/kurzusok/${course.slug}/${featured.id}`} className={`lesson-hero${open ? '' : ' locked'}`}>
+                    <span className="lesson-hero-media">
+                      {thumb
+                        ? <img src={thumb} alt="" loading="eager" />
+                        : <span className="lesson-hero-ph" style={{ background: toolColor(course.tool) }} />}
+                      <span className="lesson-hero-play" aria-hidden>{open ? '▶' : '🔒'}</span>
+                      {open && featured.duration_min ? <span className="lesson-hero-dur mono">{featured.duration_min} perc</span> : null}
+                    </span>
+                    <span className="lesson-hero-body">
+                      <span className="muted mono" style={{ fontSize: 12 }}>
+                        {idx + 1}. lecke{!hasAccess && featured.is_preview && !course.coming_soon ? ' · ingyenes előzetes' : ''}
+                      </span>
+                      <strong>{featured.title}</strong>
+                      {featured.description && <span className="muted lesson-hero-desc">{featured.description}</span>}
+                      <span className="btn sm" style={{ alignSelf: 'flex-start' }}>
+                        {!open ? 'Zárolt lecke' : started ? 'Folytatom →' : access.completed.has(featured.id) ? 'Újranézem →' : 'Megnézem →'}
+                      </span>
+                    </span>
+                  </Link>
+                );
+              })()}
+              {list.length > 1 && (
+                <ol className="lesson-list">
+                  {list.map((l, i) => {
+                    if (l.id === featured?.id) return null;
+                    const open = hasAccess || (l.is_preview && !course.coming_soon);
+                    const isDone = access.completed.has(l.id);
+                    const thumb = thumbs.get(l.id);
+                    return (
+                      <li key={l.id}>
+                        <Link href={`/kurzusok/${course.slug}/${l.id}`} className={`lesson-item${thumb ? ' has-thumb' : ''}${open ? '' : ' locked'}`}>
+                          {thumb
+                            ? <span className="lesson-thumb"><img src={thumb} alt="" loading="lazy" /><span className={`lesson-num${isDone ? ' done' : ''}`}>{isDone ? '✓' : i + 1}</span></span>
+                            : <span className={`lesson-num${isDone ? ' done' : ''}`}>{isDone ? '✓' : i + 1}</span>}
+                          <span className="stack" style={{ '--gap': '2px' } as React.CSSProperties}>
+                            <strong>{l.title}</strong>
+                            {l.is_preview && !hasAccess && !course.coming_soon && <span className="muted" style={{ fontSize: 13 }}>Ingyenes előzetes</span>}
+                          </span>
+                          <span className="muted mono" style={{ fontSize: 12 }}>{open ? (l.duration_min ? `${l.duration_min} p` : '') : '🔒'}</span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ol>
+              )}
+            </div>
+          )}
           {course.outcome && (
             <>
               <h2 className="h3">Mit tudsz majd a végére?</h2>
@@ -162,26 +226,6 @@ export default async function CoursePage({ params, searchParams }: Props) {
               <span className="muted mono" style={{ fontSize: 12 }}>{priceLabel(related)}</span>
             </Link>
           )}
-          {!isBundle && !isPocket && <h2 className="h3">Tananyag</h2>}
-          {!isBundle && !isPocket && list.length === 0 && <p className="muted">A leckék hamarosan érkeznek.</p>}
-          <ol className="lesson-list">
-            {list.map((l, i) => {
-              const open = hasAccess || (l.is_preview && !course.coming_soon);
-              const isDone = access.completed.has(l.id);
-              return (
-                <li key={l.id}>
-                  <Link href={`/kurzusok/${course.slug}/${l.id}`} className={`lesson-item${open ? '' : ' locked'}`}>
-                    <span className={`lesson-num${isDone ? ' done' : ''}`}>{isDone ? '✓' : i + 1}</span>
-                    <span className="stack" style={{ '--gap': '2px' } as React.CSSProperties}>
-                      <strong>{l.title}</strong>
-                      {l.is_preview && !hasAccess && !course.coming_soon && <span className="muted" style={{ fontSize: 13 }}>Ingyenes előzetes</span>}
-                    </span>
-                    <span className="muted mono" style={{ fontSize: 12 }}>{open ? (l.duration_min ? `${l.duration_min} p` : '') : '🔒'}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ol>
           {packages.length > 0 && (
             <>
               <h2 className="h3">Ingyenes anyag és zsebkurzus</h2>
