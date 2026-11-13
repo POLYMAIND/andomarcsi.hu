@@ -163,6 +163,17 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* POLYSULI INTRO VIDEÓ */}
+      <section id="polysuli" className="card stack" style={{ '--gap': '24px' } as React.CSSProperties}>
+        <div className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
+          <div className="eyebrow">PolySuli</div>
+          <h2 className="h2">Mi az a PolySuli? 90 másodpercben</h2>
+        </div>
+        <video controls playsInline preload="none" poster="/polysuli-intro-poster.jpg" style={{ width: '100%', aspectRatio: '16 / 9', borderRadius: 20, background: '#1d1b20', display: 'block' }}>
+          <source src="/polysuli-intro.mp4" type="video/mp4" />
+        </video>
+      </section>
+
       {/* CANVA KALAUZ – mit tanulsz, mit kapsz */}
       <CanvaKalauzSection modules={canvaModules} bundle={canvaBundle} extra={canvaExtra} lessons={moduleLessons} />
 
