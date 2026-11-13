@@ -192,7 +192,7 @@ export default async function PolySuliPage({ searchParams }: { searchParams: Pro
           preload="metadata"
           poster="/video/polysuli-intro-poster.jpg"
           aria-label="PolySuli bemutató videó"
-          style={{ width: '100%', aspectRatio: '16 / 9', borderRadius: 'var(--radius)', background: 'var(--ink)', display: 'block' }}
+          style={{ width: '100%', maxWidth: 960, aspectRatio: '16 / 9', borderRadius: 'var(--radius)', background: 'var(--ink)', display: 'block' }}
         >
           <source src="/video/polysuli-intro.mp4" type="video/mp4" />
         </video>
