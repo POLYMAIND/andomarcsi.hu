@@ -181,6 +181,23 @@ export default async function PolySuliPage({ searchParams }: { searchParams: Pro
 
       <ScrollFadeNav items={TOC} />
 
+      {/* ── Intróvideó ── */}
+      <section id="intro" className="ps-section ps-anchor">
+        <SectionHead eyebrow="Mielőtt bármit mondanék" title="Ez a PolySuli – másfél percben.">
+          Mi ez, kinek szól, és hogyan épül fel. Hanggal – kapcsold be a hangszórót.
+        </SectionHead>
+        <video
+          controls
+          playsInline
+          preload="metadata"
+          poster="/video/polysuli-intro-poster.jpg"
+          aria-label="PolySuli bemutató videó"
+          style={{ width: '100%', aspectRatio: '16 / 9', borderRadius: 'var(--radius)', background: 'var(--ink)', display: 'block' }}
+        >
+          <source src="/video/polysuli-intro.mp4" type="video/mp4" />
+        </video>
+      </section>
+
       {/* ── Kinek szól ── */}
       <section id="kinek" className="ps-section ps-anchor">
         <SectionHead eyebrow="Kinek szól" title="Neked szól – és kinek nagyon nem." />
