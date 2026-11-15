@@ -64,3 +64,8 @@ export const STATUS_LABEL: Record<CourseStatus, string> = { draft: 'Vázlat', so
 
 export const isSubscriptionActive = (s: Subscription | null | undefined) =>
   !!s && ['active', 'trialing'].includes(s.status) && (!s.current_period_end || new Date(s.current_period_end) > new Date());
+
+/** A lecke sorszáma a listában: ha a kurzus 0. leckével indul, a sort_order a szám (így egyezik a videóval). */
+export function lessonNo(list: Pick<Lesson, 'sort_order'>[], lesson: Pick<Lesson, 'sort_order'>, i: number): number {
+  return list[0]?.sort_order === 0 ? lesson.sort_order : i + 1;
+}

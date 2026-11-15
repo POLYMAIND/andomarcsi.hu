@@ -7,7 +7,7 @@ import { SiteNav } from '@/components/SiteNav';
 import { getCurrentUser } from '@/lib/auth';
 import { courseAccessible, getUserAccess } from '@/lib/data';
 import { youTubeEmbedUrl } from '@/lib/youtube';
-import { soonLabel, withStart, type Course, type Lesson } from '@/lib/types';
+import { lessonNo, soonLabel, withStart, type Course, type Lesson } from '@/lib/types';
 import { toggleComplete } from './actions';
 
 type Props = { params: Promise<{ slug: string; lessonId: string }> };
@@ -24,11 +24,12 @@ export default async function LessonPage({ params }: Props) {
   const course = rawCourse ? withStart(rawCourse) : null;
   if (!course) notFound();
 
-  const [{ data: lessons }, { data: video }, access] = await Promise.all([
+  const [{ data: lessons }, { data: video }, access, { data: download }] = await Promise.all([
     supabase.from('lessons').select('*').eq('course_id', course.id).lte('published_at', new Date().toISOString()).order('sort_order').returns<Lesson[]>(),
     // Az RLS csak akkor adja vissza a videó-azonosítót, ha van hozzáférés (vagy előzetes lecke).
     supabase.from('lesson_videos').select('youtube_id').eq('lesson_id', lessonId).maybeSingle(),
     getUserAccess(supabase, user?.id),
+    supabase.from('course_downloads').select('url, label').eq('course_id', course.id).maybeSingle<{ url: string; label: string | null }>(),
   ]);
   const list = lessons ?? [];
   const idx = list.findIndex((l) => l.id === lessonId);
@@ -68,7 +69,7 @@ export default async function LessonPage({ params }: Props) {
           <section className="card stack" style={{ '--gap': '16px' } as React.CSSProperties}>
             <div className="row between">
               <Link href={`/kurzusok/${course.slug}`} className="tag">← {course.title}</Link>
-              <span className="tag muted">{idx + 1}. lecke / {list.length}</span>
+              <span className="tag muted">{lessonNo(list, lesson, idx)}. lecke / {lessonNo(list, list[list.length - 1], list.length - 1)}</span>
             </div>
             <h1 className="h2">{lesson.title}</h1>
             {lesson.description && <p style={{ margin: 0, fontSize: 17, lineHeight: 1.65, color: 'var(--ink-2)', whiteSpace: 'pre-line' }}>{lesson.description}</p>}
@@ -97,6 +98,12 @@ export default async function LessonPage({ params }: Props) {
               <BuyBox course={course} loggedIn={!!user} hasAccess={false} enrolled={access.enrolled.has(course.id)} firstLessonHref={null} userEmail={user?.email ?? null} />
             </div>
           )}
+          {hasAccess && download && (
+            <div id="letoltes" className="ps-pocket" style={{ padding: '16px 18px' }}>
+              <span><b>A kurzus anyagai.</b> Skillek, PDF-útmutató és munkalapok: bármikor letöltheted.</span>
+              <a href={download.url} target="_blank" rel="noopener noreferrer" className="btn ps-lime sm">{download.label || 'Letöltöm az anyagokat'} ↓</a>
+            </div>
+          )}
           <div className="card" style={{ padding: 16 }}>
             <ol className="lesson-list">
               {list.map((l, i) => {
@@ -105,7 +112,7 @@ export default async function LessonPage({ params }: Props) {
                 return (
                   <li key={l.id}>
                     <Link href={`/kurzusok/${course.slug}/${l.id}`} className={`lesson-item${l.id === lesson.id ? ' active' : ''}${open ? '' : ' locked'}`}>
-                      <span className={`lesson-num${d ? ' done' : ''}`}>{d ? '✓' : i + 1}</span>
+                      <span className={`lesson-num${d ? ' done' : ''}`}>{d ? '✓' : lessonNo(list, l, i)}</span>
                       <span style={{ fontSize: 14, fontWeight: 500 }}>{l.title}</span>
                       <span className="muted mono" style={{ fontSize: 12 }}>{open ? (l.duration_min ? `${l.duration_min} p` : '') : '🔒'}</span>
                     </Link>
