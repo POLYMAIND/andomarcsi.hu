@@ -64,11 +64,6 @@ export default function ClaudeDashboardMotionLanding() {
             </div>
           ))}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: 16 }}>
-          {[1, 4, 5].map((n) => (
-            <img key={n} src={`${IMG}/oldal-${n}.jpg`} alt={`A segédlet ${n}. oldala`} loading="lazy" style={{ width: '100%', height: 'auto', borderRadius: 14, border: '1px solid var(--line)' }} />
-          ))}
-        </div>
       </section>
 
       <section className="card amber stack" style={{ '--gap': '14px' } as React.CSSProperties}>
@@ -80,7 +75,7 @@ export default function ClaudeDashboardMotionLanding() {
         </p>
       </section>
 
-      <section className="card stack" style={{ '--gap': '20px', alignItems: 'flex-start' } as React.CSSProperties}>
+      <section id="kerem" className="card stack" style={{ '--gap': '20px', alignItems: 'flex-start', scrollMarginTop: 24 } as React.CSSProperties}>
         <div className="eyebrow">Ingyenes segédlet</div>
         <h2 className="h2">Kérem, és kipróbálom ma este.</h2>
         <div style={{ width: '100%', maxWidth: 560 }}>
