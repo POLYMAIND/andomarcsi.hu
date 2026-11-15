@@ -3,14 +3,9 @@ import { getCurrentUser } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/server';
 import { forwardToPolyos } from '@/lib/waitlist';
 import { FORM_ELAPSED_FIELD, tooFastElapsed } from '@/lib/honeypot';
+import { LEAD_MAGNETS, downloadPath, leadCookieName, signLead } from '@/lib/lead-magnets';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-// Ingyenes letölthető anyagok (lead magnet): e-mail-címért cserébe adjuk a letöltési linket.
-// Csak az itt felsorolt anyagokhoz ad linket – a kliens nem küldhet tetszőleges URL-t.
-const LEAD_MAGNETS: Record<string, { download: string }> = {
-  'claude-dashboard-motion': { download: '/segedlet/claude-dashboard-motion/claude-dashboard-motion-segedlet.pdf' },
-};
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => ({}));
@@ -38,5 +33,7 @@ export async function POST(request: NextRequest) {
   if (error) return NextResponse.json({ error: 'Nem sikerült, próbáld újra.' }, { status: 500 });
 
   if (inserted?.length) await forwardToPolyos({ event: 'newsletter.signup', email, name, consent_at: consentAt, source });
-  return NextResponse.json({ ok: true, download: lm.download });
+  const res = NextResponse.json({ ok: true, download: downloadPath(magnet) });
+  res.cookies.set(leadCookieName(magnet), signLead(magnet), { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 60 * 60 * 24 * 365 });
+  return res;
 }
