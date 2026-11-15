@@ -9,7 +9,6 @@ export const SUBSCRIPTION = {
   priceHuf: Number(process.env.NEXT_PUBLIC_SUBSCRIPTION_PRICE_HUF ?? 19900),
   name: 'PolySuli tagság – havi előfizetés',
   weeklyNew: 2,
-  // Tagoknak a Saját tanulás oldalon: heti online Q&A és zárt közösség (pl. Discord) linkje
+  // Tagoknak a Saját tanulás oldalon: a heti online Q&A linkje (a közösség saját oldal: /kozosseg)
   qaUrl: process.env.NEXT_PUBLIC_MEMBER_QA_URL ?? '',
-  communityUrl: process.env.NEXT_PUBLIC_MEMBER_COMMUNITY_URL ?? '',
 };

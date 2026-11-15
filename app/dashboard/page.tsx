@@ -143,9 +143,18 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           </div>
           <div className="row" style={{ '--gap': '8px' } as React.CSSProperties}>
             {SUBSCRIPTION.qaUrl && <a href={SUBSCRIPTION.qaUrl} target="_blank" rel="noopener noreferrer" className="btn amber">Heti Q&amp;A</a>}
-            {SUBSCRIPTION.communityUrl && <a href={SUBSCRIPTION.communityUrl} target="_blank" rel="noopener noreferrer" className="btn light">Közösség</a>}
-            {!SUBSCRIPTION.qaUrl && !SUBSCRIPTION.communityUrl && <span className="muted" style={{ fontSize: 14 }}>A Q&amp;A és a közösség linkjét e-mailben küldjük.</span>}
+            <Link href="/kozosseg" className="btn light">Közösség</Link>
           </div>
+        </section>
+      )}
+
+      {!access.subscribed && (purchases ?? []).some((p) => p.source === 'stripe' || p.source === 'manual') && (
+        <section className="card dark row between">
+          <div className="stack" style={{ '--gap': '8px' } as React.CSSProperties}>
+            <div className="eyebrow">Közösség</div>
+            <strong style={{ fontSize: 20 }}>Elakadtál, vagy elkészült valami? Kérdezz, és mutasd meg a többieknek!</strong>
+          </div>
+          <Link href="/kozosseg" className="btn amber">Közösség</Link>
         </section>
       )}
 
