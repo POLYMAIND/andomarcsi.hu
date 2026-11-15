@@ -16,6 +16,7 @@ import { createClient } from '@/lib/supabase/server';
 import { ACADEMY, byPackageOrder, packageKind } from '@/lib/polyakademia';
 import { lessonNo, withStart, withStartAll, type Course, type Lesson } from '@/lib/types';
 import { youTubeThumb } from '@/lib/youtube';
+import { lessonsWithVideo, videoThumbUrl } from '@/lib/video-preview';
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | undefined>> };
 
@@ -87,6 +88,9 @@ export default async function CoursePage({ params, searchParams }: Props) {
     ? await supabase.from('lesson_videos').select('lesson_id, youtube_id').in('lesson_id', list.map((l) => l.id))
     : { data: [] as { lesson_id: string; youtube_id: string }[] };
   const thumbs = new Map((videoRows ?? []).map((v) => [v.lesson_id as string, youTubeThumb(v.youtube_id as string)]));
+  // Akinek nincs hozzáférése, az is lássa a borítóképet – a saját végpontunkon át, azonosító nélkül.
+  const locked = list.filter((l) => !thumbs.has(l.id)).map((l) => l.id);
+  for (const id of await lessonsWithVideo(locked)) thumbs.set(id, videoThumbUrl(id));
   const featured = list.length ? (hasAccess ? next : list.find((l) => l.is_preview && !course.coming_soon) ?? list[0]) : null;
   const totalMin = list.reduce((s, l) => s + (l.duration_min ?? 0), 0);
   const faq = courseFaq(course);

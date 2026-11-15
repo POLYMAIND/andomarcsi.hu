@@ -5,10 +5,11 @@ import { SiteNav } from '@/components/SiteNav';
 import { getCurrentUser } from '@/lib/auth';
 import { SITE_URL, SUBSCRIPTION } from '@/lib/config';
 import { courseAccessible, getCatalog, getUserAccess } from '@/lib/data';
-import { formatHuf, priceLabel } from '@/lib/format';
+import { formatHuf, priceLabel, toolColor } from '@/lib/format';
 import { ACADEMY, ACADEMY_PRICES, ACADEMY_TOPICS, byPackageOrder } from '@/lib/polyakademia';
 import { graph, ORGANIZATION } from '@/lib/seo';
 import { soonLabel, type Course } from '@/lib/types';
+import { lessonsWithVideo, videoThumbUrl } from '@/lib/video-preview';
 
 const PATH = `${ACADEMY.path}/zsebcsomagok`;
 const TITLE = `Zsebcsomagok – kész Claude-skillek ${formatHuf(ACADEMY_PRICES.pocket)}-ért`;
@@ -52,6 +53,14 @@ export default async function PocketsPage() {
         byPackageOrder(a, b),
     );
   const available = pockets.filter((p) => !p.coming_soon);
+
+  // Videó-előnézet: csomagonként az első videós lecke borítóképe (a YouTube-azonosító a szerveren marad).
+  const { data: lessons } = pockets.length
+    ? await supabase.from('lessons').select('id, course_id, sort_order, duration_min').in('course_id', pockets.map((p) => p.id)).order('sort_order')
+    : { data: [] as { id: string; course_id: string; sort_order: number; duration_min: number | null }[] };
+  const withVideo = await lessonsWithVideo((lessons ?? []).map((l) => l.id));
+  const preview = new Map<string, { id: string; duration: number | null }>();
+  for (const l of lessons ?? []) if (withVideo.has(l.id) && !preview.has(l.course_id)) preview.set(l.course_id, { id: l.id, duration: l.duration_min });
   const canUse = (c: Course) => !!user && courseAccessible(c, access, profile?.is_admin);
 
   const jsonLd = graph(ORGANIZATION, {
@@ -104,8 +113,23 @@ export default async function PocketsPage() {
           <div className="grid" style={{ '--min': '280px', '--gap': '16px' } as React.CSSProperties}>
             {pockets.map((p) => {
               const owned = canUse(p);
+              const video = preview.get(p.id);
+              const parent = byId.get(p.pocket_for!);
               return (
-                <Link key={p.id} href={`/kurzusok/${p.slug}`} className="ps-box" style={{ color: 'var(--ink)', gap: 12 }}>
+                <Link key={p.id} href={`/kurzusok/${p.slug}`} className="ps-box" style={{ color: 'var(--ink)', gap: 12, paddingTop: 14 }}>
+                  <span className="lesson-hero-media" style={{ margin: '0 -18px 6px', borderRadius: 20 }}>
+                    {video ? (
+                      <img src={videoThumbUrl(video.id)} alt={`Videó-előnézet: ${shortTitle(p.title)}`} loading="lazy" />
+                    ) : (
+                      <span className="lesson-hero-ph" style={{ background: toolColor(parent?.tool ?? 'Claude') }} />
+                    )}
+                    {video ? (
+                      <span className="lesson-hero-play" aria-hidden="true">▶</span>
+                    ) : (
+                      <span className="ps-pill grey" style={{ position: 'absolute', left: 14, bottom: 14 }}>{p.coming_soon ? 'Videó hamarosan' : 'Letölthető csomag'}</span>
+                    )}
+                    {video?.duration ? <span className="lesson-hero-dur mono">{video.duration} perc</span> : null}
+                  </span>
                   <div className="row between" style={gap('8px')}>
                     <span className="ps-pill grey">{topicName(byId.get(p.pocket_for!))}</span>
                     {p.coming_soon && <span className="ps-pill grey">{soonLabel(p)}</span>}
