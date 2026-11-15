@@ -14,7 +14,7 @@ import { guideOutline, parseGuide } from '@/lib/guide';
 import { courseFaq, courseHeading, courseSchema, faqPage, graph, ORGANIZATION } from '@/lib/seo';
 import { createClient } from '@/lib/supabase/server';
 import { ACADEMY, byPackageOrder, packageKind } from '@/lib/polyakademia';
-import { withStart, withStartAll, type Course, type Lesson } from '@/lib/types';
+import { lessonNo, withStart, withStartAll, type Course, type Lesson } from '@/lib/types';
 import { youTubeThumb } from '@/lib/youtube';
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | undefined>> };
@@ -59,7 +59,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
   const [{ data: rawParent }, { data: rawPackages }, { data: download }, { data: guide }] = await Promise.all([
     isPocket ? supabase.from('courses').select('*').eq('id', course.pocket_for!).eq('published', true).maybeSingle<Course>() : Promise.resolve({ data: null }),
     isPocket ? Promise.resolve({ data: [] as Course[] }) : supabase.from('courses').select('*').eq('pocket_for', course.id).eq('published', true).returns<Course[]>(),
-    isPocket ? supabase.from('course_downloads').select('url, label').eq('course_id', course.id).maybeSingle() : Promise.resolve({ data: null }),
+    supabase.from('course_downloads').select('url, label').eq('course_id', course.id).maybeSingle(),
     // Online tananyag (ingyenes anyag / zsebcsomag): az RLS csak belépett, jogosult felhasználónak adja ki.
     isPocket && user ? supabase.from('course_guides').select('body_md').eq('course_id', course.id).maybeSingle<{ body_md: string }>() : Promise.resolve({ data: null }),
   ]);
@@ -141,7 +141,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
                     </span>
                     <span className="lesson-hero-body">
                       <span className="muted mono" style={{ fontSize: 12 }}>
-                        {idx + 1}. lecke{!hasAccess && featured.is_preview && !course.coming_soon ? ' · ingyenes előzetes' : ''}
+                        {lessonNo(list, featured, idx)}. lecke{!hasAccess && featured.is_preview && !course.coming_soon ? ' · ingyenes előzetes' : ''}
                       </span>
                       <strong>{featured.title}</strong>
                       {featured.description && <span className="muted lesson-hero-desc">{featured.description}</span>}
@@ -163,8 +163,8 @@ export default async function CoursePage({ params, searchParams }: Props) {
                       <li key={l.id}>
                         <Link href={`/kurzusok/${course.slug}/${l.id}`} className={`lesson-item${thumb ? ' has-thumb' : ''}${open ? '' : ' locked'}`}>
                           {thumb
-                            ? <span className="lesson-thumb"><img src={thumb} alt="" loading="lazy" /><span className={`lesson-num${isDone ? ' done' : ''}`}>{isDone ? '✓' : i + 1}</span></span>
-                            : <span className={`lesson-num${isDone ? ' done' : ''}`}>{isDone ? '✓' : i + 1}</span>}
+                            ? <span className="lesson-thumb"><img src={thumb} alt="" loading="lazy" /><span className={`lesson-num${isDone ? ' done' : ''}`}>{isDone ? '✓' : lessonNo(list, l, i)}</span></span>
+                            : <span className={`lesson-num${isDone ? ' done' : ''}`}>{isDone ? '✓' : lessonNo(list, l, i)}</span>}
                           <span className="stack" style={{ '--gap': '2px' } as React.CSSProperties}>
                             <strong>{l.title}</strong>
                             {l.is_preview && !hasAccess && !course.coming_soon && <span className="muted" style={{ fontSize: 13 }}>Ingyenes előzetes</span>}
@@ -242,6 +242,18 @@ export default async function CoursePage({ params, searchParams }: Props) {
                 <span><b>Ingyenes anyag</b> · lépj be (az ingyenes regisztráció is ennyi), és azonnal letöltheted</span>
               ) : (
                 <span><b>Letölthető csomag</b> · kész promptok és skillek, telepítési leírással</span>
+              )}
+            </div>
+          )}
+          {!isPocket && !isBundle && download && (
+            <div id="letoltes" className="ps-pocket" style={{ padding: '18px 20px' }}>
+              {hasAccess ? (
+                <>
+                  <span><b>A kurzus anyagai.</b> Skillek, PDF-útmutató és munkalapok, bármikor újra letöltheted innen.</span>
+                  <a href={download.url} target="_blank" rel="noopener noreferrer" className="btn ps-lime sm">{download.label || 'Letöltöm az anyagokat'} ↓</a>
+                </>
+              ) : (
+                <span><b>Letölthető anyagok is járnak hozzá</b> · kész skillek, PDF-útmutató és munkalapok</span>
               )}
             </div>
           )}
