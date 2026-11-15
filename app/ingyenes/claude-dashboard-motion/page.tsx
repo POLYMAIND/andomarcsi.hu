@@ -39,12 +39,15 @@ export default function ClaudeDashboardMotionLanding() {
           <p className="muted" style={{ margin: 0, fontSize: 13.5 }}>PDF, azonnal letölthető. Csak az e-mail-címed kell hozzá.</p>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <img
-            src={`${IMG}/borito.jpg`}
-            alt="Claude Dashboard + Claude Motion – ingyenes segédlet borítója"
+          <video
+            src={`${IMG}/video.mp4`}
+            poster={`${IMG}/borito.jpg`}
+            controls
+            playsInline
+            preload="metadata"
             width={720}
             height={1280}
-            style={{ width: 'min(100%, 340px)', height: 'auto', borderRadius: 24, transform: 'rotate(2deg)' }}
+            style={{ width: 'min(100%, 340px)', height: 'auto', borderRadius: 24, background: 'var(--ink)' }}
           />
         </div>
       </section>

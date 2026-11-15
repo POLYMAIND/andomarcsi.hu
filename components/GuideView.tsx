@@ -68,6 +68,10 @@ export function GuideView({ blocks }: { blocks: Block[] }) {
             );
           case 'hr':
             return <hr key={i} />;
+          case 'video':
+            return (
+              <video key={i} src={b.src} poster={b.poster ?? undefined} controls playsInline preload="metadata" style={{ display: 'block', width: 'min(100%, 360px)', height: 'auto', borderRadius: 20, background: 'var(--ink)', margin: '8px 0' }} />
+            );
         }
       })}
     </div>

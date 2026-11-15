@@ -2,6 +2,7 @@
 // Szándékosan kicsi és szigorú: nincs nyers HTML, csak ezek a blokkok:
 //   # / ## / ### cím · bekezdés · - lista · 1. számozott lista · > tipp (az első **félkövér** a címkéje)
 //   ```prompt Cím … ``` másolható prompt · ``` … ``` kódblokk · | táblázat | · ---- elválasztó
+//   @video /saját/útvonal.mp4 [/borító.jpg] – álló videó a saját oldalunkról (csak / kezdetű útvonal)
 // Soron belül: **félkövér**, `kód`, [szöveg](https://link).
 
 export type Inline = { t: 'text' | 'b' | 'code'; v: string } | { t: 'link'; v: string; href: string };
@@ -13,7 +14,8 @@ export type Block =
   | { k: 'prompt'; title: string; body: string }
   | { k: 'code'; body: string }
   | { k: 'table'; head: Inline[][]; rows: Inline[][][] }
-  | { k: 'hr' };
+  | { k: 'hr' }
+  | { k: 'video'; src: string; poster: string | null };
 
 export function parseInline(s: string): Inline[] {
   const out: Inline[] = [];
@@ -52,6 +54,8 @@ export function parseGuide(src: string): Block[] {
       blocks.push(fence[1] ? { k: 'prompt', title: fence[2].trim() || 'Prompt', body: body.join('\n') } : { k: 'code', body: body.join('\n') });
       continue;
     }
+    const vid = line.match(/^@video\s+(\/[^\s]+\.mp4)(?:\s+(\/[^\s]+\.(?:jpg|jpeg|png|webp)))?\s*$/);
+    if (vid) { blocks.push({ k: 'video', src: vid[1], poster: vid[2] ?? null }); i++; continue; }
     const h = line.match(/^(#{1,3})\s+(.+)$/);
     if (h) {
       blocks.push({ k: 'h', level: h[1].length as 1 | 2 | 3, text: parseInline(h[2].trim()), id: slugify(h[2]) });
