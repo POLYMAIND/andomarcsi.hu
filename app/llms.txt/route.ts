@@ -31,6 +31,7 @@ ${HOME_FAQ.map((f) => `- ${f.q} ${f.a}`).join('\n')}
 ## Oldalak
 - [Kezdőlap](${SITE_URL}/)
 - [PolySuli – kész AI-skillek vállalkozóknak](${SITE_URL}/polysuli)
+- [PolySuli zsebcsomagok – kész Claude-skillek 990 Ft-ért](${SITE_URL}/polysuli/zsebcsomagok)
 - [Videós tudástár](${SITE_URL}/kurzusok)
 - [Impresszum](${SITE_URL}/impresszum)
 `;
