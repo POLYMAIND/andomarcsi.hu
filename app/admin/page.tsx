@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SiteNav } from '@/components/SiteNav';
+import { AdminCourseTable } from '@/components/AdminCourseTable';
 import { requireAdmin } from '@/lib/auth';
 import { SUBSCRIPTION } from '@/lib/config';
-import { formatDate, formatHuf, toolColor, formatMoney } from '@/lib/format';
+import { formatDate, formatHuf, formatMoney } from '@/lib/format';
 import { courseStatus, soonLabel, withStartAll, type Course, type Lesson } from '@/lib/types';
 
 export const metadata: Metadata = { title: 'Admin' };
@@ -85,26 +86,17 @@ export default async function AdminPage() {
       <div className="layout-sidebar">
         <section className="card stack" style={{ '--gap': '16px' } as React.CSSProperties}>
           <h2 className="h3">Kurzusok</h2>
-          <div className="table-wrap">
-            <table className="table">
-              <thead><tr><th>Kurzus</th><th>Leckék</th><th>Ár</th><th>Állapot</th></tr></thead>
-              <tbody>
-                {(courses ?? []).map((c) => (
-                  <tr key={c.id}>
-                    <td>
-                      <Link href={`/admin/kurzusok/${c.id}`} className="row" style={{ '--gap': '10px', flexWrap: 'nowrap' } as React.CSSProperties}>
-                        <span style={{ width: 12, height: 12, borderRadius: 4, background: toolColor(c.tool), flex: 'none' }} />
-                        <strong>{c.title}</strong>
-                      </Link>
-                    </td>
-                    <td>{allLessons.filter((l) => l.course_id === c.id).length}</td>
-                    <td className="mono">{formatHuf(c.price_huf)}</td>
-                    <td>{{ live: <span className="pill ok">Elérhető</span>, soon: <span className="pill new">{soonLabel(c)}</span>, draft: <span className="pill warn">Vázlat</span> }[courseStatus(c)]}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <AdminCourseTable
+            courses={(courses ?? []).map((c) => ({
+              id: c.id,
+              title: c.title,
+              tool: c.tool,
+              lessons: allLessons.filter((l) => l.course_id === c.id).length,
+              price: formatHuf(c.price_huf),
+              status: courseStatus(c),
+              soonLabel: soonLabel(c),
+            }))}
+          />
         </section>
 
         <aside className="stack" style={{ '--gap': '16px' } as React.CSSProperties}>
