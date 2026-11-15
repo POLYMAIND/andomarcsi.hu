@@ -30,6 +30,7 @@ export async function SiteNav({ bare = false }: { bare?: boolean }) {
         <Link href={ACADEMY.path}>{ACADEMY.menu}</Link>
         <Link href="/kurzusok">Tudástár</Link>
         {SUBSCRIPTION.enabled && <Link href="/elofizetes">Előfizetés</Link>}
+        {user && <Link href="/kozosseg">Közösség</Link>}
         {profile?.is_admin && <Link href="/admin">Admin</Link>}
       </div>
       {user ? (

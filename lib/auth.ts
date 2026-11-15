@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
-export type Profile = { id: string; email: string | null; full_name: string | null; is_admin: boolean; stripe_customer_id: string | null };
+export type Profile = { id: string; email: string | null; full_name: string | null; is_admin: boolean; stripe_customer_id: string | null; community_emails?: boolean };
 
 export const supabaseConfigured = () => !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 

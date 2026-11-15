@@ -29,7 +29,7 @@ export async function updateSession(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const user = data?.claims;
   const path = request.nextUrl.pathname;
-  if (!user && (path.startsWith('/dashboard') || path.startsWith('/admin'))) {
+  if (!user && (path.startsWith('/dashboard') || path.startsWith('/admin') || path.startsWith('/kozosseg'))) {
     const url = request.nextUrl.clone();
     url.pathname = '/belepes';
     url.search = `?next=${encodeURIComponent(path)}`;
