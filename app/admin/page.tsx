@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SiteNav } from '@/components/SiteNav';
 import { AdminCourseTable } from '@/components/AdminCourseTable';
+import { AdminEnrollmentTable } from '@/components/AdminEnrollmentTable';
 import { requireAdmin } from '@/lib/auth';
 import { SUBSCRIPTION } from '@/lib/config';
 import { formatDate, formatHuf, formatMoney } from '@/lib/format';
@@ -148,24 +149,17 @@ export default async function AdminPage() {
       </div>
 
       <section className="card stack" style={{ '--gap': '16px' } as React.CSSProperties}>
-        <h2 className="h3">Legutóbbi beiratkozások</h2>
-        <div className="table-wrap">
-          <table className="table">
-            <thead><tr><th>Dátum</th><th>Felhasználó</th><th>Kurzus</th><th>Forrás</th><th style={{ textAlign: 'right' }}>Összeg</th></tr></thead>
-            <tbody>
-              {(enrollments ?? []).slice(0, 20).map((e, i) => (
-                <tr key={i}>
-                  <td>{formatDate(e.created_at)}</td>
-                  <td>{(e.profiles as unknown as { email: string } | null)?.email ?? '—'}</td>
-                  <td>{courseById.get(e.course_id)?.title ?? '—'}</td>
-                  <td>{{ stripe: 'Stripe', free: 'Ingyenes', manual: 'Kézi' }[e.source as string] ?? e.source}</td>
-                  <td style={{ textAlign: 'right' }} className="mono">{formatHuf(e.amount_huf)}</td>
-                </tr>
-              ))}
-              {(enrollments ?? []).length === 0 && <tr><td colSpan={5} className="muted">Még nincs beiratkozás.</td></tr>}
-            </tbody>
-          </table>
-        </div>
+        <h2 className="h3">Beiratkozások</h2>
+        <AdminEnrollmentTable
+          enrollments={(enrollments ?? []).map((e) => ({
+            createdAt: e.created_at,
+            email: (e.profiles as unknown as { email: string } | null)?.email ?? '—',
+            courseId: e.course_id,
+            courseTitle: courseById.get(e.course_id)?.title ?? '—',
+            source: e.source as string,
+            amount: e.amount_huf,
+          }))}
+        />
       </section>
     </div>
   );
