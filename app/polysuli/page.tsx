@@ -163,7 +163,7 @@ export default async function PolySuliPage({ searchParams }: { searchParams: Pro
               {[
                 ['01', 'Claude-piramis teszt', '6 kérdés · megmutatja, hol kezdj', '0 Ft', '#teszt'],
                 ['02', 'Ingyenes kóstoló', 'útmutató, prompt, mini skill', '0 Ft', '#anyagok'],
-                ['03', 'Első kész skilled', 'zsebcsomag, útmutatóval', formatHuf(ACADEMY_PRICES.pocket), '#anyagok'],
+                ['03', 'Első kész skilled', 'zsebcsomag, útmutatóval', formatHuf(ACADEMY_PRICES.pocket), `${ACADEMY.path}/zsebcsomagok`],
               ].map(([n, t, d, p, href]) => (
                 <a key={n} href={href} className="ps-start-row">
                   <span className="ps-pill num">{n}</span>
@@ -279,7 +279,10 @@ export default async function PolySuliPage({ searchParams }: { searchParams: Pro
         </div>
         <div className="row between ps-small-dark">
           <span>A „Hamarosan” anyagoknál a gomb: <b>Szólj, ha kész →</b> (e-mail értesítő).</span>
-          <Link href="/kurzusok" className="ps-underline">Minden anyag a tudástárban →</Link>
+          <span className="row" style={gap('16px')}>
+            <Link href={`${ACADEMY.path}/zsebcsomagok`} className="ps-underline">Minden zsebcsomag egy helyen →</Link>
+            <Link href="/kurzusok" className="ps-underline">Minden anyag a tudástárban →</Link>
+          </span>
         </div>
       </section>
 
@@ -394,7 +397,7 @@ export default async function PolySuliPage({ searchParams }: { searchParams: Pro
           Kezdd egy zsebcsomaggal, építs meg egy skillt, és nézd meg, mennyi időd marad a héten. Ha nem jön be, {formatHuf(ACADEMY_PRICES.pocket).replace(' Ft', ' forintért')} tanultál valamit magadról.
         </p>
         <div className="row" style={gap('12px')}>
-          <a href="#anyagok" className="btn ps-green">Mutasd a zsebcsomagokat</a>
+          <Link href={`${ACADEMY.path}/zsebcsomagok`} className="btn ps-green">Mutasd a zsebcsomagokat</Link>
           <a href="#teszt" className="btn outline">Előbb a teszt →</a>
         </div>
       </section>

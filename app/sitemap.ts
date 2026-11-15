@@ -15,6 +15,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     page('/', 1, 'weekly'),
     page('/polysuli', 0.9, 'weekly'),
+    page('/polysuli/zsebcsomagok', 0.8, 'weekly'),
     page('/kurzusok', 0.9, 'weekly'),
     page('/ingyenes/claude-dashboard-motion', 0.7, 'monthly'),
     ...courses.map((c) => page(`/kurzusok/${c.slug}`, 0.8, 'weekly')),
