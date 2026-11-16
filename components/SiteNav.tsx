@@ -18,8 +18,22 @@ function TipsButton() {
   );
 }
 
+// Harang: a közösségi tagoknak az olvasatlan értesítések száma (ha a közösség még nincs élesítve, nem látszik).
+async function communityBell(supabase: Awaited<ReturnType<typeof getCurrentUser>>['supabase']) {
+  try {
+    const [{ data: access }, { count, error }] = await Promise.all([
+      supabase.rpc('has_community_access'),
+      supabase.from('community_notifications').select('id', { count: 'exact', head: true }).is('read_at', null),
+    ]);
+    return access === true && !error ? count ?? 0 : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function SiteNav({ bare = false }: { bare?: boolean }) {
-  const { user, profile } = supabaseConfigured() ? await getCurrentUser() : { user: null, profile: null };
+  const { supabase, user, profile } = supabaseConfigured() ? await getCurrentUser() : { supabase: null, user: null, profile: null };
+  const bell = user && supabase ? await communityBell(supabase) : null;
   return (
     <nav className={bare ? 'nav bare' : 'nav'}>
       <Link href="/" className="logo">
@@ -36,6 +50,12 @@ export async function SiteNav({ bare = false }: { bare?: boolean }) {
       {user ? (
         <div className="row" style={{ '--gap': '8px' } as React.CSSProperties}>
           <TipsButton />
+          {bell !== null && (
+            <Link href="/kozosseg/ertesitesek" className="nav-bell" aria-label={bell ? `${bell} új értesítés` : 'Értesítések'} title="Értesítések">
+              <span aria-hidden="true">🔔</span>
+              {bell > 0 && <span className="kz-count">{bell > 99 ? '99+' : bell}</span>}
+            </Link>
+          )}
           <Link href="/dashboard" className="btn outline sm">
             Saját tanulás
           </Link>
