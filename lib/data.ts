@@ -10,11 +10,13 @@ export async function getCatalog(supabase: SupabaseClient) {
     supabase.from('lessons').select('id, course_id, title, published_at, sort_order').lte('published_at', new Date().toISOString()).returns<Lesson[]>(),
   ]);
   const weekAgo = Date.now() - WEEK;
-  const byCourse = new Map<string, { count: number; fresh: number }>();
+  // last: a legutóbb megjelent lecke ideje (a „legújabbak elöl” rendezéshez)
+  const byCourse = new Map<string, { count: number; fresh: number; last: string | null }>();
   for (const l of lessons ?? []) {
-    const e = byCourse.get(l.course_id) ?? { count: 0, fresh: 0 };
+    const e = byCourse.get(l.course_id) ?? { count: 0, fresh: 0, last: null };
     e.count++;
     if (new Date(l.published_at).getTime() > weekAgo) e.fresh++;
+    if (!e.last || l.published_at > e.last) e.last = l.published_at;
     byCourse.set(l.course_id, e);
   }
   const latest = [...(lessons ?? [])].sort((a, b) => b.published_at.localeCompare(a.published_at)).slice(0, 6);
@@ -23,7 +25,7 @@ export async function getCatalog(supabase: SupabaseClient) {
     // a zsebkurzusok nem önálló tanfolyamok: a szülő tanfolyamnál és a PolySuli-oldalon jelennek meg
     courses: all.filter((c) => !c.pocket_for),
     pockets: all.filter((c) => !!c.pocket_for),
-    stats: (id: string) => byCourse.get(id) ?? { count: 0, fresh: 0 },
+    stats: (id: string) => byCourse.get(id) ?? { count: 0, fresh: 0, last: null },
     latest,
     totalLessons: lessons?.length ?? 0,
   };
