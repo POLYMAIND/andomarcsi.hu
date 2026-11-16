@@ -41,6 +41,13 @@ const ACTIVITIES = [
     retention: 'a Google Analytics adatmegőrzési beállítása szerint (legfeljebb 14 hónap)',
   },
   {
+    name: 'Hirdetésmérés (Meta pixel)',
+    data: 'álnevesített használati adatok: megnézett oldalak, a vásárlás megkezdése és befejezése (összeg, kurzus), böngésző- és eszközazonosítók; a Meta (Facebook, Instagram) ezeket a fiókoddal összekapcsolhatja',
+    purpose: 'a Facebook- és Instagram-hirdetéseink eredményének mérése, és hogy a hirdetéseket azoknak mutassuk, akiket érdekelhetnek (újracélzás is)',
+    basis: 'hozzájárulás (GDPR 6. cikk (1) a)), amely a „Sütibeállítások” linken bármikor visszavonható; a Metával közös adatkezelők vagyunk a gyűjtés és továbbítás tekintetében',
+    retention: 'a Meta adatmegőrzési szabályai szerint (a _fbp süti legfeljebb 90 nap)',
+  },
+  {
     name: 'Hírlevél',
     data: 'e-mail cím, a hozzájárulás időpontja',
     purpose: 'havi hírlevél, hasznos tippek és ajánlatok küldése; az adatokat ügyfélkezelő rendszerünkben (PolyOS) is tároljuk',
@@ -130,9 +137,9 @@ export default function PrivacyPage() {
 
       <h2 id="sutik">4. Sütik (cookie-k)</h2>
       <p>
-        A Weboldal a működéshez <strong>feltétlenül szükséges sütiket</strong> használja – ezekhez nem kell hozzájárulás. Statisztikai sütit
-        (Google Analytics) <strong>csak a hozzájárulásoddal</strong> használunk: az első látogatáskor megjelenő sávon dönthetsz, és a döntésedet
-        bármikor megváltoztathatod a lábléc „Sütibeállítások” linkjén. Hirdetési vagy remarketing sütit nem használunk.
+        A Weboldal a működéshez <strong>feltétlenül szükséges sütiket</strong> használja – ezekhez nem kell hozzájárulás. Statisztikai és hirdetési sütit
+        (Google Analytics, Meta pixel) <strong>csak a hozzájárulásoddal</strong> használunk: az első látogatáskor megjelenő sávon dönthetsz, és a döntésedet
+        bármikor megváltoztathatod a lábléc „Sütibeállítások” linkjén.
       </p>
       <div className="table-wrap">
         <table className="table">
@@ -141,6 +148,7 @@ export default function PrivacyPage() {
             <tr><td><code>sb-…-auth-token</code></td><td>Bejelentkezés megőrzése (Supabase)</td><td>a kijelentkezésig, legfeljebb néhány hét</td></tr>
             <tr><td><code>cookie-consent</code> (helyi tárhely)</td><td>A sütikkel kapcsolatos döntésed megjegyzése</td><td>amíg nem törlöd</td></tr>
             <tr><td><code>_ga</code>, <code>_ga_…</code></td><td>Látogatottsági statisztika (Google Analytics) – <strong>csak hozzájárulással</strong>; a Google Analytics 4 nem tárolja az IP-címet</td><td>legfeljebb 2 év</td></tr>
+            <tr><td><code>_fbp</code>, <code>_fbc</code></td><td>Hirdetésmérés és újracélzás (Meta pixel) – <strong>csak hozzájárulással</strong></td><td>legfeljebb 90 nap</td></tr>
             <tr><td><code>__stripe_mid</code>, <code>__stripe_sid</code></td><td>Biztonságos fizetés, csalásmegelőzés – csak a Stripe fizetési oldalán</td><td>a Stripe szabályai szerint</td></tr>
           </tbody>
         </table>

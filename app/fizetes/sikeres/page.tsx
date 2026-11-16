@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { PixelEvent } from '@/components/PixelEvent';
 import { SiteNav } from '@/components/SiteNav';
 import { getCurrentUser } from '@/lib/auth';
 import { fulfillCheckoutSession } from '@/lib/fulfillment';
@@ -17,6 +18,8 @@ export default async function SuccessPage({ searchParams }: { searchParams: Prom
   let courseSlug: string | null = null;
   let isSub = false;
   let preorder = false;
+  let purchaseValue = 0;
+  let purchaseCurrency = 'HUF';
 
   if (session_id && user && /^cs_[A-Za-z0-9_]+$/.test(session_id)) {
     try {
@@ -26,6 +29,9 @@ export default async function SuccessPage({ searchParams }: { searchParams: Prom
         await fulfillCheckoutSession(session);
         ok = true;
         isSub = session.mode === 'subscription';
+        // A Stripe a HUF-ot fillérben adja vissza (lásd hufToStripe).
+        purchaseValue = (session.amount_total ?? 0) / 100;
+        purchaseCurrency = (session.currency ?? 'huf').toUpperCase();
         if (session.metadata?.course_id) {
           const { data } = await createAdminClient().from('courses').select('slug, coming_soon, starts_at').eq('id', session.metadata.course_id).maybeSingle();
           courseSlug = data?.slug ?? null;
@@ -43,6 +49,12 @@ export default async function SuccessPage({ searchParams }: { searchParams: Prom
       <section className="card stack" style={{ '--gap': '18px', maxWidth: 720, margin: '0 auto', width: '100%' } as React.CSSProperties}>
         {ok ? (
           <>
+            <PixelEvent
+              event={isSub ? 'Subscribe' : 'Purchase'}
+              params={{ value: purchaseValue, currency: purchaseCurrency, content_ids: courseSlug ? [courseSlug] : [], content_type: 'product' }}
+              eventId={session_id}
+              once={session_id}
+            />
             <div className="eyebrow">Sikeres fizetés</div>
             <h1 className="h2">Köszönöm! Indulhat a tanulás. 🎉</h1>
             <p className="lead">

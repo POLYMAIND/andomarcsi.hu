@@ -2,7 +2,9 @@
 
 import Link from 'next/link';
 import Script from 'next/script';
-import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import { META_PIXEL_ID } from '@/lib/pixel';
 
 // Google Analytics csak hozzájárulás után töltődik be (ePrivacy / GDPR). A döntést a böngészőben tároljuk.
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID || 'G-2ST7B28SX7';
@@ -38,7 +40,7 @@ export function CookieConsent() {
     setOpen(false);
     // Visszavonáskor a már betöltött GA-t csak oldal-újratöltéssel lehet leállítani.
     if (choice === 'granted' && c === 'denied') {
-      document.cookie.split(';').map((s) => s.split('=')[0].trim()).filter((n) => n.startsWith('_ga'))
+      document.cookie.split(';').map((s) => s.split('=')[0].trim()).filter((n) => n.startsWith('_ga') || n.startsWith('_fb'))
         .forEach((n) => { document.cookie = `${n}=; Max-Age=0; path=/; domain=.${location.hostname.replace(/^www\./, '')}`; document.cookie = `${n}=; Max-Age=0; path=/`; });
       location.reload();
       return;
@@ -57,12 +59,22 @@ function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', '${GA_ID}');`}
           </Script>
+          <Script id="meta-pixel" strategy="afterInteractive">
+            {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '${META_PIXEL_ID}');
+fbq('track', 'PageView');`}
+          </Script>
+          <PixelPageViews />
         </>
       )}
       {open && (
         <div className="cookie-bar" role="dialog" aria-live="polite" aria-label="Sütibeállítások">
           <p>
-            🍪 Statisztikai sütiket (Google Analytics) szeretnék használni, hogy lássam, mi hasznos az oldalon. Csak akkor kapcsolom be, ha engeded.{' '}
+            🍪 Statisztikai és hirdetési sütiket (Google Analytics, Meta pixel) szeretnék használni, hogy lássam, mi hasznos az oldalon, és mérjem a hirdetéseimet. Csak akkor kapcsolom be, ha engeded.{' '}
             <Link href="/adatvedelem#sutik">Részletek</Link>
           </p>
           <div className="cookie-actions">
@@ -73,6 +85,18 @@ gtag('config', '${GA_ID}');`}
       )}
     </>
   );
+}
+
+// Kliensoldali navigációnál (Next.js) új PageView-t küldünk; az elsőt az init szkript küldi.
+function PixelPageViews() {
+  const pathname = usePathname();
+  const first = useRef(true);
+  useEffect(() => {
+    if (first.current) { first.current = false; return; }
+    const fbq = (window as unknown as { fbq?: (...a: unknown[]) => void }).fbq;
+    if (fbq) fbq('track', 'PageView');
+  }, [pathname]);
+  return null;
 }
 
 // Lábléc link: a sütisáv újranyitása (hozzájárulás módosítása / visszavonása).

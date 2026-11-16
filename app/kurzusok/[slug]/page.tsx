@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { BuyBox } from '@/components/BuyBox';
+import { PixelEvent } from '@/components/PixelEvent';
 import { ChatWidget } from '@/components/ChatWidget';
 import { FaqList } from '@/components/FaqList';
 import { JsonLd } from '@/components/JsonLd';
@@ -62,6 +63,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
   return (
     <div className="page">
       <SiteNav />
+      <PixelEvent event="ViewContent" params={{ content_ids: [course.slug], content_name: course.title, content_type: 'product', value: course.price_huf ?? 0, currency: 'HUF' }} />
       {sp.megszakitva && <div className="notice">A fizetés megszakadt – semmit nem terheltünk. Bármikor újrapróbálhatod.</div>}
       {sp.ertesites === 'ok' && <div className="notice ok">Köszönöm! Feliratkoztál – e-mailben szólok, amint elérhető a kurzus.</div>}
       {sp.ertesites === 'email' && <div className="notice err">Kérlek, adj meg egy érvényes e-mail címet.</div>}
