@@ -10,6 +10,7 @@ import { GuideView } from '@/components/GuideView';
 import { JsonLd } from '@/components/JsonLd';
 import { LeadMagnetForm } from '@/components/LeadMagnetForm';
 import { SiteNav } from '@/components/SiteNav';
+import { TestimonialForm } from '@/components/TestimonialForm';
 import { getCurrentUser } from '@/lib/auth';
 import { courseAccessible, getUserAccess } from '@/lib/data';
 import { formatHuf, priceLabel, toolColor } from '@/lib/format';
@@ -101,6 +102,11 @@ export default async function CoursePage({ params, searchParams }: Props) {
     access.enrolled.add(course.id);
   }
   const loginHref = `/belepes?next=${encodeURIComponent(`/kurzusok/${course.slug}`)}`;
+  // Vélemény: aki belépve hozzáfér a (már elérhető) kurzushoz, az értékelheti – a meglévőt módosíthatja.
+  const canReview = !!user && hasAccess && !leadOk && !course.coming_soon;
+  const { data: myReview } = canReview
+    ? await supabase.from('testimonials').select('rating, body, display_name, business, status').eq('course_id', course.id).eq('user_id', user!.id).maybeSingle()
+    : { data: null };
   const done = list.filter((l) => access.completed.has(l.id)).length;
   const next = list.find((l) => !access.completed.has(l.id)) ?? list[0];
   // Videó-előnézet: az RLS csak a jogosultnak (vagy az ingyenes előzetesnél) adja ki a YouTube-azonosítót.
@@ -341,6 +347,16 @@ export default async function CoursePage({ params, searchParams }: Props) {
           )}
         </aside>
       </div>
+      {canReview && (
+        <TestimonialForm
+          courseId={course.id}
+          slug={course.slug}
+          courseTitle={course.title}
+          existing={myReview}
+          defaultName={profile?.full_name?.trim() || ''}
+          status={sp.velemeny}
+        />
+      )}
       <section className="card stack" style={{ '--gap': '24px' } as React.CSSProperties}>
         <h2 className="h2" style={{ fontSize: 'clamp(28px,3.4vw,44px)' }}>Gyakori kérdések</h2>
         <FaqList items={faq} />
