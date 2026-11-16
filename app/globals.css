@@ -565,3 +565,13 @@ a.lesson-hero:hover .lesson-hero-play { transform: translate(-50%, -50%) scale(1
 @keyframes dl-bounce { 0%, 100% { transform: translateY(-2px); } 50% { transform: translateY(5px); } }
 @keyframes dl-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(218, 253, 85, 0); } 50% { box-shadow: 0 0 0 8px rgba(218, 253, 85, .45); } }
 @media (prefers-reduced-motion: reduce) { .dl-bounce, .dl-btn { animation: none; } }
+
+/* Lecke alatti ajánló sáv (pl. Sikermaker) */
+.lesson-promo { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; padding: 18px 22px; border-radius: 22px; text-decoration: none; color: inherit; }
+.lesson-promo-body { display: flex; flex-direction: column; gap: 4px; flex: 1 1 320px; }
+.lesson-promo-body strong { font-size: 19px; line-height: 1.25; }
+.lesson-promo-body > span:last-child { font-size: 15px; opacity: .85; }
+.lesson-promo-eyebrow { font-family: var(--mono, monospace); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; opacity: .75; }
+.lesson-promo-btn { font-weight: 700; padding: 11px 18px; border-radius: 999px; white-space: nowrap; }
+.lesson-promo.sikermaker { background: #f6e3b4; color: #2a2116; border: 1.5px solid #d9b25f; }
+.lesson-promo.sikermaker .lesson-promo-btn { background: #2a2116; color: #f6e3b4; }

@@ -10,6 +10,7 @@ import { courseAccessible, getUserAccess } from '@/lib/data';
 import { youTubeEmbedUrl } from '@/lib/youtube';
 import { lessonNo, soonLabel, withStart, type Course, type Lesson } from '@/lib/types';
 import { toggleComplete } from './actions';
+import { LessonPromo, lessonPromo } from '@/components/LessonPromo';
 
 type Props = { params: Promise<{ slug: string; lessonId: string }> };
 
@@ -67,6 +68,7 @@ export default async function LessonPage({ params }: Props) {
               </div>
             )}
           </div>
+          {lessonPromo(course.slug, lesson.sort_order) && <LessonPromo kind={lessonPromo(course.slug, lesson.sort_order)!} />}
           <section className="card stack" style={{ '--gap': '16px' } as React.CSSProperties}>
             <div className="row between">
               <Link href={`/kurzusok/${course.slug}`} className="tag">← {course.title}</Link>
