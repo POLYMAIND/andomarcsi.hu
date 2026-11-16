@@ -153,7 +153,7 @@ export default async function PocketsPage() {
         <div className="ps-three">
           <div className="ps-box">
             <span className="ps-pill lime">Még nem döntöttél?</span>
-            <p>Kezdd egy ingyenes kóstolóval: útmutató, prompt vagy mini skill, regisztráció után azonnal olvasható.</p>
+            <p>Kezdd egy ingyenes kóstolóval: útmutató, prompt vagy mini skill, e-mail-cím megadása után azonnal olvasható.</p>
             <Link href={`${ACADEMY.path}#anyagok`} className="ps-more">Ingyenes anyagok →</Link>
           </div>
           <div className="ps-box">

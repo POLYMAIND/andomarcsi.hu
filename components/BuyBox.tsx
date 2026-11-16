@@ -102,6 +102,16 @@ export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref,
     );
   }
 
+  if (course.price_huf === 0 && course.pocket_for) {
+    // Ingyenes anyag: e-mail-cím után fiók nélkül is megnyílik (az űrlap a kurzusoldalon, #letoltes).
+    return (
+      <div className="stack" style={{ '--gap': '10px' } as React.CSSProperties}>
+        <strong style={{ fontSize: 20 }}>Ingyenes</strong>
+        <span className="muted" style={{ fontSize: 14 }}>Csak egy e-mail-cím kell, fiók és jelszó nélkül.</span>
+        <a href="#letoltes" className="btn block">Kérem ingyen ↓</a>
+      </div>
+    );
+  }
   if (course.price_huf === 0) {
     return (
       <Link href={`/belepes?next=${encodeURIComponent(`/kurzusok/${course.slug}`)}`} className="btn block">

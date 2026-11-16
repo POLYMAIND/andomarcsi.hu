@@ -518,3 +518,10 @@ a.lesson-hero:hover .lesson-hero-play { transform: translate(-50%, -50%) scale(1
   .guide-toc-side { display: none; }
   .guide-toc-inline { display: block; }
 }
+
+/* Tudástár fejléce: két egymás melletti doboz (mobilon egymás alatt) */
+.tudastar-top { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 20px; align-items: stretch; }
+.tudastar-top > .card { margin: 0; height: 100%; }
+.tudastar-ps .lesson-hero-media img { transition: transform .3s ease; }
+.tudastar-ps .lesson-hero-media:hover img { transform: scale(1.03); }
+@media (max-width: 900px) { .tudastar-top { grid-template-columns: minmax(0, 1fr); } }

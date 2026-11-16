@@ -28,3 +28,8 @@ export function verifyLead(slug: string, value: string | undefined) {
 }
 
 export const downloadPath = (slug: string) => `/api/segedlet/${slug}`;
+
+// Ingyenes anyag (0 Ft-os csomag) a kurzusoldalon: e-mail-cím után fiók nélkül is olvasható és letölthető.
+// A süti kurzusonként külön, aláírva (a slug csak kisbetű, szám és kötőjel).
+export const courseLeadKey = (slug: string) => `course:${slug}`;
+export const courseLeadCookie = (slug: string) => `lm_k_${slug}`;

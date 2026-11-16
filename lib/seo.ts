@@ -65,7 +65,7 @@ export function courseFaq(c: Course): Faq[] {
   if (c.pocket_for && c.price_huf === 0) {
     faq.push({
       q: 'Mit kapok pontosan?',
-      a: `${name} egy ingyenes online útmutató: ingyenes regisztráció (egy e-mail cím, jelszó nélkül) után itt, az oldalon olvasod, a promptokat egy kattintással kimásolod, és bármikor visszajöhetsz hozzá.${c.coming_soon ? ' Hamarosan elérhető – kérj értesítést, és szólok.' : ''}`,
+      a: `${name} egy ingyenes online útmutató: az e-mail-címed megadása után (fiók és jelszó nélkül) itt, az oldalon olvasod, a promptokat egy kattintással kimásolod, és le is töltheted.${c.coming_soon ? ' Hamarosan elérhető – kérj értesítést, és szólok.' : ''}`,
     });
     return faq;
   }
