@@ -28,6 +28,7 @@ export type Course = {
   sale_starts_at: string | null;
   sale_ends_at: string | null;
   sale_label: string; // pl. „Bevezető ár” (üres = „Akció”)
+  related_course_ids?: string[]; // kapcsolódó anyagok ajánlónak (a kurzusoldal „Amire még szükséged lehet” része)
   was_price_huf?: number | null; // számolt (NEM adatbázis-oszlop): aktív akciónál az eredeti, áthúzott ár – lásd withStart
 };
 

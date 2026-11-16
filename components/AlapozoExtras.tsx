@@ -4,9 +4,9 @@ import { formatHuf, priceLabel } from '@/lib/format';
 import { packageKind } from '@/lib/polyakademia';
 import type { Course } from '@/lib/types';
 
-// A Claude alapozó oldalán: „Amire még szükséged lehet” – a zsebcsomagok és a kisebb (ingyenes) anyagok,
+// Kurzusoldal: „Amire még szükséged lehet” – az adminban kiválasztott kapcsolódó anyagok (a Claude alapozónál alapból minden csomag),
 // a végén a tagság: ne fizess mindenért külön.
-export function AlapozoExtras({ items, owned, subscribed }: { items: Course[]; owned: string[]; subscribed: boolean }) {
+export function AlapozoExtras({ items, owned, subscribed, intro }: { items: Course[]; owned: string[]; subscribed: boolean; intro?: string }) {
   if (!items.length) return null;
   const paid = items.filter((c) => (c.price_huf ?? 0) > 0);
   const separately = paid.reduce((s, c) => s + (c.price_huf ?? 0), 0);
@@ -14,7 +14,7 @@ export function AlapozoExtras({ items, owned, subscribed }: { items: Course[]; o
     <div id="ajanlott" className="stack" style={{ '--gap': '12px', scrollMarginTop: 24 } as React.CSSProperties}>
       <h2 className="h3">Amire még szükséged lehet</h2>
       <p className="muted" style={{ margin: 0 }}>
-        Kis, kész csomagok egy-egy témára: skill vagy prompt-pack útmutatóval. Ha az alapozóban valamelyik csapattag megtetszett, ezekkel tovább viheted.
+        {intro ?? 'Kész csomagok és anyagok, amik jól jönnek ehhez a kurzushoz.'}
       </p>
       {items.map((p) => {
         const mine = owned.includes(p.id);
@@ -22,7 +22,7 @@ export function AlapozoExtras({ items, owned, subscribed }: { items: Course[]; o
           <Link key={p.id} href={`/kurzusok/${p.slug}`} className="ps-pocket ps-pocket-link">
             <span className="stack" style={{ '--gap': '2px' } as React.CSSProperties}>
               <b>{p.title.replace(/^(Zsebkurzus|Ingyenes): /, '')}</b>
-              <span className="muted" style={{ fontSize: 14 }}>{packageKind(p)}{p.subtitle ? ` · ${p.subtitle}` : ''}</span>
+              <span className="muted" style={{ fontSize: 14 }}>{p.pocket_for ? packageKind(p) : 'Kurzus'}{p.subtitle ? ` · ${p.subtitle}` : ''}</span>
             </span>
             <span className="row" style={{ '--gap': '8px' } as React.CSSProperties}>
               <span className="ps-pocket-price">{mine ? 'A tiéd' : priceLabel(p)}</span>

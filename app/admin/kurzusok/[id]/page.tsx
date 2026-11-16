@@ -7,7 +7,7 @@ import { formatDate, formatHuf, isoToBudapestLocal, TOOL_COLORS } from '@/lib/fo
 import { SubmitButton } from '@/components/SubmitButton';
 import { courseStatus, saleActive, type Course, type Lesson } from '@/lib/types';
 import { youTubeThumb } from '@/lib/youtube';
-import { deleteCourse, deleteLesson, grantAccess, saveCourse, saveLesson } from '../../actions';
+import { deleteCourse, deleteLesson, grantAccess, saveCourse, saveLesson, saveRelated } from '../../actions';
 
 export const metadata: Metadata = { title: 'Kurzus szerkesztése' };
 
@@ -30,7 +30,7 @@ export default async function EditCoursePage({ params, searchParams }: Props) {
   const [{ id }, sp] = await Promise.all([params, searchParams]);
   const { supabase } = await requireAdmin();
   const isNew = id === 'uj';
-  const { data: allCourses } = await supabase.from('courses').select('id, title, price_huf, pocket_for').order('sort_order');
+  const { data: allCourses } = await supabase.from('courses').select('id, title, price_huf, pocket_for, published, coming_soon').order('sort_order');
 
   let course: Course | null = null;
   let lessons: Lesson[] = [];
@@ -259,6 +259,46 @@ export default async function EditCoursePage({ params, searchParams }: Props) {
               <h3 className="h3" style={{ fontSize: 18, marginBottom: 12 }}>+ Új lecke</h3>
               <LessonForm courseId={course.id} defaultOrder={nextOrder} defaultDate={suggestNextSlot(lessons)} />
             </div>
+          </section>
+
+          <section id="kapcsolodo" className="card stack" style={{ '--gap': '14px', scrollMarginTop: 24 } as React.CSSProperties}>
+            <h2 className="h3">Kapcsolódó anyagok</h2>
+            <p className="muted" style={{ margin: 0 }}>
+              A kurzusoldal „Amire még szükséged lehet” részében ezeket ajánljuk (a „Hamarosan” és a vázlat állapotúak nem jelennek meg), a végén a tagsággal.
+              {course.slug === 'claude-alapozo' ? ' Ha semmit nem választasz, a Claude alapozónál minden elérhető zsebcsomag és ingyenes anyag megjelenik.' : ''}
+            </p>
+            {sp.kapcsolodo === 'ok' && <div className="notice ok">Elmentve.</div>}
+            <form action={saveRelated} className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
+              <input type="hidden" name="id" value={course.id} />
+              {([
+                ['Zsebcsomagok', (c: NonNullable<typeof allCourses>[number]) => !!c.pocket_for && (c.price_huf ?? 0) > 0],
+                ['Ingyenes anyagok', (c: NonNullable<typeof allCourses>[number]) => !!c.pocket_for && c.price_huf === 0],
+                ['Kurzusok', (c: NonNullable<typeof allCourses>[number]) => !c.pocket_for],
+              ] as const).map(([label, pick]) => {
+                const list = (allCourses ?? []).filter((c) => c.id !== course.id && c.published && pick(c));
+                if (!list.length) return null;
+                return (
+                  <fieldset key={label} className="stack" style={{ '--gap': '6px', border: 0, padding: 0, margin: 0 } as React.CSSProperties}>
+                    <legend className="mono" style={{ fontSize: 12, letterSpacing: '.06em', textTransform: 'uppercase', marginBottom: 6 }}>{label}</legend>
+                    <div className="grid" style={{ '--min': '280px', '--gap': '6px 16px' } as React.CSSProperties}>
+                      {list.map((c) => (
+                        <label key={c.id} className="check">
+                          <input type="checkbox" name="related_course_ids" value={c.id} defaultChecked={course.related_course_ids?.includes(c.id)} />
+                          <span>
+                            {c.title.replace(/^(Zsebkurzus|Ingyenes): /, '')}{' '}
+                            <span className="muted mono" style={{ fontSize: 12 }}>· {formatHuf(c.price_huf)}{c.coming_soon ? ' · hamarosan' : ''}</span>
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
+                );
+              })}
+              <div className="row">
+                <button className="btn" type="submit">Mentés ({course.related_course_ids?.length ?? 0} kiválasztva)</button>
+                {(course.related_course_ids?.length ?? 0) > 0 && <Link href={`/kurzusok/${course.slug}#ajanlott`} className="muted" style={{ textDecoration: 'underline', fontSize: 14 }}>Megnézem a kurzusoldalon →</Link>}
+              </div>
+            </form>
           </section>
 
           <section className="card stack" style={{ '--gap': '14px' } as React.CSSProperties}>

@@ -146,3 +146,14 @@ export async function grantAccess(formData: FormData) {
   await enrollBundleContents(user.id, courseId, 'manual');
   redirect(`${back}?hozzaferes=${encodeURIComponent(email)}#hozzaferes`);
 }
+
+// Kapcsolódó anyagok: a kurzusoldal „Amire még szükséged lehet” részében ezeket ajánljuk.
+export async function saveRelated(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const id = str(formData, 'id');
+  const ids = formData.getAll('related_course_ids').map(String).filter((v) => v && v !== id);
+  const { error } = await supabase.from('courses').update({ related_course_ids: ids }).eq('id', id);
+  if (error) redirect(`/admin/kurzusok/${id}?hiba=${encodeURIComponent(error.message.includes('related_course_ids') ? 'Előbb futtasd a 20261116040000_kapcsolodo_anyagok.sql migrációt.' : error.message)}#kapcsolodo`);
+  revalidatePath('/', 'layout');
+  redirect(`/admin/kurzusok/${id}?kapcsolodo=ok#kapcsolodo`);
+}
