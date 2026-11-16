@@ -10,13 +10,13 @@ export function PriceTag({ course, size = 22, dark = false, badge = true }: { co
   return (
     <span style={{ display: 'inline-flex', flexDirection: 'column', gap: 6, alignItems: 'flex-start' }}>
       <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
-        <span style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: size, letterSpacing: '-.02em', lineHeight: 1.05 }}>{priceLabel(course)}</span>
+        <span style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: size, letterSpacing: '-.02em', lineHeight: 1.05, color: sale ? 'var(--sale)' : undefined }}>{priceLabel(course)}</span>
         {sale && (
           <s style={{ fontSize: Math.max(13, Math.round(size * 0.5)), color: dark ? '#a9a3af' : 'var(--muted)', fontWeight: 500 }}>{formatHuf(sale.listPrice)}</s>
         )}
       </span>
       {sale && badge && (
-        <span className="pill" style={{ background: 'var(--rose)', color: '#fff', fontSize: 12, padding: '4px 10px', fontWeight: 700 }}>
+        <span className="pill" style={{ background: 'var(--sale)', color: '#fff', fontSize: 12, padding: '4px 10px', fontWeight: 700 }}>
           {sale.label} · −{sale.pct}%{sale.until ? ` · ${sale.until}` : ''}
         </span>
       )}

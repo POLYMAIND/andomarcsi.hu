@@ -19,6 +19,7 @@
   --amber: oklch(0.79 0.16 68);
   --rose: oklch(0.68 0.2 15);
   --mint: oklch(0.78 0.13 165);
+  --sale: oklch(0.62 0.23 27); /* akciós ár és akció-jelzés (piros) */
   --radius: 28px;
   --display: 'Poppins', sans-serif;
   --mono: 'DM Mono', monospace;
