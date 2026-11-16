@@ -1,22 +1,67 @@
-// Tranzakciós e-mail (értesítések) a Resend API-n keresztül – külön csomag nélkül, sima fetch-csel.
-// RESEND_API_KEY: a Resend API kulcs. EMAIL_FROM: feladó, pl. „Andor Marcsi <kozosseg@andormarcsi.hu>”
-// (a domaint a Resendben hitelesíteni kell). Ha nincs beállítva, az értesítés csendben kimarad.
-export const emailConfigured = () => !!(process.env.RESEND_API_KEY && process.env.EMAIL_FROM);
+// Tranzakciós e-mail (értesítések) – Brevo (ajánlott) vagy Resend API-n keresztül, külön csomag nélkül, sima fetch-csel.
+// BREVO_API_KEY: a Brevo API kulcs (SMTP & API → API Keys). Ha nincs, RESEND_API_KEY-jel a Resend megy.
+// EMAIL_FROM: feladó, pl. „Andor Marcsi <kozosseg@andormarcsi.hu>” (a domaint a szolgáltatónál hitelesíteni kell).
+// Ha nincs beállítva, az értesítés csendben kimarad – a bejegyzés/hozzászólás ettől még elmentődik.
+export const emailConfigured = () => !!((process.env.BREVO_API_KEY || process.env.RESEND_API_KEY) && process.env.EMAIL_FROM);
 
 const escapeHtml = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
-export async function sendEmail({ to, subject, text, html }: { to: string; subject: string; text: string; html?: string }) {
+// „Andor Marcsi <kozosseg@andormarcsi.hu>” → { name, email }
+export function parseFrom(from: string): { name: string; email: string } {
+  const m = /^\s*"?([^"<]*?)"?\s*<([^>]+)>\s*$/.exec(from);
+  return m ? { name: m[1].trim() || 'Andor Marcsi', email: m[2].trim() } : { name: 'Andor Marcsi', email: from.trim() };
+}
+
+type Mail = { subject: string; text: string; html?: string };
+
+async function brevo(to: string[], mail: Mail) {
+  const sender = parseFrom(process.env.EMAIL_FROM!);
+  // Egy kérésben több címzett, de mindenki külön levelet kap (messageVersions) – senki nem látja a többiek címét.
+  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: { 'api-key': process.env.BREVO_API_KEY!, 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({
+      sender,
+      subject: mail.subject,
+      textContent: mail.text,
+      htmlContent: mail.html ?? `<pre style="font-family:inherit;white-space:pre-wrap">${escapeHtml(mail.text)}</pre>`,
+      ...(to.length === 1 ? { to: [{ email: to[0] }] } : { messageVersions: to.map((email) => ({ to: [{ email }] })) }),
+    }),
+    signal: AbortSignal.timeout(10000),
+  });
+  if (!res.ok) console.error('E-mail küldési hiba (Brevo)', res.status, await res.text());
+}
+
+async function resend(to: string, mail: Mail) {
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from: process.env.EMAIL_FROM, to, subject: mail.subject, text: mail.text, html: mail.html }),
+    signal: AbortSignal.timeout(5000),
+  });
+  if (!res.ok) console.error('E-mail küldési hiba (Resend)', res.status, await res.text());
+}
+
+export async function sendEmail({ to, ...mail }: Mail & { to: string }) {
   if (!emailConfigured()) return;
   try {
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: process.env.EMAIL_FROM, to, subject, text, html }),
-      signal: AbortSignal.timeout(5000),
-    });
-    if (!res.ok) console.error('E-mail küldési hiba', res.status, await res.text());
+    if (process.env.BREVO_API_KEY) await brevo([to], mail);
+    else await resend(to, mail);
   } catch (err) {
-    // Az értesítés nem kritikus: a bejegyzés/hozzászólás ettől még elmentődött.
+    console.error('E-mail küldési hiba', err);
+  }
+}
+
+// Ugyanaz a levél sok címzettnek (pl. bejelentés): Brevónál 500-asával, Resendnél egyenként.
+export async function sendBulkEmail(to: string[], mail: Mail) {
+  if (!emailConfigured() || !to.length) return;
+  try {
+    if (process.env.BREVO_API_KEY) {
+      for (let i = 0; i < to.length; i += 500) await brevo(to.slice(i, i + 500), mail);
+    } else {
+      for (const t of to) await resend(t, mail);
+    }
+  } catch (err) {
     console.error('E-mail küldési hiba', err);
   }
 }

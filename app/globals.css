@@ -577,3 +577,109 @@ a.lesson-hero:hover .lesson-hero-play { transform: translate(-50%, -50%) scale(1
 .stars span:hover label, .stars span:hover ~ span label { color: var(--amber) !important; }
 .stars label:hover { transform: scale(1.12); }
 .stars input:focus-visible + label { outline: 2px solid var(--purple); outline-offset: 2px; border-radius: 6px; }
+
+/* ── PolySuli közösségi tér (/kozosseg) ─────────────────────────────── */
+.kz-shell { display: grid; grid-template-columns: 270px minmax(0, 1fr); gap: 20px; align-items: start; }
+.kz-main { min-width: 0; }
+.kz-side { position: sticky; top: 16px; background: #fff; border-radius: 24px; padding: 14px 10px; max-height: calc(100vh - 32px); overflow: auto; }
+.kz-burger { display: none; }
+.kz-nav { display: flex; flex-direction: column; gap: 14px; }
+.kz-nav-group { display: flex; flex-direction: column; gap: 2px; }
+.kz-nav-label { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 4px 12px; }
+.kz-nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 14px; color: var(--ink); font-size: 14.5px; font-weight: 500; line-height: 1.25; }
+.kz-nav-item:hover { background: var(--paper); color: var(--ink); }
+.kz-nav-item.active { background: var(--ink); color: #fff; }
+.kz-nav-icon { width: 22px; text-align: center; flex: none; }
+.kz-nav-text { flex: 1; min-width: 0; }
+.kz-count { background: var(--sale, #e5322d); color: #fff; font-size: 11.5px; font-weight: 800; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; display: inline-grid; place-items: center; flex: none; }
+.kz-head { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+.kz-head:has(.kz-head-video) { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); align-items: center; }
+.kz-head-video { width: 100%; border-radius: 18px; background: var(--ink); display: block; aspect-ratio: 16 / 9; }
+.kz-title { font-size: clamp(28px, 3.6vw, 44px); letter-spacing: -.03em; }
+.kz-compose { padding: 16px 20px; }
+.kz-compose > summary { list-style: none; cursor: pointer; }
+.kz-compose > summary::-webkit-details-marker { display: none; }
+.kz-compose-fake { display: block; background: var(--paper); border-radius: 999px; padding: 14px 20px; color: var(--muted); font-size: 15.5px; }
+.kz-compose[open] > summary .kz-compose-fake { display: none; }
+.kz-note { margin: 0; padding: 0 6px; font-size: 14px; }
+.kz-filters { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center; }
+.kz-filter { padding: 7px 14px; border-radius: 999px; background: #fff; border: 1.5px solid var(--line); font-size: 13.5px; font-weight: 600; color: var(--ink); white-space: nowrap; }
+.kz-filter:hover { border-color: var(--ink); color: var(--ink); }
+.kz-filter.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+.kz-filter-sep { width: 1px; align-self: stretch; background: var(--line); margin: 0 4px; }
+.kz-select { width: auto; padding: 8px 14px; font-size: 14px; }
+.kz-post { padding: clamp(18px, 2.6vw, 26px); display: flex; flex-direction: column; gap: 14px; }
+.kz-post.pinned, .kz-post-full.pinned { box-shadow: inset 0 0 0 2.5px var(--ink); }
+.kz-clamp { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.kz-more { font-weight: 700; font-size: 14px; color: var(--purple); }
+.kz-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: var(--paper); color: var(--ink); white-space: nowrap; }
+.kz-badge.mentor { background: var(--purple); color: #fff; font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; padding: 2px 8px; }
+.kz-badge.ok { background: oklch(0.92 0.08 165); }
+.kz-badge.warn { background: oklch(0.93 0.08 68); }
+.kz-badge.pin { background: var(--ink); color: #fff; }
+.kz-badge.course { background: #fff; border: 1.5px solid var(--line); }
+.kz-badge.tag-success { background: #ffd84d; }
+.kz-badge.tag-first_try { background: oklch(0.9 0.1 140); }
+.kz-badge.tag-feedback { background: oklch(0.9 0.07 300); }
+.kz-react { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 999px; background: var(--paper); border: 0; font: 600 14px 'DM Sans', sans-serif; color: var(--ink); cursor: pointer; white-space: nowrap; }
+.kz-react:hover { background: #ebe7e1; color: var(--ink); }
+.kz-react.on { background: oklch(0.94 0.05 15); }
+.kz-react.sm { padding: 5px 10px; font-size: 12.5px; }
+.kz-media { display: grid; gap: 8px; }
+.kz-media-item { position: relative; display: block; border-radius: 16px; overflow: hidden; background: var(--paper); }
+.kz-media-item img, .kz-media-item video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.kz-full-media { width: 100%; max-height: 720px; object-fit: contain; border-radius: 18px; background: var(--paper); display: block; }
+.kz-linkcard { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 0; border: 1.5px solid var(--line); border-radius: 16px; overflow: hidden; color: var(--ink); background: #fff; }
+.kz-linkcard:not(:has(img)) { grid-template-columns: minmax(0, 1fr); }
+.kz-linkcard:hover { border-color: var(--ink); color: var(--ink); }
+.kz-linkcard img { width: 100%; height: 100%; min-height: 96px; object-fit: cover; display: block; background: var(--paper); }
+.kz-linkcard-body { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; min-width: 0; font-size: 14px; }
+.kz-linkcard-body b { overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow-wrap: anywhere; }
+.kz-linkcard-provider { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+.kz-platform { color: #fff; font-size: 11.5px; font-weight: 800; padding: 3px 10px; border-radius: 999px; }
+.kz-link { color: var(--purple); text-decoration: underline; }
+.kz-mention { color: var(--purple); font-weight: 700; }
+.kz-empty { padding: 28px; display: flex; flex-direction: column; gap: 8px; }
+.kz-comment { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: 18px; background: var(--paper); scroll-margin-top: 24px; }
+.kz-comment.best { background: oklch(0.95 0.06 165); box-shadow: inset 0 0 0 2px oklch(0.75 0.12 165); }
+.kz-comment.reply { background: #fff; margin-left: clamp(8px, 3vw, 28px); padding: 12px 14px; }
+.kz-inline > summary { list-style: none; }
+.kz-inline > summary::-webkit-details-marker { display: none; }
+.kz-inline[open] { flex-basis: 100%; }
+.kz-inline-body { margin-top: 8px; }
+.kz-admin { background: var(--paper); border-radius: 14px; padding: 10px 14px; font-size: 14px; }
+.kz-admin > summary { cursor: pointer; font-weight: 600; }
+.kz-thumb { width: 96px; height: 96px; object-fit: cover; border-radius: 14px; display: block; background: var(--ink); }
+.kz-thumb-play { position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font-size: 22px; text-shadow: 0 1px 6px rgba(0,0,0,.6); }
+.kz-thumb-x { position: absolute; top: -8px; right: -8px; width: 26px; height: 26px; border-radius: 999px; border: 0; background: var(--ink); color: #fff; cursor: pointer; font-size: 14px; line-height: 1; }
+.kz-chips { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.kz-chip { position: relative; cursor: pointer; }
+.kz-chip input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.kz-chip span { display: inline-block; padding: 7px 14px; border-radius: 999px; border: 1.5px solid var(--line); background: #fff; font-size: 13.5px; font-weight: 600; }
+.kz-chip input:checked + span { background: var(--ink); color: #fff; border-color: var(--ink); }
+.kz-chip input:focus-visible + span { outline: 2px solid var(--purple); outline-offset: 2px; }
+.kz-mention-box { position: relative; display: flex; flex-direction: column; gap: 6px; }
+.kz-toolbar { display: flex; align-items: center; gap: 10px; font-size: 12.5px; }
+.kz-toolbar button { width: 30px; height: 30px; border-radius: 8px; border: 1.5px solid var(--line); background: #fff; cursor: pointer; font-size: 14px; }
+.kz-mention-list { position: absolute; left: 12px; top: 100%; z-index: 20; list-style: none; margin: 4px 0 0; padding: 6px; background: #fff; border-radius: 14px; box-shadow: 0 12px 30px -10px rgba(20,18,22,.35); min-width: 220px; }
+.kz-mention-list button { display: block; width: 100%; text-align: left; padding: 8px 10px; border: 0; background: none; border-radius: 10px; font: 600 14px 'DM Sans', sans-serif; cursor: pointer; }
+.kz-mention-list button.on, .kz-mention-list button:hover { background: var(--paper); }
+.kz-ai { background: oklch(0.96 0.03 295); border-radius: 18px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+.kz-profile { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: clamp(16px, 3vw, 32px); align-items: center; }
+.kz-notes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.kz-notes a { display: flex; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 14px; color: var(--ink); font-size: 14.5px; }
+.kz-notes a:hover { background: var(--paper); color: var(--ink); }
+.kz-notes li.unread a { background: oklch(0.96 0.03 295); }
+.nav-bell { position: relative; display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 999px; background: #fff; border: 1.5px solid #d9d5dd; font-size: 17px; }
+.nav-bell .kz-count { position: absolute; top: -6px; right: -6px; }
+@media (max-width: 900px) {
+  .kz-shell { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .kz-side { position: static; max-height: none; padding: 8px; }
+  .kz-burger { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border: 0; background: none; font: 700 15px 'DM Sans', sans-serif; color: var(--ink); cursor: pointer; text-align: left; }
+  .kz-burger > span:nth-child(2) { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .kz-nav { display: none; padding-top: 6px; }
+  .kz-side.open .kz-nav { display: flex; }
+  .kz-head:has(.kz-head-video) { grid-template-columns: minmax(0, 1fr); }
+  .kz-linkcard { grid-template-columns: 96px minmax(0, 1fr); }
+  .kz-profile { grid-template-columns: minmax(0, 1fr); justify-items: start; }
+}
