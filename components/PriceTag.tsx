@@ -1,7 +1,7 @@
 import { formatHuf, priceLabel } from '@/lib/format';
 import { saleInfo, type Course } from '@/lib/types';
 
-type PriceCourse = Pick<Course, 'price_huf'> & Partial<Pick<Course, 'price_note' | 'list_price_huf' | 'sale_ends_at' | 'sale_label'>>;
+type PriceCourse = Pick<Course, 'price_huf'> & Partial<Pick<Course, 'price_note' | 'was_price_huf' | 'sale_ends_at' | 'sale_label'>>;
 
 // Ár megjelenítése, aktív akciónál az eredeti ár áthúzva és egy „Bevezető ár · −50% · dec. 31-ig” jelzés.
 // (A kurzust előbb withStart-tal kell betölteni – az számolja ki az akciós árat.)

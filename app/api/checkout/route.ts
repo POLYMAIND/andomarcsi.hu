@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
             product_data: {
               name: course.title,
               // Akciónál a címke és a kedvezmény is látszik a Stripe fizetési oldalán
-              description: [course.list_price_huf != null ? `${course.sale_label?.trim() || 'Akció'} (${formatHuf(course.list_price_huf)} helyett)` : '', course.subtitle].filter(Boolean).join(' · ') || undefined,
+              description: [course.was_price_huf != null ? `${course.sale_label?.trim() || 'Akció'} (${formatHuf(course.was_price_huf)} helyett)` : '', course.subtitle].filter(Boolean).join(' · ') || undefined,
             },
           },
         },
