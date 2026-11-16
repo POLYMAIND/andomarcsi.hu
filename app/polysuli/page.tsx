@@ -11,7 +11,7 @@ import { SUBSCRIPTION } from '@/lib/config';
 import { courseAccessible, getCatalog, getUserAccess } from '@/lib/data';
 import { formatHuf, priceLabel } from '@/lib/format';
 import { FORM_TS_FIELD } from '@/lib/honeypot';
-import { ACADEMY, ACADEMY_PRICES, ACADEMY_TOPICS, MENTOR_TOPICS, SKILL_MODULE_SLUG, byPackageOrder, isAcademyLevel, type AcademyLevel } from '@/lib/polyakademia';
+import { ACADEMY, ACADEMY_PRICES, ACADEMY_TOPICS, FOUNDATION_SLUG, MENTOR_TOPICS, byPackageOrder, isAcademyLevel, type AcademyLevel } from '@/lib/polyakademia';
 import { faqPage, graph, ORGANIZATION, type Faq } from '@/lib/seo';
 import { soonLabel, type Course } from '@/lib/types';
 
@@ -64,7 +64,7 @@ const TOC = [
 ] as const;
 
 const DEPTHS = [
-  { n: '01', price: '0 Ft', name: 'Kóstolsz', tone: 'mint', text: 'Ingyenes útmutató, prompt vagy mini skill. Ingyenes regisztráció után itt az oldalon olvasod, és PDF-ben is letöltheted.' },
+  { n: '01', price: '0 Ft', name: 'Kóstolsz', tone: 'mint', text: 'Ingyenes útmutató, prompt vagy mini skill. Csak az e-mail-címed kell: utána itt az oldalon olvasod, és PDF-ben is letöltheted.' },
   { n: '02', price: formatHuf(ACADEMY_PRICES.pocket), name: 'Kipróbálod', tone: 'amber', text: 'Zsebcsomag: egy kész skill vagy prompt-pack, egyoldalas útmutatóval. Kevesebb, mint egy kávé és egy kifli.' },
   { n: '03', price: formatHuf(ACADEMY_PRICES.material), name: 'Megépíted', tone: 'purple', text: 'Skill-anyag: online videó, munkalap, letölthető skill – a végén egy működő, a te márkádra szabott eszköz.' },
 ] as const;
@@ -118,18 +118,15 @@ export default async function PolySuliPage({ searchParams }: { searchParams: Pro
   const [catalog, access] = await Promise.all([getCatalog(supabase), getUserAccess(supabase, user?.id)]);
   const byId = new Map(catalog.courses.map((c) => [c.id, c]));
   const academy = catalog.courses.filter((c) => isAcademyLevel(c.academy_level));
-  const materials = academy.filter((c) => c.skill_material);
-  const skillModule = catalog.courses.find((c) => c.slug === SKILL_MODULE_SLUG) ?? null;
-  const moduleItems = (skillModule?.bundle_course_ids ?? []).map((id) => byId.get(id)).filter((c): c is Course => !!c);
-  const bonuses = moduleItems.filter((c) => c.title.startsWith('Bónusz'));
+  // Az első nagy csomag: Claude alapozó vállalkozásoknak (a Skill modul helyett).
+  const foundation = catalog.courses.find((c) => c.slug === FOUNDATION_SLUG) ?? null;
+  const foundationLessons = foundation ? catalog.stats(foundation.id).count : 0;
   const packages = catalog.pockets.filter((p) => p.pocket_for && byId.has(p.pocket_for));
   const rows = topicRows(catalog.courses, packages);
   const canUse = (c: Course) => !!user && courseAccessible(c, access, profile?.is_admin);
   const pyramid = Object.fromEntries(
     LEVELS.map((l) => [l, academy.filter((c) => c.academy_level === l).map((c) => ({ slug: c.slug, title: shortTitle(c.title), mark: markOf(c) }))]),
   ) as Record<AcademyLevel, PyramidCourse[]>;
-  const modulePrice = skillModule?.price_huf ?? ACADEMY_PRICES.module;
-  const separately = materials.reduce((s, c) => s + (c.price_huf ?? 0), 0) || ACADEMY_PRICES.material * 6;
   const mentorMsg = sp.mentor ? MENTOR_MSG[sp.mentor] : null;
 
   return (
@@ -290,27 +287,26 @@ export default async function PolySuliPage({ searchParams }: { searchParams: Pro
       <section id="csomagok" className="ps-section ps-anchor">
         <SectionHead eyebrow="Ha mindet akarod" title="Egyben olcsóbb. Három módon." />
         <div className="ps-three">
-          <div className="ps-box ps-pack-card">
-            <div className="row between">
-              <span className="mono ps-label">Skill modul</span>
-              {skillModule?.coming_soon && <span className="ps-pill grey">{soonLabel(skillModule)}</span>}
-            </div>
-            <h3 className="h3 ps-pack-title">Mind a 6 skill-anyag egyben</h3>
-            <div className="ps-price">
-              {formatHuf(modulePrice)} {separately > modulePrice && <s>{formatHuf(separately)}</s>}
-            </div>
-            <p>Ajánlott sorrendben, plusz {bonuses.length ? `${bonuses.length} bónusz, ami` : 'bónuszok, amik'} csak itt érhető el:</p>
-            {bonuses.length > 0 && (
-              <ul className="ps-bonus">
-                {bonuses.map((c) => <li key={c.id}><span className="ps-pill lime">Bónusz</span>{c.title.replace(/^Bónusz: /, '')}</li>)}
+          {foundation && (
+            <div className="ps-box ps-pack-card">
+              <div className="row between">
+                <span className="mono ps-label">Claude alapozó</span>
+                {foundation.coming_soon && <span className="ps-pill grey">{soonLabel(foundation)}</span>}
+              </div>
+              <h3 className="h3 ps-pack-title">{foundation.title}</h3>
+              <div className="ps-price">{priceLabel(foundation)}</div>
+              {foundation.subtitle && <p>{foundation.subtitle}</p>}
+              <ul className="ps-arrows">
+                {foundationLessons > 0 && <li>{foundationLessons} videólecke, saját tempóban</li>}
+                <li>17 kész skill: szövegíró, posztoló, elemző, pénzügyes, irodavezető, recepciós</li>
+                <li>Cégkártya, memória és connectorok beállítva a cégedre</li>
+                <li>Munkalap, PDF-útmutató, ellenőrzőlista</li>
               </ul>
-            )}
-            {skillModule && (
-              <Link href={`/kurzusok/${skillModule.slug}`} className="btn outline block ps-push">
-                {canUse(skillModule) ? 'Megnyitom' : skillModule.coming_soon ? 'Szólj, ha indul' : `Megveszem – ${priceLabel(skillModule)}`} →
+              <Link href={`/kurzusok/${foundation.slug}`} className="btn outline block ps-push">
+                {canUse(foundation) ? 'Megnyitom' : foundation.coming_soon ? 'Szólj, ha indul' : `Megveszem – ${priceLabel(foundation)}`} →
               </Link>
-            )}
-          </div>
+            </div>
+          )}
 
           <div className="ps-box ps-pack-card member">
             <span className="ps-hand purple ps-pack-note" aria-hidden="true">ha kérdeznél is ↓</span>

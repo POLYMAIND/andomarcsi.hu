@@ -1,21 +1,25 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { BuyBox } from '@/components/BuyBox';
 import { ChatWidget } from '@/components/ChatWidget';
 import { FaqList } from '@/components/FaqList';
 import { GuideView } from '@/components/GuideView';
 import { JsonLd } from '@/components/JsonLd';
+import { LeadMagnetForm } from '@/components/LeadMagnetForm';
 import { SiteNav } from '@/components/SiteNav';
 import { getCurrentUser } from '@/lib/auth';
 import { courseAccessible, getUserAccess } from '@/lib/data';
 import { formatHuf, priceLabel, toolColor } from '@/lib/format';
 import { guideOutline, parseGuide } from '@/lib/guide';
 import { courseFaq, courseHeading, courseSchema, faqPage, graph, ORGANIZATION } from '@/lib/seo';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient, createClient } from '@/lib/supabase/server';
+import { courseLeadCookie, courseLeadKey, verifyLead } from '@/lib/lead-magnets';
 import { ACADEMY, byPackageOrder, packageKind } from '@/lib/polyakademia';
 import { lessonNo, withStart, withStartAll, type Course, type Lesson } from '@/lib/types';
 import { youTubeThumb } from '@/lib/youtube';
+import { lessonsWithVideo, videoThumbUrl } from '@/lib/video-preview';
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | undefined>> };
 
@@ -56,6 +60,10 @@ export default async function CoursePage({ params, searchParams }: Props) {
   // Letölthető csomag (ingyenes anyag / zsebkurzus): a szülő tanfolyam és a letöltési link (az RLS csak jogosultnak adja ki).
   // Tanfolyamnál: a hozzá tartozó ingyenes anyagok és zsebkurzusok.
   const isPocket = !!course.pocket_for;
+  // Ingyenes anyag fiók nélkül: aki megadta az e-mail-címét (aláírt süti), annak a szerver adja ki az anyagot.
+  const leadOk =
+    isPocket && course.price_huf === 0 && !course.coming_soon && !user &&
+    verifyLead(courseLeadKey(course.slug), (await cookies()).get(courseLeadCookie(course.slug))?.value);
   const [{ data: rawParent }, { data: rawPackages }, { data: download }, { data: guide }] = await Promise.all([
     isPocket ? supabase.from('courses').select('*').eq('id', course.pocket_for!).eq('published', true).maybeSingle<Course>() : Promise.resolve({ data: null }),
     isPocket ? Promise.resolve({ data: [] as Course[] }) : supabase.from('courses').select('*').eq('pocket_for', course.id).eq('published', true).returns<Course[]>(),
@@ -63,7 +71,18 @@ export default async function CoursePage({ params, searchParams }: Props) {
     // Online tananyag (ingyenes anyag / zsebcsomag): az RLS csak belépett, jogosult felhasználónak adja ki.
     isPocket && user ? supabase.from('course_guides').select('body_md').eq('course_id', course.id).maybeSingle<{ body_md: string }>() : Promise.resolve({ data: null }),
   ]);
-  const guideBlocks = guide?.body_md ? parseGuide(guide.body_md) : null;
+  let guideMd = guide?.body_md ?? null;
+  let downloadRow = download;
+  if (leadOk) {
+    const admin = createAdminClient();
+    const [{ data: g }, { data: d }] = await Promise.all([
+      admin.from('course_guides').select('body_md').eq('course_id', course.id).maybeSingle<{ body_md: string }>(),
+      admin.from('course_downloads').select('url, label').eq('course_id', course.id).maybeSingle(),
+    ]);
+    guideMd = g?.body_md ?? null;
+    downloadRow = d;
+  }
+  const guideBlocks = guideMd ? parseGuide(guideMd) : null;
   const outline = guideBlocks ? guideOutline(guideBlocks) : [];
   const related = rawParent ? withStart(rawParent) : null;
   const packages = withStartAll(rawPackages).sort(byPackageOrder);
@@ -72,8 +91,9 @@ export default async function CoursePage({ params, searchParams }: Props) {
     ? await supabase.from('course_waitlist').select('id').eq('course_id', course.id).eq('user_id', user.id).maybeSingle()
     : { data: null };
   const bundle = withStartAll(bundlesWithThis)[0] ?? null;
+  const dl = downloadRow;
   const list = lessons ?? [];
-  const hasAccess = !!user && courseAccessible(course, access, profile?.is_admin);
+  const hasAccess = (!!user && courseAccessible(course, access, profile?.is_admin)) || leadOk;
   // Ingyenes anyag megnyitása = felvétel a Saját tanulásba (így az adminban is látszik, ki mit olvasott).
   if (user && isFree && isPocket && guideBlocks && !access.enrolled.has(course.id)) {
     await supabase.from('enrollments').insert({ user_id: user.id, course_id: course.id, source: 'free', amount_huf: 0 });
@@ -87,6 +107,9 @@ export default async function CoursePage({ params, searchParams }: Props) {
     ? await supabase.from('lesson_videos').select('lesson_id, youtube_id').in('lesson_id', list.map((l) => l.id))
     : { data: [] as { lesson_id: string; youtube_id: string }[] };
   const thumbs = new Map((videoRows ?? []).map((v) => [v.lesson_id as string, youTubeThumb(v.youtube_id as string)]));
+  // Akinek nincs hozzáférése, az is lássa a borítóképet – a saját végpontunkon át, azonosító nélkül.
+  const locked = list.filter((l) => !thumbs.has(l.id)).map((l) => l.id);
+  for (const id of await lessonsWithVideo(locked)) thumbs.set(id, videoThumbUrl(id));
   const featured = list.length ? (hasAccess ? next : list.find((l) => l.is_preview && !course.coming_soon) ?? list[0]) : null;
   const totalMin = list.reduce((s, l) => s + (l.duration_min ?? 0), 0);
   const faq = courseFaq(course);
@@ -222,35 +245,37 @@ export default async function CoursePage({ params, searchParams }: Props) {
             </div>
           )}
           {isPocket && !guideBlocks && !hasAccess && isFree && (
-            <div id="letoltes" className="guide-locked">
-              <span className="mono">Ingyenes · csak regisztráció kell</span>
-              <b>Az anyag itt, az oldalon olvasható – lépj be, vagy regisztrálj ingyen egy e-mail címmel.</b>
-              <span className="muted">Jelszó nem kell: e-mailben kapsz egy belépő linket, és utána bármikor visszajöhetsz ide.</span>
-              <Link href={loginHref} className="btn ps-lime" style={{ alignSelf: 'flex-start' }}>Regisztrálok és olvasom →</Link>
+            <div id="letoltes" className="guide-locked" style={{ scrollMarginTop: 24 }}>
+              <span className="mono">Ingyenes · csak egy e-mail-cím kell</span>
+              <b>Add meg az e-mail-címed, és az anyag azonnal megnyílik: itt olvashatod, és le is töltheted.</b>
+              <LeadMagnetForm course={course.slug} button="Kérem ingyen" />
+              <span className="muted" style={{ fontSize: 13 }}>
+                Van már fiókod? <Link href={loginHref} style={{ textDecoration: 'underline' }}>Lépj be</Link>, és a Saját tanulásban is megtalálod.
+              </span>
             </div>
           )}
           {isPocket && !guideBlocks && !(isFree && !hasAccess) && (
             <div id="letoltes" className="ps-pocket" style={{ padding: '18px 20px' }}>
-              {hasAccess && download ? (
+              {hasAccess && dl ? (
                 <>
                   <span><b>{guideBlocks ? 'A nyomtatható lapok.' : isFree ? 'Itt az ingyenes anyagod.' : 'A csomag a tiéd.'}</b> Bármikor újra letöltheted innen.</span>
-                  <a href={download.url} target="_blank" rel="noopener noreferrer" className="btn ps-lime sm">{download.label || 'Letöltöm a csomagot'} ↓</a>
+                  <a href={dl.url} target="_blank" rel="noopener noreferrer" className="btn ps-lime sm">{dl.label || 'Letöltöm a csomagot'} ↓</a>
                 </>
               ) : hasAccess ? (
                 <span><b>Hozzáférsz.</b> Az anyag hamarosan felkerül ide – e-mailben is szólok.</span>
               ) : isFree ? (
-                <span><b>Ingyenes anyag</b> · lépj be (az ingyenes regisztráció is ennyi), és azonnal letöltheted</span>
+                <span><b>Ingyenes anyag</b> · add meg az e-mail-címed, és azonnal letöltheted</span>
               ) : (
                 <span><b>Letölthető csomag</b> · kész promptok és skillek, telepítési leírással</span>
               )}
             </div>
           )}
-          {!isPocket && !isBundle && download && (
+          {!isPocket && !isBundle && dl && (
             <div id="letoltes" className="ps-pocket" style={{ padding: '18px 20px' }}>
               {hasAccess ? (
                 <>
                   <span><b>A kurzus anyagai.</b> Skillek, PDF-útmutató és munkalapok, bármikor újra letöltheted innen.</span>
-                  <a href={download.url} target="_blank" rel="noopener noreferrer" className="btn ps-lime sm">{download.label || 'Letöltöm az anyagokat'} ↓</a>
+                  <a href={dl.url} target="_blank" rel="noopener noreferrer" className="btn ps-lime sm">{dl.label || 'Letöltöm az anyagokat'} ↓</a>
                 </>
               ) : (
                 <span><b>Letölthető anyagok is járnak hozzá</b> · kész skillek, PDF-útmutató és munkalapok</span>
@@ -292,7 +317,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
             loggedIn={!!user}
             hasAccess={hasAccess}
             enrolled={access.enrolled.has(course.id)}
-            firstLessonHref={isPocket ? (guideBlocks ? null : download ? '#letoltes' : null) : next ? `/kurzusok/${course.slug}/${next.id}` : isBundle && modules[0] ? `/kurzusok/${modules[0].slug}` : null}
+            firstLessonHref={isPocket ? (guideBlocks ? null : dl ? '#letoltes' : null) : next ? `/kurzusok/${course.slug}/${next.id}` : isBundle && modules[0] ? `/kurzusok/${modules[0].slug}` : null}
             bundle={bundle && !access.enrolled.has(bundle.id) ? bundle : null}
             userEmail={user?.email ?? null}
             waitlisted={!!waitRow || sp.ertesites === 'ok'}
@@ -303,8 +328,8 @@ export default async function CoursePage({ params, searchParams }: Props) {
               : null
             }
           />
-          {guideBlocks && download && (
-            <a href={download.url} target="_blank" rel="noopener noreferrer" className="btn ps-lime block" style={{ marginTop: 12 }}>Letöltöm PDF-ben ↓</a>
+          {guideBlocks && dl && (
+            <a href={dl.url} target="_blank" rel="noopener noreferrer" className="btn ps-lime block" style={{ marginTop: 12 }}>Letöltöm PDF-ben ↓</a>
           )}
           </div>
           {outline.length > 0 && (
