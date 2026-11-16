@@ -22,7 +22,7 @@ export type ListCourse = {
   starts_at: string | null;
   bundle_course_ids: string[];
   academy_level: number | null;
-  list_price_huf?: number | null; // aktív akciónál az eredeti ár
+  was_price_huf?: number | null; // aktív akciónál az eredeti ár
   sale_ends_at?: string | null;
   sale_label?: string;
 };
