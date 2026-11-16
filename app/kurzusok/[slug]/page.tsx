@@ -89,14 +89,21 @@ export default async function CoursePage({ params, searchParams }: Props) {
   const outline = guideBlocks ? guideOutline(guideBlocks) : [];
   const related = rawParent ? withStart(rawParent) : null;
   const packages = withStartAll(rawPackages).sort(byPackageOrder);
-  // A Claude alapozónál: minden más elérhető zsebcsomag és ingyenes anyag ajánlónak (a saját csomagjai fent külön).
-  const { data: rawExtras } =
-    course.slug === FOUNDATION_SLUG
+  // „Amire még szükséged lehet”: az adminban kiválasztott kapcsolódó anyagok (a kiválasztás sorrendjében);
+  // ha nincs kiválasztva, a Claude alapozónál minden más elérhető zsebcsomag és ingyenes anyag.
+  const relatedIds = course.related_course_ids ?? [];
+  const { data: rawExtras } = relatedIds.length
+    ? await supabase.from('courses').select('*').eq('published', true).in('id', relatedIds).returns<Course[]>()
+    : course.slug === FOUNDATION_SLUG
       ? await supabase.from('courses').select('*').eq('published', true).not('pocket_for', 'is', null).order('sort_order').returns<Course[]>()
       : { data: [] as Course[] };
   const extras = withStartAll(rawExtras)
-    .filter((p) => !p.coming_soon && !packages.some((k) => k.id === p.id))
-    .sort((a, b) => Number((a.price_huf ?? 0) === 0) - Number((b.price_huf ?? 0) === 0) || a.sort_order - b.sort_order);
+    .filter((p) => !p.coming_soon && p.id !== course.id && (relatedIds.length > 0 || !packages.some((k) => k.id === p.id)))
+    .sort((a, b) =>
+      relatedIds.length
+        ? relatedIds.indexOf(a.id) - relatedIds.indexOf(b.id)
+        : Number((a.price_huf ?? 0) === 0) - Number((b.price_huf ?? 0) === 0) || a.sort_order - b.sort_order,
+    );
   const isFree = course.price_huf === 0;
   const { data: waitRow } = user
     ? await supabase.from('course_waitlist').select('id').eq('course_id', course.id).eq('user_id', user.id).maybeSingle()
@@ -325,7 +332,12 @@ export default async function CoursePage({ params, searchParams }: Props) {
               ))}
             </>
           )}
-          <AlapozoExtras items={extras} owned={[...access.enrolled]} subscribed={access.subscribed} />
+          <AlapozoExtras
+            items={extras}
+            owned={[...access.enrolled]}
+            subscribed={access.subscribed}
+            intro={course.slug === FOUNDATION_SLUG ? 'Kis, kész csomagok egy-egy témára: skill vagy prompt-pack útmutatóval. Ha az alapozóban valamelyik csapattag megtetszett, ezekkel tovább viheted.' : undefined}
+          />
         </section>
         <aside className="side-stack">
           <div className="card">
