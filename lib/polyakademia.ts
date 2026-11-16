@@ -26,14 +26,13 @@ export const FOUNDATION_SLUG = 'claude-alapozo';
 // A sort a szülő tanfolyam slugja azonosítja (a csomagok pocket_for-ja erre mutat, a skill-anyag maga a szülő).
 // Ami itt nincs felsorolva, de van hozzá csomag vagy skill-anyag, az a lista végére kerül a tanfolyam címével.
 export const ACADEMY_TOPICS: { slug: string; name: string; hint?: string }[] = [
-  { slug: 'claude-alapozo', name: 'Skill-írás', hint: 'a Claude Alapozóhoz' },
+  { slug: 'claude-alapozo', name: 'Claude alapozó', hint: 'beállítás, skillek, célok és heti terv' },
   { slug: 'markahang-skill', name: 'Márkahang', hint: 'erre épül minden más' },
   { slug: 'design-system-alapozo', name: 'Design system', hint: 'a Karusszel előfeltétele' },
   { slug: 'karusszel-skill-workshop', name: 'Karusszel' },
   { slug: 'reels-vagas-claude-dal', name: 'Reels és vágás' },
   { slug: 'fotobump-skill', name: 'Fotóból videó' },
   { slug: 'urlap-ai-elominosites', name: 'Ügyfélszerzés' },
-  { slug: 'claude-celok-heti-terv', name: 'Heti terv' },
 ];
 
 export const MENTOR_TOPICS = [
