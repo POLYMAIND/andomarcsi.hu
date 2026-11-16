@@ -16,12 +16,16 @@ export async function POST(request: NextRequest) {
   const name = String(form.get('name') ?? '').trim().slice(0, 120) || null;
   const consent = form.get('consent') === 'on';
   const renderedAt = form.get(FORM_TS_FIELD); // botvédelem (lásd lib/honeypot.ts)
+  // Honnan jött (pl. landing oldal + hirdetés): csak saját, relatív útvonalra irányítunk vissza.
+  const returnTo = String(form.get('back') ?? '');
+  const safeBack = /^\/[a-z0-9/-]{0,80}$/.test(returnTo) && !returnTo.startsWith('//') ? returnTo : null;
+  const source = (String(form.get('source') ?? '').toLowerCase().replace(/[^a-z0-9_:.-]/g, '').slice(0, 60)) || 'web';
 
   const admin = createAdminClient();
   const { data: raw } = await admin.from('courses').select('*').eq('id', courseId).eq('published', true).maybeSingle<Course>();
   if (!raw) return NextResponse.json({ error: 'Ismeretlen kurzus' }, { status: 404 });
   const course = withStart(raw);
-  const back = (q: string) => NextResponse.redirect(new URL(`/kurzusok/${course.slug}?${q}#ertesites`, SITE_URL), 303);
+  const back = (q: string) => NextResponse.redirect(new URL(`${safeBack ?? `/kurzusok/${course.slug}`}?${q}#ertesites`, SITE_URL), 303);
 
   // A botvédelem NEM állít sikert: egy tévesen megfogott valódi látogató így látja, hogy nem ment át.
   if (tooFastSince(renderedAt)) {
@@ -36,7 +40,7 @@ export async function POST(request: NextRequest) {
   const { data: inserted, error } = await admin
     .from('course_waitlist')
     .upsert(
-      { course_id: course.id, email, name, user_id: user?.id ?? null, consent_at: consentAt, source: 'web' },
+      { course_id: course.id, email, name, user_id: user?.id ?? null, consent_at: consentAt, source },
       { onConflict: 'course_id,email', ignoreDuplicates: true },
     )
     .select('id');
@@ -50,7 +54,7 @@ export async function POST(request: NextRequest) {
       name,
       course: { id: course.id, slug: course.slug, title: course.title },
       consent_at: consentAt,
-      source: 'web',
+      source,
     });
   }
   return back('ertesites=ok');

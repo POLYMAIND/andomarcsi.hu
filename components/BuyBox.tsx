@@ -6,7 +6,7 @@ import { PurchaseConsents } from '@/components/PurchaseConsents';
 import { FORM_TS_FIELD } from '@/lib/honeypot';
 
 // Vásárlás / beiratkozás doboz egy kurzushoz.
-export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref, bundle = null, userEmail = null, waitlisted = false, waitlistError = null }: {
+export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref, bundle = null, userEmail = null, waitlisted = false, waitlistError = null, returnTo = null, source = null }: {
   course: Course;
   loggedIn: boolean;
   hasAccess: boolean;
@@ -16,6 +16,8 @@ export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref,
   userEmail?: string | null;
   waitlisted?: boolean; // már kért értesítést
   waitlistError?: string | null; // a beküldés hibája — az ŰRLAP MELLETT, mert az átirányítás ide (#ertesites) görget
+  returnTo?: string | null; // értesítéskérés után ide jön vissza (pl. landing oldal), alapból a kurzusoldal
+  source?: string | null; // honnan jött a feliratkozó (pl. landing:facebook)
 }) {
   const upsell = bundle && !hasAccess && !enrolled ? (
     <Link href={`/kurzusok/${bundle.slug}`} className="btn light block" style={{ whiteSpace: 'normal', textAlign: 'center' }}>
@@ -45,6 +47,8 @@ export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref,
             <span className="muted" style={{ fontSize: 14 }}>Nem kell most fizetned – e-mailben szólok, amikor indul a kurzus.</span>
             <input type="hidden" name="course_id" value={course.id} />
             <input type="hidden" name={FORM_TS_FIELD} value={String(Date.now())} />
+            {returnTo && <input type="hidden" name="back" value={returnTo} />}
+            {source && <input type="hidden" name="source" value={source} />}
             <input className="input" name="name" placeholder="Neved (nem kötelező)" autoComplete="name" />
             <input className="input" name="email" type="email" required placeholder="E-mail címed" defaultValue={userEmail ?? ''} autoComplete="email" />
             <label className="check" style={{ alignItems: 'flex-start', fontSize: 13, color: 'var(--ink-3)' }}>

@@ -5,7 +5,7 @@ import type { ModuleLesson } from '@/components/CanvaKalauzSection';
 
 // Kezdőlap, kiemelt hely: Claude alapozó vállalkozásoknak – a kurzus négy része, leckékkel.
 // A cím, ár, állapot és a leckék az adatbázisból jönnek; a részek a leckék sorszáma (sort_order) szerint.
-const PARTS = [
+export const PARTS = [
   {
     name: 'Beállítás',
     from: 0,
@@ -36,7 +36,7 @@ const PARTS = [
   },
 ];
 
-const GETS = [
+export const GETS = [
   { t: 'Rövid, gyakorlati videók', d: 'A leckék kb. 60%-a valódi képernyő és gyakorlat, egy minta-vállalkozás adataival.' },
   { t: '17 kész skill', d: 'Egy csomagban, telepítési leírással – a végére egy egész csapat dolgozik neked.' },
   { t: 'Munkalap minden leckéhez', d: 'Plusz PDF-útmutató és beállítási ellenőrzőlista, hogy semmi ne maradjon ki.' },
@@ -89,6 +89,31 @@ export function ClaudeAlapozoSection({ course, lessons, promo = false }: { cours
       </div>
       </div>
 
+      <ClaudeAlapozoParts lessons={sorted} />
+
+      <div className="km-bundle">
+        <div className="stack" style={{ '--gap': '6px' } as React.CSSProperties}>
+          <span className="row" style={{ '--gap': '10px' } as React.CSSProperties}>
+            <span className="mono" style={{ fontSize: 13, letterSpacing: '.06em', textTransform: 'uppercase' }}>Claude alapozó vállalkozásoknak</span>
+            {course.coming_soon && <span className="pill new">{soonLabel(course)}</span>}
+          </span>
+          <strong style={{ fontFamily: 'var(--display)', fontSize: 'clamp(22px,2.6vw,30px)', lineHeight: 1.15 }}>
+            A teljes kurzus: {priceLabel(course)}
+          </strong>
+          {course.subtitle && <span style={{ fontSize: 15 }}>{course.subtitle}</span>}
+        </div>
+        <Link href={`/kurzusok/${course.slug}`} className="btn">{cta}</Link>
+      </div>
+
+      <ClaudeAlapozoGets />
+    </section>
+  );
+}
+
+// A kurzus 4 része kártyákon, lenyitható lecke-listával (kezdőlap és landing).
+export function ClaudeAlapozoParts({ lessons }: { lessons: ModuleLesson[] }) {
+  const sorted = [...lessons].sort((a, b) => a.sort_order - b.sort_order);
+  return (
       <div className="km-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 230px), 1fr))' }}>
         {PARTS.map((p, i) => {
           const ls = sorted.filter((l) => l.sort_order >= p.from && l.sort_order <= p.to);
@@ -123,31 +148,21 @@ export function ClaudeAlapozoSection({ course, lessons, promo = false }: { cours
         })}
       </div>
 
-      <div className="km-bundle">
-        <div className="stack" style={{ '--gap': '6px' } as React.CSSProperties}>
-          <span className="row" style={{ '--gap': '10px' } as React.CSSProperties}>
-            <span className="mono" style={{ fontSize: 13, letterSpacing: '.06em', textTransform: 'uppercase' }}>Claude alapozó vállalkozásoknak</span>
-            {course.coming_soon && <span className="pill new">{soonLabel(course)}</span>}
-          </span>
-          <strong style={{ fontFamily: 'var(--display)', fontSize: 'clamp(22px,2.6vw,30px)', lineHeight: 1.15 }}>
-            A teljes kurzus: {priceLabel(course)}
-          </strong>
-          {course.subtitle && <span style={{ fontSize: 15 }}>{course.subtitle}</span>}
-        </div>
-        <Link href={`/kurzusok/${course.slug}`} className="btn">{cta}</Link>
-      </div>
+  );
+}
 
-      <div className="stack" style={{ '--gap': '18px' } as React.CSSProperties}>
-        <h3 className="h3" style={{ margin: 0 }}>Mit kapsz?</h3>
-        <ul className="km-gets">
-          {GETS.map((g) => (
-            <li key={g.t}>
-              <strong>{g.t}</strong>
-              <span>{g.d}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
+export function ClaudeAlapozoGets() {
+  return (
+    <div className="stack" style={{ '--gap': '18px' } as React.CSSProperties}>
+      <h3 className="h3" style={{ margin: 0 }}>Mit kapsz?</h3>
+      <ul className="km-gets">
+        {GETS.map((g) => (
+          <li key={g.t}>
+            <strong>{g.t}</strong>
+            <span>{g.d}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
