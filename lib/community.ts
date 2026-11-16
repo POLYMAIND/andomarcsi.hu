@@ -29,7 +29,11 @@ export type CommunityComment = {
 };
 
 export const COMMUNITY_BUCKET = 'community';
-export const MAX_IMAGES = 4;
+export const MAX_IMAGES = 4; // képek és videók együtt, bejegyzésenként
+export const MAX_VIDEO_MB = 50;
+const VIDEO_EXT = /\.(mp4|mov|webm)$/i;
+// A bejegyzés médiái (images oszlop): képek és videók vegyesen, a kiterjesztés dönti el, melyik.
+export const isVideoPath = (path: string) => VIDEO_EXT.test(path);
 export const PAGE_SIZE = 20;
 
 export const KIND_LABEL: Record<PostKind, string> = { question: 'Kérdés', showcase: 'Munkám' };
@@ -90,4 +94,4 @@ export function splitLinks(text: string): { text: string; href?: string }[] {
 }
 
 // Feltöltött kép útvonalának ellenőrzése: csak a saját mappából, véletlen fájlnévvel.
-export const validImagePath = (path: string, userId: string) => new RegExp(`^${userId}/[A-Za-z0-9_-]{8,64}\\.(jpe?g|png|webp|gif)$`).test(path);
+export const validImagePath = (path: string, userId: string) => new RegExp(`^${userId}/[A-Za-z0-9_-]{8,64}\\.(jpe?g|png|webp|gif|mp4|mov|webm)$`).test(path);

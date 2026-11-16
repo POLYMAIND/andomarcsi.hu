@@ -53,8 +53,8 @@ export async function createPost(formData: FormData) {
   if (title.length < 3) fail(back, 'Adj egy rövid címet (legalább 3 karakter).');
   if (title.length > 140) fail(back, 'A cím legfeljebb 140 karakter lehet.');
   if (body.length > 5000) fail(back, 'A szöveg legfeljebb 5000 karakter lehet.');
-  if (images.length > MAX_IMAGES || images.some((p) => !validImagePath(p, user.id))) fail(back, 'A képek feltöltése nem sikerült, próbáld újra.');
-  if (kind === 'showcase' && images.length === 0 && !body) fail(back, 'A munkádhoz tölts fel legalább egy képet, vagy írj pár sort róla.');
+  if (images.length > MAX_IMAGES || images.some((p) => !validImagePath(p, user.id))) fail(back, 'A képek/videók feltöltése nem sikerült, próbáld újra.');
+  if (kind === 'showcase' && images.length === 0 && !body) fail(back, 'A munkádhoz tölts fel legalább egy képet vagy videót, vagy írj pár sort róla.');
   if (kind === 'question' && !body) fail(back, 'Írd le pár mondatban, miben akadtál el.');
 
   let course_id: string | null = null;

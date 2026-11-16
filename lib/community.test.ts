@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { initials, kindFromSlug, splitLinks, timeAgo, validImagePath } from './community.ts';
+import { initials, isVideoPath, kindFromSlug, splitLinks, timeAgo, validImagePath } from './community.ts';
 
 test('linkek felismerése a szövegben', () => {
   assert.deepEqual(splitLinks('Nézd: https://canva.com/design/abc. Szuper!'), [
@@ -26,6 +26,10 @@ test('feltöltött kép útvonala csak a saját mappából', () => {
   assert.equal(validImagePath(`${me}/../masik/a1b2c3d4e5f6.jpg`, me), false);
   assert.equal(validImagePath(`99999999-2222-3333-4444-555555555555/a1b2c3d4e5f6a7b8.jpg`, me), false);
   assert.equal(validImagePath(`${me}/a1b2c3d4e5f6a7b8.svg`, me), false);
+  assert.equal(validImagePath(`${me}/a1b2c3d4e5f6a7b8.mp4`, me), true);
+  assert.equal(validImagePath(`${me}/a1b2c3d4e5f6a7b8.exe`, me), false);
+  assert.equal(isVideoPath(`${me}/a1b2c3d4e5f6a7b8.mov`), true);
+  assert.equal(isVideoPath(`${me}/a1b2c3d4e5f6a7b8.jpg`), false);
 });
 
 test('típus az URL-ből és monogram', () => {
