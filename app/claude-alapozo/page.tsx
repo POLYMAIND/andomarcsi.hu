@@ -220,7 +220,7 @@ export default async function ClaudeAlapozoLanding({ searchParams }: { searchPar
           <div className="eyebrow" style={{ color: 'var(--amber)' }}>Claude alapozó vállalkozásoknak</div>
           <h2 className="h2">Legyen egy csapatod. Holnaptól.</h2>
           <p style={{ margin: 0, color: '#cfcad4', fontSize: 17 }}>
-            A teljes kurzus: <b style={{ color: '#fff' }}>{priceLabel(course)}</b>
+            A teljes kurzus: <b style={{ color: saleInfo(course) ? 'var(--sale)' : '#fff' }}>{priceLabel(course)}</b>
             {saleInfo(course) && (
               <>
                 {' '}<s>{formatHuf(saleInfo(course)!.listPrice)}</s> · <b style={{ color: '#fff' }}>{saleInfo(course)!.label} −{saleInfo(course)!.pct}%{saleInfo(course)!.until ? `, ${saleInfo(course)!.until}` : ''}</b>

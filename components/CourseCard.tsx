@@ -29,7 +29,7 @@ export function CourseCard({
         <span className="stack" style={{ '--gap': '6px', alignItems: 'flex-end' } as React.CSSProperties}>
           {course.coming_soon ? <span className="pill new">{soonLabel(course)}</span> : newCount > 0 && <span className="pill new">+{newCount} új</span>}
           {saleInfo(course) && !course.price_note?.trim() && !hasAccess && (
-            <span className="pill" style={{ background: 'var(--rose)', color: '#fff', fontWeight: 700 }}>−{saleInfo(course)!.pct}%</span>
+            <span className="pill" style={{ background: 'var(--sale)', color: '#fff', fontWeight: 700 }}>−{saleInfo(course)!.pct}%</span>
           )}
         </span>
       </div>
@@ -51,7 +51,7 @@ export function CourseCard({
             {course.pocket_for ? `${packageKind(course)} · letölthető` : course.bundle_course_ids?.length ? `Csomag · ${course.bundle_course_ids.length} modul` : `${lessonCount} lecke`}
           </span>
           <span className="price">
-            {owned ? 'Megvetted' : hasAccess ? 'Hozzáférsz' : priceLabel(course)}
+            {owned ? 'Megvetted' : hasAccess ? 'Hozzáférsz' : <span style={{ color: saleInfo(course) && !course.price_note?.trim() ? 'var(--sale)' : undefined }}>{priceLabel(course)}</span>}
             {!owned && !hasAccess && saleInfo(course) && !course.price_note?.trim() && (
               <s className="muted" style={{ fontSize: 13, fontWeight: 500, marginLeft: 6 }}>{formatHuf(saleInfo(course)!.listPrice)}</s>
             )}
