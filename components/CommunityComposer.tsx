@@ -5,11 +5,13 @@ import { useFormStatus } from 'react-dom';
 import { createBrowserSupabase } from '@/lib/supabase/client';
 
 const BUCKET = 'community';
-const MAX_IMAGES = 4;
+const MAX_IMAGES = 4; // képek és videók együtt
 const MAX_SIDE = 1600;
+const MAX_VIDEO_MB = 50; // a tárhely (community bucket) korlátja is ennyi
+const VIDEO_TYPES: Record<string, string> = { 'video/mp4': 'mp4', 'video/quicktime': 'mov', 'video/webm': 'webm' };
 
 type Kind = 'question' | 'showcase';
-type Img = { path: string; preview: string };
+type Img = { path: string; preview: string; video?: boolean };
 
 // Kép kicsinyítése a böngészőben (max. 1600 px, JPEG), hogy gyors legyen és kevés helyet foglaljon.
 // Az animált GIF-et változatlanul hagyjuk.
@@ -63,13 +65,24 @@ export function CommunityComposer({
     if (!files?.length) return;
     setError('');
     const list = Array.from(files).slice(0, MAX_IMAGES - images.length);
-    if (files.length > list.length) setError(`Legfeljebb ${MAX_IMAGES} képet tölthetsz fel.`);
+    if (files.length > list.length) setError(`Legfeljebb ${MAX_IMAGES} képet vagy videót tölthetsz fel.`);
     const supabase = createBrowserSupabase();
     setUploading((n) => n + list.length);
     await Promise.all(
       list.map(async (file) => {
         try {
-          if (!file.type.startsWith('image/')) throw new Error('Csak képet tölthetsz fel.');
+          // Videó: változatlanul megy fel (a böngésző nem tud jól tömöríteni), csak a méretet nézzük.
+          const videoExt = VIDEO_TYPES[file.type] ?? (/\.(mp4|mov|webm)$/i.exec(file.name)?.[1]?.toLowerCase() ?? null);
+          if (videoExt) {
+            if (file.size > MAX_VIDEO_MB * 1024 * 1024) throw new Error(`A videó túl nagy (max. ${MAX_VIDEO_MB} MB). Vágd rövidebbre, vagy mentsd kisebb felbontásban.`);
+            const path = `${userId}/${randomName()}.${videoExt}`;
+            const type = file.type || (videoExt === 'mov' ? 'video/quicktime' : `video/${videoExt}`);
+            const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, file, { contentType: type, upsert: false });
+            if (upErr) throw new Error('A videó feltöltése nem sikerült, próbáld újra.');
+            setImages((prev) => [...prev, { path, preview: URL.createObjectURL(file), video: true }]);
+            return;
+          }
+          if (!file.type.startsWith('image/')) throw new Error('Csak képet vagy videót (MP4, MOV, WebM) tölthetsz fel.');
           const { blob, ext, type } = await prepareImage(file);
           if (blob.size > 5 * 1024 * 1024) throw new Error('A kép túl nagy (max. 5 MB).');
           const path = `${userId}/${randomName()}.${ext}`;
@@ -147,11 +160,11 @@ export function CommunityComposer({
           </select>
         </label>
         <label className="btn light" style={{ cursor: images.length >= MAX_IMAGES ? 'default' : 'pointer', opacity: images.length >= MAX_IMAGES ? 0.5 : 1 }}>
-          📷 {kind === 'showcase' ? 'Képek a munkádról' : 'Képernyőkép csatolása'}
+          📷 {kind === 'showcase' ? 'Kép vagy videó a munkádról' : 'Kép vagy videó csatolása'}
           <input
             ref={fileRef}
             type="file"
-            accept="image/jpeg,image/png,image/webp,image/gif"
+            accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm"
             multiple
             hidden
             disabled={images.length >= MAX_IMAGES}
@@ -163,11 +176,18 @@ export function CommunityComposer({
         <div className="row" style={{ '--gap': '10px' } as React.CSSProperties}>
           {images.map((img) => (
             <div key={img.path} style={{ position: 'relative' }}>
-              <img src={img.preview} alt="" style={{ width: 96, height: 96, objectFit: 'cover', borderRadius: 14, display: 'block' }} />
+              {img.video ? (
+                <span style={{ position: 'relative', display: 'block' }}>
+                  <video src={img.preview} muted playsInline preload="metadata" style={{ width: 96, height: 96, objectFit: 'cover', borderRadius: 14, display: 'block', background: 'var(--ink)' }} />
+                  <span aria-hidden="true" style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', color: '#fff', fontSize: 22, textShadow: '0 1px 6px rgba(0,0,0,.6)' }}>▶</span>
+                </span>
+              ) : (
+                <img src={img.preview} alt="" style={{ width: 96, height: 96, objectFit: 'cover', borderRadius: 14, display: 'block' }} />
+              )}
               <button
                 type="button"
                 onClick={() => removeImage(img.path)}
-                aria-label="Kép eltávolítása"
+                aria-label={img.video ? 'Videó eltávolítása' : 'Kép eltávolítása'}
                 style={{ position: 'absolute', top: -8, right: -8, width: 26, height: 26, borderRadius: 999, border: 0, background: 'var(--ink)', color: '#fff', cursor: 'pointer', fontSize: 14, lineHeight: 1 }}
               >
                 ×

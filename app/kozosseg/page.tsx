@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { CommunityComposer } from '@/components/CommunityComposer';
 import { SiteNav } from '@/components/SiteNav';
 import { requireUser } from '@/lib/auth';
-import { hasCommunityAccess, KIND_LABEL, KIND_SLUG, kindFromSlug, PAGE_SIZE, signImages, type CommunityPost } from '@/lib/community';
+import { hasCommunityAccess, isVideoPath, KIND_LABEL, KIND_SLUG, kindFromSlug, PAGE_SIZE, signImages, type CommunityPost } from '@/lib/community';
 import { SUBSCRIPTION } from '@/lib/config';
 import { ACADEMY } from '@/lib/polyakademia';
 import { createPost, setCommunityEmails } from './actions';
@@ -134,7 +134,7 @@ export default async function CommunityPage({ searchParams }: Props) {
           {posts.map((p) => {
             const comments = p.community_comments[0]?.count ?? 0;
             const likes = p.community_likes[0]?.count ?? 0;
-            const thumbs = p.images.slice(0, 3).map((path) => signed.get(path)).filter(Boolean) as string[];
+            const thumbs = p.images.slice(0, 3).flatMap((path) => { const src = signed.get(path); return src ? [{ src, video: isVideoPath(path) }] : []; });
             return (
               <article key={p.id} className="card stack" style={{ padding: 'clamp(20px, 3vw, 28px)', '--gap': '14px', outline: p.pinned ? '2px solid var(--purple)' : undefined } as React.CSSProperties}>
                 <div className="row between" style={{ '--gap': '8px', alignItems: 'flex-start' } as React.CSSProperties}>
@@ -157,9 +157,18 @@ export default async function CommunityPage({ searchParams }: Props) {
                 )}
                 {thumbs.length > 0 && (
                   <Link href={`/kozosseg/${p.id}`} style={{ display: 'grid', gridTemplateColumns: p.kind === 'showcase' && thumbs.length === 1 ? '1fr' : `repeat(${Math.max(thumbs.length, 2)}, 1fr)`, gap: 8 }}>
-                    {thumbs.map((src, i) => (
-                      <img key={i} src={src} alt="" loading="lazy" style={{ width: '100%', aspectRatio: p.kind === 'showcase' && thumbs.length === 1 ? '16 / 10' : '1', objectFit: 'cover', borderRadius: 14, display: 'block', background: 'var(--paper)' }} />
-                    ))}
+                    {thumbs.map((t, i) => {
+                      const style = { width: '100%', aspectRatio: p.kind === 'showcase' && thumbs.length === 1 ? '16 / 10' : '1', objectFit: 'cover', borderRadius: 14, display: 'block', background: 'var(--paper)' } as const;
+                      return t.video ? (
+                        <span key={i} style={{ position: 'relative', display: 'block' }}>
+                          {/* #t=0.1: így a mobil Safari is az első képkockát mutatja borítónak */}
+                          <video src={`${t.src}#t=0.1`} muted playsInline preload="metadata" style={{ ...style, background: 'var(--ink)' }} />
+                          <span aria-hidden="true" className="lesson-hero-play" style={{ width: 52, height: 52, fontSize: 18 }}>▶</span>
+                        </span>
+                      ) : (
+                        <img key={i} src={t.src} alt="" loading="lazy" style={style} />
+                      );
+                    })}
                   </Link>
                 )}
                 <div className="row" style={{ '--gap': '8px' } as React.CSSProperties}>

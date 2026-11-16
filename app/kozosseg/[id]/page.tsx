@@ -5,7 +5,7 @@ import { ConfirmButton } from '@/components/ConfirmButton';
 import { SiteNav } from '@/components/SiteNav';
 import { SubmitButton } from '@/components/SubmitButton';
 import { requireUser } from '@/lib/auth';
-import { hasCommunityAccess, KIND_LABEL, signImages, type CommunityComment, type CommunityPost } from '@/lib/community';
+import { hasCommunityAccess, isVideoPath, KIND_LABEL, signImages, type CommunityComment, type CommunityPost } from '@/lib/community';
 import { addComment, deleteComment, deletePost, markBestAnswer, togglePin } from '../actions';
 import { AuthorLine, LikeButton, RichText } from '../parts';
 
@@ -66,6 +66,18 @@ export default async function CommunityPostPage({ params, searchParams }: Props)
               {post.images.map((path) => {
                 const src = signed.get(path);
                 if (!src) return null;
+                if (isVideoPath(path)) {
+                  return (
+                    <video
+                      key={path}
+                      src={`${src}#t=0.1`}
+                      controls
+                      playsInline
+                      preload="metadata"
+                      style={{ width: '100%', maxHeight: 720, borderRadius: 18, background: 'var(--ink)', display: 'block' }}
+                    />
+                  );
+                }
                 return (
                   <a key={path} href={src} target="_blank" rel="noopener noreferrer" title="Megnyitás teljes méretben">
                     <img src={src} alt="" style={{ width: '100%', maxHeight: 720, objectFit: 'contain', borderRadius: 18, background: 'var(--paper)', display: 'block' }} />
