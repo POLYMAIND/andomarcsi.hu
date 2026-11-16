@@ -14,6 +14,7 @@ import { FORM_TS_FIELD } from '@/lib/honeypot';
 import { ACADEMY, ACADEMY_PRICES, ACADEMY_TOPICS, FOUNDATION_SLUG, MENTOR_TOPICS, byPackageOrder, isAcademyLevel, type AcademyLevel } from '@/lib/polyakademia';
 import { faqPage, graph, ORGANIZATION, type Faq } from '@/lib/seo';
 import { soonLabel, type Course } from '@/lib/types';
+import { PriceTag } from '@/components/PriceTag';
 
 const TITLE = 'PolySuli – kész AI-skillek vállalkozóknak';
 const DESCRIPTION =
@@ -294,7 +295,7 @@ export default async function PolySuliPage({ searchParams }: { searchParams: Pro
                 {foundation.coming_soon && <span className="ps-pill grey">{soonLabel(foundation)}</span>}
               </div>
               <h3 className="h3 ps-pack-title">{foundation.title}</h3>
-              <div className="ps-price">{priceLabel(foundation)}</div>
+              <div className="ps-price"><PriceTag course={foundation} /></div>
               {foundation.subtitle && <p>{foundation.subtitle}</p>}
               <ul className="ps-arrows">
                 {foundationLessons > 0 && <li>{foundationLessons} videólecke, saját tempóban</li>}

@@ -10,6 +10,7 @@ import { ACADEMY, ACADEMY_PRICES, ACADEMY_TOPICS, byPackageOrder } from '@/lib/p
 import { graph, ORGANIZATION } from '@/lib/seo';
 import { soonLabel, type Course } from '@/lib/types';
 import { lessonsWithVideo, videoThumbUrl } from '@/lib/video-preview';
+import { PriceTag } from '@/components/PriceTag';
 
 const PATH = `${ACADEMY.path}/zsebcsomagok`;
 const TITLE = `Zsebcsomagok – kész Claude-skillek ${formatHuf(ACADEMY_PRICES.pocket)}-ért`;
@@ -137,7 +138,7 @@ export default async function PocketsPage() {
                   <h3 className="h3">{shortTitle(p.title)}</h3>
                   {(p.teaser || p.subtitle) && <p style={{ color: 'var(--ink-2)', fontSize: 15 }}>{p.teaser || p.subtitle}</p>}
                   <div className="row between" style={{ ...gap('10px'), marginTop: 'auto', paddingTop: 8 }}>
-                    <span style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 24, letterSpacing: '-.02em' }}>{priceLabel(p)}</span>
+                    <span style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 24, letterSpacing: '-.02em' }}><PriceTag course={p} /></span>
                     <span className="ps-more" style={{ marginTop: 0 }}>
                       {owned ? 'A tiéd · Megnyitom →' : p.coming_soon ? 'Szólj, ha kész →' : 'Megnézem →'}
                     </span>

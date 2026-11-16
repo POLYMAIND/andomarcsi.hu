@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { priceLabel } from '@/lib/format';
 import { soonLabel, type Course } from '@/lib/types';
 import type { ModuleLesson } from '@/components/CanvaKalauzSection';
+import { PriceTag } from '@/components/PriceTag';
 
 // Kezdőlap, kiemelt hely: Claude alapozó vállalkozásoknak – a kurzus négy része, leckékkel.
 // A cím, ár, állapot és a leckék az adatbázisból jönnek; a részek a leckék sorszáma (sort_order) szerint.
@@ -130,7 +131,7 @@ export function ClaudeAlapozoSection({ course, lessons, promo = false }: { cours
             {course.coming_soon && <span className="pill new">{soonLabel(course)}</span>}
           </span>
           <strong style={{ fontFamily: 'var(--display)', fontSize: 'clamp(22px,2.6vw,30px)', lineHeight: 1.15 }}>
-            A teljes kurzus: {priceLabel(course)}
+            A teljes kurzus: <PriceTag course={course} />
           </strong>
           {course.subtitle && <span style={{ fontSize: 15 }}>{course.subtitle}</span>}
         </div>

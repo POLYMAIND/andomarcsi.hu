@@ -15,6 +15,7 @@ import { formatHuf, priceLabel, toolColor } from '@/lib/format';
 import { courseSchema, faqPage, graph, HOME_FAQ, ORGANIZATION, PERSON } from '@/lib/seo';
 import { soonLabel } from '@/lib/types';
 import { createClient } from '@/lib/supabase/server';
+import { PriceTag } from '@/components/PriceTag';
 
 export const metadata: Metadata = {
   title: { absolute: 'Canva és AI kezdőknek – online videókurzus | Andor Marcsi' },
@@ -232,7 +233,7 @@ export default async function Home() {
                   {c.bundle_course_ids?.length ? `${c.bundle_course_ids.length} modul` : `${catalog!.stats(c.id).count} lecke`}{c.subtitle ? ` · ${c.subtitle}` : ''}
                 </span>
               </span>
-              <span className="mono" style={{ fontSize: 13, color: 'var(--amber)' }}>{priceLabel(c)}{c.coming_soon ? ` · ${soonLabel(c).toLowerCase()}` : ''}</span>
+              <span className="mono" style={{ fontSize: 13, color: 'var(--amber)' }}><PriceTag course={c} />{c.coming_soon ? ` · ${soonLabel(c).toLowerCase()}` : ''}</span>
             </Link>
           ))}
         </div>
@@ -284,7 +285,7 @@ export default async function Home() {
                 </div>
                 <div className="stack" style={{ '--gap': '4px' } as React.CSSProperties}>
                   <span style={{ fontWeight: 700, fontSize: 18 }}>{c.title}</span>
-                  <span style={{ fontSize: 14, color: 'var(--ink-3)' }}>Online videókurzus · {priceLabel(c)}</span>
+                  <span style={{ fontSize: 14, color: 'var(--ink-3)' }}>Online videókurzus · <PriceTag course={c} /></span>
                 </div>
                 <Link href={`/kurzusok/${c.slug}`} className="btn sm">Szólj, ha indul</Link>
               </div>

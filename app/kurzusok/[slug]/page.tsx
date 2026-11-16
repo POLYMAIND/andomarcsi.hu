@@ -20,6 +20,7 @@ import { ACADEMY, byPackageOrder, packageKind } from '@/lib/polyakademia';
 import { lessonNo, withStart, withStartAll, type Course, type Lesson } from '@/lib/types';
 import { youTubeThumb } from '@/lib/youtube';
 import { lessonsWithVideo, videoThumbUrl } from '@/lib/video-preview';
+import { PriceTag } from '@/components/PriceTag';
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | undefined>> };
 
@@ -221,7 +222,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
                         <strong>{m.title}</strong>
                         {m.subtitle && <span className="muted" style={{ fontSize: 13 }}>{m.subtitle}</span>}
                       </span>
-                      <span className="muted mono" style={{ fontSize: 12 }}>{priceLabel(m)}</span>
+                      <span className="muted mono" style={{ fontSize: 12 }}><PriceTag course={m} /></span>
                     </Link>
                   </li>
                 ))}
@@ -289,7 +290,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
                 <strong>A teljes tanfolyam videókkal: {related.title}</strong>
                 <span className="muted" style={{ fontSize: 13 }}>A teljes folyamat lépésről lépésre, videóleckékben</span>
               </span>
-              <span className="muted mono" style={{ fontSize: 12 }}>{priceLabel(related)}</span>
+              <span className="muted mono" style={{ fontSize: 12 }}><PriceTag course={related} /></span>
             </Link>
           )}
           {packages.length > 0 && (
@@ -302,7 +303,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
                     <span className="muted" style={{ fontSize: 14 }}>{packageKind(p)} · {p.subtitle}</span>
                   </span>
                   <span className="row" style={{ '--gap': '8px' } as React.CSSProperties}>
-                    <span className="ps-pocket-price">{priceLabel(p)}</span>
+                    <span className="ps-pocket-price"><PriceTag course={p} /></span>
                     <span className="btn sm">{p.coming_soon ? 'Részletek' : p.price_huf === 0 ? 'Olvasom' : 'Megveszem'} →</span>
                   </span>
                 </Link>

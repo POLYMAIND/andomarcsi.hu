@@ -8,8 +8,22 @@ export function formatHuf(amount: number | null): string {
 export const formatMoney = (amount: number) => `${String(Math.round(amount)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} Ft`;
 
 // Kártyákon/listákban megjelenő ár: az egyedi árcímke (price_note) felülírja.
-export function priceLabel(c: { price_huf: number | null; price_note?: string | null }): string {
-  return c.price_note?.trim() || formatHuf(c.price_huf);
+type Priced = { price_huf: number | null; price_note?: string | null; list_price_huf?: number | null; sale_until?: string | null };
+
+/** Fut-e most akció: van nagyobb áthúzott ár, és még nem járt le. */
+export function saleActive(c: Priced, now = Date.now()): boolean {
+  if (c.price_huf === null || !c.list_price_huf || c.list_price_huf <= c.price_huf) return false;
+  return !c.sale_until || new Date(c.sale_until).getTime() > now;
+}
+
+/** A most fizetendő ár: akció alatt a price_huf, lejárt akció után az eredeti (list_price_huf). */
+export function currentPrice(c: Priced, now = Date.now()): number | null {
+  if (c.price_huf !== null && c.list_price_huf && c.list_price_huf > c.price_huf && !saleActive(c, now)) return c.list_price_huf;
+  return c.price_huf;
+}
+
+export function priceLabel(c: Priced): string {
+  return c.price_note?.trim() || formatHuf(currentPrice(c));
 }
 
 export const TOOL_COLORS: Record<string, string> = {

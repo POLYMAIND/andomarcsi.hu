@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { formatHuf, priceLabel, toolColor } from '@/lib/format';
 import { ACADEMY, packageKind } from '@/lib/polyakademia';
 import { soonLabel, type Course } from '@/lib/types';
+import { PriceTag } from '@/components/PriceTag';
 
 export function CourseCard({
   course,
@@ -45,7 +46,7 @@ export function CourseCard({
           <span className="muted" style={{ fontSize: 14 }}>
             {course.pocket_for ? `${packageKind(course)} · letölthető` : course.bundle_course_ids?.length ? `Csomag · ${course.bundle_course_ids.length} modul` : `${lessonCount} lecke`}
           </span>
-          <span className="price">{owned ? 'Megvetted' : hasAccess ? 'Hozzáférsz' : priceLabel(course)}</span>
+          <span className="price">{owned ? 'Megvetted' : hasAccess ? 'Hozzáférsz' : <PriceTag course={course} />}</span>
         </div>
       </div>
     </Link>

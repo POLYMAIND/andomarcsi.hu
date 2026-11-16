@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { priceLabel, toolColor } from '@/lib/format';
 import { ACADEMY } from '@/lib/polyakademia';
 import { soonLabel } from '@/lib/types';
+import { PriceTag } from '@/components/PriceTag';
 
 export type ListCourse = {
   id: string;
@@ -70,7 +71,7 @@ export function WorkshopList({ courses }: { courses: ListCourse[] }) {
             <div className="ws-meta">
               <div className="stack" style={{ '--gap': '6px' } as React.CSSProperties}>
                 {c.coming_soon && <span className="pill new" style={{ alignSelf: 'flex-start' }}>{soonLabel(c)}</span>}
-                <span style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 22, letterSpacing: '-.02em' }}>{priceLabel(c)}</span>
+                <span style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 22, letterSpacing: '-.02em' }}><PriceTag course={c} /></span>
               </div>
               <Link href={`/kurzusok/${c.slug}`} className="btn sm">
                 {c.coming_soon ? 'Szólj, ha indul' : 'Részletek'}

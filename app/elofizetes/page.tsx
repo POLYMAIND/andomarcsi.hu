@@ -7,6 +7,7 @@ import { SUBSCRIPTION } from '@/lib/config';
 import { getCatalog, getUserAccess } from '@/lib/data';
 import { formatHuf, priceLabel } from '@/lib/format';
 import { soonLabel } from '@/lib/types';
+import { PriceTag } from '@/components/PriceTag';
 
 export const metadata: Metadata = {
   title: 'PolySuli tagság',
@@ -73,7 +74,7 @@ export default async function SubscriptionPage({ searchParams }: { searchParams:
             <ul>
               {paidCourses.map((c) => (
                 <li key={c.id}>
-                  <Link href={`/kurzusok/${c.slug}`}>{c.title}</Link> – <span className="mono">{priceLabel(c)}{c.coming_soon ? ` (${soonLabel(c).toLowerCase()})` : ''}</span>
+                  <Link href={`/kurzusok/${c.slug}`}>{c.title}</Link> – <span className="mono"><PriceTag course={c} />{c.coming_soon ? ` (${soonLabel(c).toLowerCase()})` : ''}</span>
                 </li>
               ))}
               <li>Ingyenes kurzusok mindenkinek</li>

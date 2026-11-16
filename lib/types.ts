@@ -11,6 +11,8 @@ export type Course = {
   level: string;
   price_note: string; // egyedi árcímke, pl. „PolyOS-tagsággal ingyenes” (felülírja a megjelenített árat)
   price_huf: number | null; // null = csak tagsággal érhető el, külön nem vásárolható
+  list_price_huf?: number | null; // akció: áthúzott eredeti ár (akció alatt a price_huf a fizetendő)
+  sale_until?: string | null; // akció vége; utána a list_price_huf érvényes
   included_in_subscription: boolean;
   published: boolean;
   coming_soon: boolean;

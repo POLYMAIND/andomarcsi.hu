@@ -2,7 +2,7 @@
 // A látható GYIK és a FAQPage schema ugyanebből az adatból készül, így szóról szóra egyeznek.
 import { SITE_URL } from '@/lib/config';
 import { COMPANY } from '@/lib/company';
-import { formatHuf } from '@/lib/format';
+import { formatHuf, currentPrice } from '@/lib/format';
 import type { Course } from '@/lib/types';
 
 export type Faq = { q: string; a: string };
@@ -57,7 +57,7 @@ export function courseFaq(c: Course): Faq[] {
       ? `${name} a tagság része, külön nem vásárolható meg.`
       : c.price_huf === 0
         ? `${name} ingyenes.`
-        : `${name} ára ${formatHuf(c.price_huf)}, egyszeri díj, és utána korlátlan ideig hozzáférsz. Alanyi adómentes vagyok, így ÁFA nem jön rá.`,
+        : `${name} ára ${formatHuf(currentPrice(c))}, egyszeri díj, és utána korlátlan ideig hozzáférsz. Alanyi adómentes vagyok, így ÁFA nem jön rá.`,
   });
   if (c.workload_min) {
     faq.push({ q: 'Mennyi idő alatt végzek vele?', a: `${name} nagyjából ${workloadText(c.workload_min)} videó, amit a saját tempódban nézel – akár több részletben is.` });

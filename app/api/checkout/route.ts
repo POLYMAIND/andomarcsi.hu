@@ -4,6 +4,7 @@ import { getCurrentUser } from '@/lib/auth';
 import { SITE_URL, SUBSCRIPTION } from '@/lib/config';
 import { hufToStripe, stripe } from '@/lib/stripe';
 import { withStart, type Course } from '@/lib/types';
+import { currentPrice } from '@/lib/format';
 
 // Űrlapból hívjuk (POST), és a Stripe Checkout oldalra irányítunk.
 export async function POST(request: NextRequest) {
@@ -82,7 +83,7 @@ export async function POST(request: NextRequest) {
     const { data: access } = await supabase.rpc('has_course_access', { cid: course.id });
     if (access) return NextResponse.redirect(new URL(`/kurzusok/${course.slug}`, SITE_URL), 303);
 
-    const amount = course.price_huf as number;
+    const amount = currentPrice(course) as number;
 
     session = await stripe().checkout.sessions.create({
       ...common,
