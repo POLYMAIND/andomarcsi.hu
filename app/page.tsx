@@ -1,12 +1,16 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { CanvaKalauzSection, type ModuleLesson } from '@/components/CanvaKalauzSection';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
+import { ClaudeAlapozoSection, PROMO_VIDEO } from '@/components/ClaudeAlapozoSection';
 import { FaqList } from '@/components/FaqList';
 import { JsonLd } from '@/components/JsonLd';
 import { SiteNav } from '@/components/SiteNav';
 import { WorkshopList } from '@/components/WorkshopList';
 import { SUBSCRIPTION } from '@/lib/config';
 import { getCatalog } from '@/lib/data';
+import { FOUNDATION_SLUG } from '@/lib/polyakademia';
 import { formatHuf, priceLabel, toolColor } from '@/lib/format';
 import { courseSchema, faqPage, graph, HOME_FAQ, ORGANIZATION, PERSON } from '@/lib/seo';
 import { soonLabel } from '@/lib/types';
@@ -81,7 +85,14 @@ export default async function Home() {
   const canvaBundle = all.find((c) => c.slug === 'canva-kalauz') ?? null;
   const canvaModules = canvaBundle ? all.filter((c) => canvaBundle.bundle_course_ids.includes(c.id)) : [];
   const canvaExtra = all.find((c) => c.slug === 'canva-kalauz-4') ?? null;
-  const moduleLessons = await loadModuleLessons(canvaModules.map((m) => m.id));
+  // Kiemelt kurzus: Claude alapozó vállalkozásoknak (a Canva Kalauz lejjebb, a kurzuslista után)
+  const foundation = all.find((c) => c.slug === FOUNDATION_SLUG) ?? null;
+  // A promóvideó csak akkor jelenik meg, ha a fájl tényleg fent van (public/video).
+  const hasPromo = existsSync(path.join(process.cwd(), 'public', PROMO_VIDEO.src));
+  const [moduleLessons, foundationLessons] = await Promise.all([
+    loadModuleLessons(canvaModules.map((m) => m.id)),
+    foundation ? loadModuleLessons([foundation.id]) : Promise.resolve([] as ModuleLesson[]),
+  ]);
   const dayOf = (iso: string) => new Date(iso).toLocaleDateString('hu-HU', { day: '2-digit', timeZone: 'Europe/Budapest' }).replace('.', '');
   const monthOf = (iso: string) => new Date(iso).toLocaleDateString('hu-HU', { month: 'long', timeZone: 'Europe/Budapest' });
   const shortDate = (iso: string) => new Date(iso).toLocaleDateString('hu-HU', { month: 'short', day: 'numeric', timeZone: 'Europe/Budapest' });
@@ -163,8 +174,8 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* CANVA KALAUZ – mit tanulsz, mit kapsz */}
-      <CanvaKalauzSection modules={canvaModules} bundle={canvaBundle} extra={canvaExtra} lessons={moduleLessons} />
+      {/* KIEMELT: CLAUDE ALAPOZÓ VÁLLALKOZÁSOKNAK – mit tanulsz, mit kapsz */}
+      <ClaudeAlapozoSection course={foundation} lessons={foundationLessons} promo={hasPromo} />
 
       {/* KINEK SZÓL */}
       <section id="kinek" className="card" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,340px),1fr))', gap: '28px 56px' }}>
@@ -189,6 +200,9 @@ export default async function Home() {
       <section id="kurzusok" className="card stack" style={{ '--gap': '36px' } as React.CSSProperties}>
         <WorkshopList courses={(catalog?.courses ?? []).map(({ id, slug, title, subtitle, description, teaser, tool, level, price_huf, price_note, coming_soon, starts_at, bundle_course_ids, academy_level }) => ({ id, slug, title, subtitle, description, teaser, tool, level, price_huf, price_note, coming_soon, starts_at, bundle_course_ids, academy_level }))} />
       </section>
+
+      {/* CANVA KALAUZ – mit tanulsz, mit kapsz */}
+      <CanvaKalauzSection modules={canvaModules} bundle={canvaBundle} extra={canvaExtra} lessons={moduleLessons} />
 
       {/* TUDÁSTÁR */}
       <section id="anyagok" className="card dark" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,380px),1fr))', gap: 48, alignItems: 'center' }}>
