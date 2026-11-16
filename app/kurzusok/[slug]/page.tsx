@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
+import { AlapozoExtras } from '@/components/AlapozoExtras';
 import { BuyBox } from '@/components/BuyBox';
 import { DownloadLink } from '@/components/DownloadLink';
 import { ChatWidget } from '@/components/ChatWidget';
@@ -18,7 +19,7 @@ import { guideOutline, parseGuide } from '@/lib/guide';
 import { courseFaq, courseHeading, courseSchema, faqPage, graph, ORGANIZATION } from '@/lib/seo';
 import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { courseLeadCookie, courseLeadKey, verifyLead } from '@/lib/lead-magnets';
-import { ACADEMY, byPackageOrder, packageKind } from '@/lib/polyakademia';
+import { ACADEMY, byPackageOrder, FOUNDATION_SLUG, packageKind } from '@/lib/polyakademia';
 import { lessonNo, withStart, withStartAll, type Course, type Lesson } from '@/lib/types';
 import { youTubeThumb } from '@/lib/youtube';
 import { lessonsWithVideo, videoThumbUrl } from '@/lib/video-preview';
@@ -88,6 +89,14 @@ export default async function CoursePage({ params, searchParams }: Props) {
   const outline = guideBlocks ? guideOutline(guideBlocks) : [];
   const related = rawParent ? withStart(rawParent) : null;
   const packages = withStartAll(rawPackages).sort(byPackageOrder);
+  // A Claude alapozónál: minden más elérhető zsebcsomag és ingyenes anyag ajánlónak (a saját csomagjai fent külön).
+  const { data: rawExtras } =
+    course.slug === FOUNDATION_SLUG
+      ? await supabase.from('courses').select('*').eq('published', true).not('pocket_for', 'is', null).order('sort_order').returns<Course[]>()
+      : { data: [] as Course[] };
+  const extras = withStartAll(rawExtras)
+    .filter((p) => !p.coming_soon && !packages.some((k) => k.id === p.id))
+    .sort((a, b) => Number((a.price_huf ?? 0) === 0) - Number((b.price_huf ?? 0) === 0) || a.sort_order - b.sort_order);
   const isFree = course.price_huf === 0;
   const { data: waitRow } = user
     ? await supabase.from('course_waitlist').select('id').eq('course_id', course.id).eq('user_id', user.id).maybeSingle()
@@ -316,6 +325,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
               ))}
             </>
           )}
+          <AlapozoExtras items={extras} owned={[...access.enrolled]} subscribed={access.subscribed} />
         </section>
         <aside className="side-stack">
           <div className="card">
