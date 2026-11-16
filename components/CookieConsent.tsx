@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import Script from 'next/script';
-import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import { META_PIXEL_ID } from '@/lib/pixel';
 
 // Google Analytics csak hozzájárulás után töltődik be (ePrivacy / GDPR). A döntést a böngészőben tároljuk.
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID || 'G-2ST7B28SX7';
-// Meta (Facebook/Instagram) Pixel a hirdetések méréséhez – csak ha be van állítva, és csak hozzájárulás után.
-const META_PIXEL_ID = (process.env.NEXT_PUBLIC_META_PIXEL_ID ?? '').replace(/\D/g, '');
+// Meta (Facebook/Instagram) Pixel a hirdetések méréséhez (lib/pixel.ts) – csak hozzájárulás után.
 const KEY = 'cookie-consent'; // 'granted' | 'denied'
 const OPEN_EVENT = 'open-cookie-settings';
 
@@ -66,6 +67,7 @@ fbq('init', '${META_PIXEL_ID}');
 fbq('track', 'PageView');`}
             </Script>
           )}
+          {META_PIXEL_ID && <PixelPageViews />}
         </>
       )}
       {open && (
@@ -84,6 +86,18 @@ fbq('track', 'PageView');`}
       )}
     </>
   );
+}
+
+// Kliensoldali navigációnál (Next.js) új PageView-t küldünk; az elsőt az init szkript küldi.
+function PixelPageViews() {
+  const pathname = usePathname();
+  const first = useRef(true);
+  useEffect(() => {
+    if (first.current) { first.current = false; return; }
+    const fbq = (window as unknown as { fbq?: (...a: unknown[]) => void }).fbq;
+    if (fbq) fbq('track', 'PageView');
+  }, [pathname]);
+  return null;
 }
 
 // Lábléc link: a sütisáv újranyitása (hozzájárulás módosítása / visszavonása).

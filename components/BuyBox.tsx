@@ -5,6 +5,7 @@ import { soonLabel, type Course } from '@/lib/types';
 import { PriceTag } from '@/components/PriceTag';
 import { PurchaseConsents } from '@/components/PurchaseConsents';
 import { FORM_TS_FIELD } from '@/lib/honeypot';
+import { TrackFormSubmit } from '@/components/PixelEvent';
 
 // Vásárlás / beiratkozás doboz egy kurzushoz.
 export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref, bundle = null, userEmail = null, waitlisted = false, waitlistError = null, returnTo = null, source = null }: {
@@ -133,6 +134,7 @@ export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref,
         <input type="hidden" name="plan" value="course" />
         <input type="hidden" name="course_id" value={course.id} />
         {loggedIn && <PurchaseConsents />}
+        <TrackFormSubmit event="InitiateCheckout" params={{ content_ids: [course.slug], content_type: 'product', value: course.price_huf, currency: 'HUF' }} />
         <button className="btn block" type="submit" style={{ marginTop: 10 }}>{loggedIn ? 'Megveszem bankkártyával' : 'Belépek és megveszem'}</button>
       </form>
       {upsell}
