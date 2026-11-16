@@ -19,6 +19,8 @@ export const ACADEMY_PRICES = {
 };
 
 export const SKILL_MODULE_SLUG = 'skill-modul';
+// A PolySuli első nagy csomagja (a „Csomagok” részben az első kártya)
+export const FOUNDATION_SLUG = 'claude-alapozo';
 
 // Témák a PolySuli-oldal mátrixában: egy téma = egy sor (balról jobbra: ingyenes → zsebcsomag → skill-anyag).
 // A sort a szülő tanfolyam slugja azonosítja (a csomagok pocket_for-ja erre mutat, a skill-anyag maga a szülő).
