@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { priceLabel } from '@/lib/format';
-import { soonLabel, type Course } from '@/lib/types';
+import { formatHuf, priceLabel } from '@/lib/format';
+import { saleInfo, soonLabel, type Course } from '@/lib/types';
 import type { ModuleLesson } from '@/components/CanvaKalauzSection';
 
 // Kezdőlap, kiemelt hely: Claude alapozó vállalkozásoknak – a kurzus négy része, leckékkel.
@@ -96,9 +96,15 @@ export function ClaudeAlapozoSection({ course, lessons, promo = false }: { cours
           <span className="row" style={{ '--gap': '10px' } as React.CSSProperties}>
             <span className="mono" style={{ fontSize: 13, letterSpacing: '.06em', textTransform: 'uppercase' }}>Claude alapozó vállalkozásoknak</span>
             {course.coming_soon && <span className="pill new">{soonLabel(course)}</span>}
+            {saleInfo(course) && (
+              <span className="pill" style={{ background: 'var(--rose)', color: '#fff', fontWeight: 700 }}>
+                {saleInfo(course)!.label} · −{saleInfo(course)!.pct}%{saleInfo(course)!.until ? ` · ${saleInfo(course)!.until}` : ''}
+              </span>
+            )}
           </span>
           <strong style={{ fontFamily: 'var(--display)', fontSize: 'clamp(22px,2.6vw,30px)', lineHeight: 1.15 }}>
             A teljes kurzus: {priceLabel(course)}
+            {saleInfo(course) && <s style={{ fontSize: '.6em', color: '#a9a3af', marginLeft: 10, fontWeight: 500 }}>{formatHuf(saleInfo(course)!.listPrice)}</s>}
           </strong>
           {course.subtitle && <span style={{ fontSize: 15 }}>{course.subtitle}</span>}
         </div>

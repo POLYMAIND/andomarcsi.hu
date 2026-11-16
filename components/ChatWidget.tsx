@@ -1,11 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import { splitLinks } from '@/lib/community';
 import { useEffect, useRef, useState } from 'react';
 
 type Turn = { role: 'user' | 'assistant'; content: string };
 
-const SUGGESTIONS = ['Hogyan állítsam be a márkaszíneimet Canvában?', 'Hogyan kérdezzek jól Claude-tól?', 'Mire jó a PolyOS?'];
+const SUGGESTIONS = ['Mi az a cégkártya, és hogyan csinálom meg?', 'Hogyan telepítek egy skillt a Claude-ba?', 'Melyik anyaggal kezdjem?'];
 
 // „Valamit nem értesz?” – AI segítő a kurzus- és leckeoldalakon.
 export function ChatWidget({ courseSlug, lessonId, loggedIn }: { courseSlug?: string; lessonId?: string; loggedIn: boolean }) {
@@ -83,7 +84,11 @@ export function ChatWidget({ courseSlug, lessonId, loggedIn }: { courseSlug?: st
             )}
             {turns.map((t, i) => (
               <div key={i} className={`chat-msg ${t.role}`}>
-                {t.content || (busy && i === turns.length - 1 ? <span className="chat-typing">gépel…</span> : '')}
+                {t.content
+                  ? splitLinks(t.content).map((p, j) =>
+                      p.href ? <a key={j} href={p.href} style={{ textDecoration: 'underline', color: 'inherit' }}>{p.text}</a> : <span key={j}>{p.text}</span>,
+                    )
+                  : busy && i === turns.length - 1 ? <span className="chat-typing">gépel…</span> : ''}
               </div>
             ))}
           </div>

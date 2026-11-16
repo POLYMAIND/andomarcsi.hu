@@ -18,6 +18,15 @@ export async function saveCourse(formData: FormData) {
   const id = str(formData, 'id');
   const title = str(formData, 'title');
   if (!title) redirect(`/admin/kurzusok/${id || 'uj'}?hiba=${encodeURIComponent('A cím kötelező.')}`);
+  const back = (msg: string) => redirect(`/admin/kurzusok/${id || 'uj'}?hiba=${encodeURIComponent(msg)}`);
+  // Időszakos akció: akciós ár Ft-ban VAGY kedvezmény %-ban (a % a rendes árból számol). Üresen = nincs akció.
+  const listPrice = int(formData, 'price_huf');
+  const pct = int(formData, 'sale_pct');
+  const salePrice = pct !== null && pct > 0 && listPrice ? Math.round((listPrice * (100 - Math.min(pct, 99))) / 100) : int(formData, 'sale_price_huf');
+  const saleStarts = budapestLocalToIso(str(formData, 'sale_starts_at'));
+  const saleEnds = budapestLocalToIso(str(formData, 'sale_ends_at'));
+  if (salePrice !== null && (!listPrice || salePrice <= 0 || salePrice >= listPrice)) back('Az akciós ár legyen több mint 0, és kevesebb, mint a rendes ár.');
+  if (saleStarts && saleEnds && saleEnds <= saleStarts) back('Az akció vége legyen a kezdete után.');
   const row = {
     title,
     slug: slugify(str(formData, 'slug') || title),
@@ -39,6 +48,15 @@ export async function saveCourse(formData: FormData) {
     published: str(formData, 'status') !== 'draft',
     coming_soon: str(formData, 'status') === 'soon',
     starts_at: budapestLocalToIso(str(formData, 'starts_at')),
+    // Az akció mezői csak akkor mennek, ha van (vagy volt) akció – így a migráció előtt is menthető a kurzus.
+    ...(salePrice !== null || str(formData, 'sale_had') === '1'
+      ? {
+          sale_price_huf: salePrice,
+          sale_starts_at: salePrice === null ? null : saleStarts,
+          sale_ends_at: salePrice === null ? null : saleEnds,
+          sale_label: salePrice === null ? '' : str(formData, 'sale_label'),
+        }
+      : {}),
     bundle_course_ids: formData.getAll('bundle_course_ids').map(String).filter((v) => v && v !== id),
     // a csak tagsággal elérhető kurzus mindig az előfizetés része
     included_in_subscription: formData.get('included_in_subscription') === 'on' || int(formData, 'price_huf') === null,

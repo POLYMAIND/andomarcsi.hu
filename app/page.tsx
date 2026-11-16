@@ -198,7 +198,7 @@ export default async function Home() {
 
       {/* KURZUSOK */}
       <section id="kurzusok" className="card stack" style={{ '--gap': '36px' } as React.CSSProperties}>
-        <WorkshopList courses={(catalog?.courses ?? []).map(({ id, slug, title, subtitle, description, teaser, tool, level, price_huf, price_note, coming_soon, starts_at, bundle_course_ids, academy_level }) => ({ id, slug, title, subtitle, description, teaser, tool, level, price_huf, price_note, coming_soon, starts_at, bundle_course_ids, academy_level }))} />
+        <WorkshopList courses={(catalog?.courses ?? []).map(({ id, slug, title, subtitle, description, teaser, tool, level, price_huf, price_note, coming_soon, starts_at, bundle_course_ids, academy_level, list_price_huf, sale_ends_at, sale_label }) => ({ id, slug, title, subtitle, description, teaser, tool, level, price_huf, price_note, coming_soon, starts_at, bundle_course_ids, academy_level, list_price_huf, sale_ends_at, sale_label }))} />
       </section>
 
       {/* CANVA KALAUZ – mit tanulsz, mit kapsz */}

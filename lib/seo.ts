@@ -102,6 +102,8 @@ export function courseSchema(c: Course) {
           priceCurrency: 'HUF',
           category: c.price_huf === 0 ? 'Free' : 'Paid',
           url,
+          // Időszakos akció: az akciós ár a lejáratig érvényes
+          ...(c.list_price_huf != null && c.sale_ends_at ? { priceValidUntil: c.sale_ends_at.slice(0, 10) } : {}),
           // „Hamarosan”: nem árusítjuk előre (nincs előrendelés), csak az indulás dátumát jelezzük.
           ...(c.coming_soon ? (c.starts_at ? { availabilityStarts: c.starts_at } : {}) : { availability: 'https://schema.org/InStock' }),
         };

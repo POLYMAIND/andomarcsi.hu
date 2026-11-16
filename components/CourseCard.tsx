@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { formatHuf, priceLabel, toolColor } from '@/lib/format';
 import { ACADEMY, packageKind } from '@/lib/polyakademia';
-import { soonLabel, type Course } from '@/lib/types';
+import { saleInfo, soonLabel, type Course } from '@/lib/types';
 
 export function CourseCard({
   course,
@@ -26,7 +26,12 @@ export function CourseCard({
           <span className="tag">{course.level}</span>
           {course.academy_level && <span className="ps-badge">{ACADEMY.badge}</span>}
         </div>
-        {course.coming_soon ? <span className="pill new">{soonLabel(course)}</span> : newCount > 0 && <span className="pill new">+{newCount} új</span>}
+        <span className="stack" style={{ '--gap': '6px', alignItems: 'flex-end' } as React.CSSProperties}>
+          {course.coming_soon ? <span className="pill new">{soonLabel(course)}</span> : newCount > 0 && <span className="pill new">+{newCount} új</span>}
+          {saleInfo(course) && !course.price_note?.trim() && !hasAccess && (
+            <span className="pill" style={{ background: 'var(--rose)', color: '#fff', fontWeight: 700 }}>−{saleInfo(course)!.pct}%</span>
+          )}
+        </span>
       </div>
       <div className="body">
         <h3 className="h3">{course.title}</h3>
@@ -45,7 +50,12 @@ export function CourseCard({
           <span className="muted" style={{ fontSize: 14 }}>
             {course.pocket_for ? `${packageKind(course)} · letölthető` : course.bundle_course_ids?.length ? `Csomag · ${course.bundle_course_ids.length} modul` : `${lessonCount} lecke`}
           </span>
-          <span className="price">{owned ? 'Megvetted' : hasAccess ? 'Hozzáférsz' : priceLabel(course)}</span>
+          <span className="price">
+            {owned ? 'Megvetted' : hasAccess ? 'Hozzáférsz' : priceLabel(course)}
+            {!owned && !hasAccess && saleInfo(course) && !course.price_note?.trim() && (
+              <s className="muted" style={{ fontSize: 13, fontWeight: 500, marginLeft: 6 }}>{formatHuf(saleInfo(course)!.listPrice)}</s>
+            )}
+          </span>
         </div>
       </div>
     </Link>

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { DownloadLink } from '@/components/DownloadLink';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { BuyBox } from '@/components/BuyBox';
@@ -101,7 +102,7 @@ export default async function LessonPage({ params }: Props) {
           {hasAccess && download && (
             <div id="letoltes" className="ps-pocket" style={{ padding: '16px 18px' }}>
               <span><b>A kurzus anyagai.</b> Skillek, PDF-útmutató és munkalapok: bármikor letöltheted.</span>
-              <a href={download.url} target="_blank" rel="noopener noreferrer" className="btn ps-lime sm">{download.label || 'Letöltöm az anyagokat'} ↓</a>
+              <DownloadLink href={download.url} label={download.label || 'Letöltöm az anyagokat'} />
             </div>
           )}
           <div className="card" style={{ padding: 16 }}>

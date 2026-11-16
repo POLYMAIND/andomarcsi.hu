@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { AcademyQuiz, type PyramidCourse } from '@/components/AcademyQuiz';
 import { FaqList } from '@/components/FaqList';
 import { JsonLd } from '@/components/JsonLd';
+import { PriceTag } from '@/components/PriceTag';
 import { ScrollFadeNav } from '@/components/ScrollFadeNav';
 import { SiteNav } from '@/components/SiteNav';
 import { getCurrentUser } from '@/lib/auth';
@@ -294,7 +295,7 @@ export default async function PolySuliPage({ searchParams }: { searchParams: Pro
                 {foundation.coming_soon && <span className="ps-pill grey">{soonLabel(foundation)}</span>}
               </div>
               <h3 className="h3 ps-pack-title">{foundation.title}</h3>
-              <div className="ps-price">{priceLabel(foundation)}</div>
+              <div className="ps-price"><PriceTag course={foundation} size={44} /></div>
               {foundation.subtitle && <p>{foundation.subtitle}</p>}
               <ul className="ps-arrows">
                 {foundationLessons > 0 && <li>{foundationLessons} videólecke, saját tempóban</li>}

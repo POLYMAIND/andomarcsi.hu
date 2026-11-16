@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import type Stripe from 'stripe';
 import { getCurrentUser } from '@/lib/auth';
 import { SITE_URL, SUBSCRIPTION } from '@/lib/config';
+import { formatHuf } from '@/lib/format';
 import { hufToStripe, stripe } from '@/lib/stripe';
 import { withStart, type Course } from '@/lib/types';
 
@@ -97,7 +98,8 @@ export async function POST(request: NextRequest) {
             unit_amount: hufToStripe(amount),
             product_data: {
               name: course.title,
-              description: course.subtitle || undefined,
+              // Akciónál a címke és a kedvezmény is látszik a Stripe fizetési oldalán
+              description: [course.list_price_huf != null ? `${course.sale_label?.trim() || 'Akció'} (${formatHuf(course.list_price_huf)} helyett)` : '', course.subtitle].filter(Boolean).join(' · ') || undefined,
             },
           },
         },

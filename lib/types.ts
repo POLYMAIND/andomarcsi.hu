@@ -23,6 +23,12 @@ export type Course = {
   academy_keyword: string; // Instagram-kulcsszó a 990 Ft-os zsebcsomaghoz
   skill_material: number | null; // 1–6: a hat skill-anyag sorszáma a PolySuli-oldalon
   pocket_for: string | null; // zsebkurzus: ennek a tanfolyamnak a kész promptjai/skilljei (letölthető csomag, nincs videó)
+  // Időszakos akció: sale_starts_at (üres = azonnal) és sale_ends_at (üres = visszavonásig) között a sale_price_huf érvényes.
+  sale_price_huf: number | null;
+  sale_starts_at: string | null;
+  sale_ends_at: string | null;
+  sale_label: string; // pl. „Bevezető ár” (üres = „Akció”)
+  list_price_huf?: number | null; // számolt: aktív akciónál az eredeti (áthúzott) ár – lásd withStart
 };
 
 export type Lesson = {
@@ -43,13 +49,37 @@ export type Subscription = {
   cancel_at_period_end: boolean;
 };
 
-// A „Hamarosan” állapot az indulási dátumig tart, utána a kurzus magától élesedik.
-export function withStart<T extends Pick<Course, 'coming_soon' | 'starts_at'>>(c: T): T {
-  const started = !!c.starts_at && new Date(c.starts_at).getTime() <= Date.now();
-  return started ? { ...c, coming_soon: false } : c;
+type SaleFields = Partial<Pick<Course, 'price_huf' | 'sale_price_huf' | 'sale_starts_at' | 'sale_ends_at' | 'list_price_huf'>>;
+
+// Aktív-e most az időszakos akció? Csak valódi kedvezmény számít (az akciós ár kisebb, mint a rendes).
+export function saleActive(c: SaleFields, now = Date.now()): boolean {
+  if (c.sale_price_huf == null || c.price_huf == null || c.sale_price_huf <= 0 || c.sale_price_huf >= c.price_huf) return false;
+  if (c.sale_starts_at && new Date(c.sale_starts_at).getTime() > now) return false;
+  if (c.sale_ends_at && new Date(c.sale_ends_at).getTime() <= now) return false;
+  return true;
 }
-export function withStartAll<T extends Pick<Course, 'coming_soon' | 'starts_at'>>(list: T[] | null | undefined): T[] {
-  return (list ?? []).map(withStart);
+
+// Betöltéskor egyszer alkalmazzuk (megjelenítés ÉS fizetés ugyanezt látja):
+// – a „Hamarosan” állapot az indulási dátumig tart, utána a kurzus magától élesedik;
+// – aktív akciónál a price_huf az akciós ár, a list_price_huf az eredeti (áthúzott) ár.
+export function withStart<T extends Pick<Course, 'coming_soon' | 'starts_at'> & SaleFields>(c: T, now = Date.now()): T {
+  let out = c;
+  if (c.starts_at && new Date(c.starts_at).getTime() <= now) out = { ...out, coming_soon: false };
+  if (c.list_price_huf == null && saleActive(c, now)) out = { ...out, list_price_huf: c.price_huf, price_huf: c.sale_price_huf };
+  return out;
+}
+export function withStartAll<T extends Pick<Course, 'coming_soon' | 'starts_at'> & SaleFields>(list: T[] | null | undefined): T[] {
+  return (list ?? []).map((c) => withStart(c));
+}
+
+// Akció a megjelenítéshez: kedvezmény %-ban és a lejárat („dec. 31-ig”). Csak withStart után van list_price_huf.
+export function saleInfo(c: Pick<Course, 'price_huf'> & Partial<Pick<Course, 'list_price_huf' | 'sale_ends_at' | 'sale_label'>>) {
+  if (c.list_price_huf == null || c.price_huf == null) return null;
+  const pct = Math.round((1 - c.price_huf / c.list_price_huf) * 100);
+  const until = c.sale_ends_at
+    ? `${new Date(new Date(c.sale_ends_at).getTime() - 1).toLocaleDateString('hu-HU', { month: 'short', day: 'numeric', timeZone: 'Europe/Budapest' }).replace(/\.$/, '')}-ig`
+    : '';
+  return { listPrice: c.list_price_huf, pct, until, label: c.sale_label?.trim() || 'Akció' };
 }
 export function soonLabel(c: Pick<Course, 'starts_at'>): string {
   if (!c.starts_at) return 'Hamarosan';

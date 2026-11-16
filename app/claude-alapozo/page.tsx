@@ -9,10 +9,10 @@ import { JsonLd } from '@/components/JsonLd';
 import { TrackLead } from '@/components/TrackLead';
 import { getCurrentUser } from '@/lib/auth';
 import { courseAccessible, getUserAccess } from '@/lib/data';
-import { priceLabel } from '@/lib/format';
+import { formatHuf, priceLabel } from '@/lib/format';
 import { FOUNDATION_SLUG } from '@/lib/polyakademia';
 import { courseFaq, courseSchema, faqPage, graph, ORGANIZATION, type Faq } from '@/lib/seo';
-import { soonLabel, withStart, type Course } from '@/lib/types';
+import { saleInfo, soonLabel, withStart, type Course } from '@/lib/types';
 
 // Hirdetési landing oldal: Claude alapozó vállalkozásoknak. Rövid link: /claude-alapozo
 // Egy cél: értesítéskérés (amíg „Hamarosan”), utána vásárlás. Kevés kilépési pont, a menü helyett egy gomb.
@@ -221,6 +221,11 @@ export default async function ClaudeAlapozoLanding({ searchParams }: { searchPar
           <h2 className="h2">Legyen egy csapatod. Holnaptól.</h2>
           <p style={{ margin: 0, color: '#cfcad4', fontSize: 17 }}>
             A teljes kurzus: <b style={{ color: '#fff' }}>{priceLabel(course)}</b>
+            {saleInfo(course) && (
+              <>
+                {' '}<s>{formatHuf(saleInfo(course)!.listPrice)}</s> · <b style={{ color: '#fff' }}>{saleInfo(course)!.label} −{saleInfo(course)!.pct}%{saleInfo(course)!.until ? `, ${saleInfo(course)!.until}` : ''}</b>
+              </>
+            )}
             {course.coming_soon ? ' · Kérj értesítést, és szólok, amint indul – most nem kell fizetned.' : ' · Egyszeri díj, korlátlan hozzáférés.'}
           </p>
         </div>

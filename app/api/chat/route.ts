@@ -3,7 +3,9 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { AI_CHAT, HELPDESK_SYSTEM } from '@/lib/ai';
 import { getCurrentUser } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/server';
-import type { Course, Lesson } from '@/lib/types';
+import { SITE_URL } from '@/lib/config';
+import { formatHuf } from '@/lib/format';
+import { withStartAll, type Course, type Lesson } from '@/lib/types';
 
 export const maxDuration = 60;
 
@@ -44,6 +46,16 @@ export async function POST(request: NextRequest) {
   if (limitErr) return fail(500, 'Most nem érem el a segítőt, próbáld újra.');
   if (used === -1) return fail(429, `Mára elérted a ${AI_CHAT.maxPerDay} kérdéses keretet – holnap folytathatjuk! Sürgős esetben írj: hello@andormarcsi.hu`);
 
+  // Anyaglista: minden publikált kurzus és csomag, hogy a segítő tudjon ajánlani (állapot, ár, link).
+  const { data: rawCatalog } = await supabase.from('courses').select('*').eq('published', true).order('sort_order').returns<Course[]>();
+  const catalog = withStartAll(rawCatalog)
+    .map((c) => {
+      const price = c.price_note?.trim() || (c.price_huf === null ? 'csak tagsággal' : formatHuf(c.price_huf));
+      const kind = c.pocket_for ? (c.price_huf === 0 ? 'ingyenes anyag' : 'zsebcsomag') : c.bundle_course_ids?.length ? 'csomag' : 'kurzus';
+      return `- ${c.title} (${kind}, ${c.tool}; ${price}${c.coming_soon ? '; Hamarosan' : ''})${c.subtitle ? ` – ${c.subtitle}` : ''} → ${SITE_URL}/kurzusok/${c.slug}`;
+    })
+    .join('\n');
+
   // Kurzus-kontextus: amit a felhasználó jogosultsága szerint is lát (RLS).
   let context = '';
   if (body.courseSlug) {
@@ -53,18 +65,25 @@ export async function POST(request: NextRequest) {
       .eq('slug', body.courseSlug)
       .maybeSingle<Pick<Course, 'id' | 'title' | 'subtitle' | 'description' | 'tool' | 'level'>>();
     if (course) {
-      const { data: lessons } = await supabase
-        .from('lessons')
-        .select('id, title, description, sort_order')
-        .eq('course_id', course.id)
-        .order('sort_order')
-        .returns<Pick<Lesson, 'id' | 'title' | 'description' | 'sort_order'>[]>();
+      const [{ data: lessons }, { data: guide }] = await Promise.all([
+        supabase
+          .from('lessons')
+          .select('id, title, description, sort_order')
+          .eq('course_id', course.id)
+          .order('sort_order')
+          .returns<Pick<Lesson, 'id' | 'title' | 'description' | 'sort_order'>[]>(),
+        // Az online tananyag szövege – az RLS csak annak adja ki, aki hozzáfér
+        supabase.from('course_guides').select('body_md').eq('course_id', course.id).maybeSingle<{ body_md: string }>(),
+      ]);
       const current = lessons?.find((l) => l.id === body.lessonId);
       context = [
         `A felhasználó most ezt a kurzust nézi: „${course.title}” (${course.tool}, ${course.level}).`,
         course.subtitle && `Alcím: ${course.subtitle}`,
         course.description && `Leírás: ${course.description}`,
-        lessons?.length ? `Leckék: ${lessons.map((l, i) => `${i + 1}. ${l.title}`).join('; ')}` : '',
+        lessons?.length
+          ? `Leckék:\n${lessons.map((l, i) => `${i + 1}. ${l.title}${l.description ? ` – ${l.description.replace(/\s+/g, ' ').slice(0, 300)}` : ''}`).join('\n')}`
+          : '',
+        guide?.body_md ? `A kurzus online tananyaga (részlet):\n${guide.body_md.slice(0, 12000)}` : '',
         current ? `Éppen ezt a leckét nézi: „${current.title}”${current.description ? ` – ${current.description}` : ''}` : '',
       ]
         .filter(Boolean)
@@ -75,6 +94,8 @@ export async function POST(request: NextRequest) {
   // Az állandó rendszerprompt cache-elve; a változó kurzus-kontextus utána jön.
   const system: Anthropic.Beta.BetaTextBlockParam[] = [
     { type: 'text', text: HELPDESK_SYSTEM, cache_control: { type: 'ephemeral' } },
+    // Az anyaglista ritkán változik: külön cache-elve
+    ...(catalog ? [{ type: 'text' as const, text: `Az oldal anyagai (ajánláshoz):\n${catalog}`, cache_control: { type: 'ephemeral' as const } }] : []),
     ...(context ? [{ type: 'text' as const, text: context }] : []),
   ];
 
