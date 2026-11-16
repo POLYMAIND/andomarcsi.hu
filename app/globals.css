@@ -565,3 +565,14 @@ a.lesson-hero:hover .lesson-hero-play { transform: translate(-50%, -50%) scale(1
 @keyframes dl-bounce { 0%, 100% { transform: translateY(-2px); } 50% { transform: translateY(5px); } }
 @keyframes dl-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(218, 253, 85, 0); } 50% { box-shadow: 0 0 0 8px rgba(218, 253, 85, .45); } }
 @media (prefers-reduced-motion: reduce) { .dl-bounce, .dl-btn { animation: none; } }
+
+/* Vélemény: csillagos értékelés (rádiógombok, jobbról balra, hogy a :checked ~ kijelölje az előzőket) */
+.stars { border: 0; padding: 0; margin: 0; display: inline-flex; flex-direction: row-reverse; justify-content: flex-end; gap: 4px; }
+.stars input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.stars label { font-size: 36px; line-height: 1; color: #d9d5dd; cursor: pointer; transition: color .15s ease, transform .15s ease; }
+.stars span:has(input:checked) label, .stars span:has(input:checked) ~ span label { color: var(--amber); }
+/* rámutatáskor az egér alatti csillag és az előtte lévők világítanak (a kijelölést felülírja) */
+.stars:hover span label { color: #d9d5dd !important; }
+.stars span:hover label, .stars span:hover ~ span label { color: var(--amber) !important; }
+.stars label:hover { transform: scale(1.12); }
+.stars input:focus-visible + label { outline: 2px solid var(--purple); outline-offset: 2px; border-radius: 6px; }

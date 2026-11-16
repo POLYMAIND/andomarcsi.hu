@@ -122,6 +122,12 @@ export default async function LessonPage({ params }: Props) {
               })}
             </ol>
           </div>
+          {hasAccess && !course.coming_soon && (
+            <Link href={`/kurzusok/${course.slug}#velemeny`} className="ps-pocket ps-pocket-link" style={{ padding: '14px 18px' }}>
+              <span><b>Tetszik a kurzus?</b> Mondd el a véleményed – két mondat is sokat segít.</span>
+              <span className="btn sm">Értékelem ★</span>
+            </Link>
+          )}
         </aside>
       </div>
       <ChatWidget courseSlug={course.slug} lessonId={lesson.id} loggedIn={!!user} />

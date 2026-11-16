@@ -46,6 +46,10 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
     .filter((l) => new Date(l.published_at).getTime() > weekAgo && !courseById.get(l.course_id)?.coming_soon)
     .sort((a, b) => b.published_at.localeCompare(a.published_at));
   const sub = access.subscription;
+  // Vélemény-emlékeztető: a megkezdett, elérhető kurzusok, amikről még nem írt véleményt.
+  const { data: myReviews } = await supabase.from('testimonials').select('course_id').eq('user_id', user.id);
+  const reviewed = new Set((myReviews ?? []).map((r) => r.course_id as string));
+  const toReview = active.filter((m) => !m.course.coming_soon && m.done > 0 && !reviewed.has(m.course.id)).slice(0, 3);
   const firstName = (profile?.full_name || user.email || '').split(/[\s@]/)[0];
 
   return (
@@ -134,6 +138,20 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           </div>
         )}
       </section>
+
+      {toReview.length > 0 && (
+        <section className="card stack" style={{ '--gap': '14px', background: 'oklch(0.96 0.04 68)' } as React.CSSProperties}>
+          <div className="eyebrow" style={{ color: 'var(--ink)' }}>Mondd el a véleményed ★</div>
+          <strong style={{ fontSize: 20 }}>Hogy tetszik? Két mondat is sokat segít – nekem és azoknak, akik még gondolkodnak.</strong>
+          <div className="row" style={{ '--gap': '8px' } as React.CSSProperties}>
+            {toReview.map((m) => (
+              <Link key={m.course.id} href={`/kurzusok/${m.course.slug}#velemeny`} className="btn light sm">
+                {m.course.title} ★
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {access.subscribed && (
         <section className="card dark row between">
