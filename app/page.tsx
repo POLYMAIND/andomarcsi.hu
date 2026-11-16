@@ -93,6 +93,18 @@ export default async function Home() {
     loadModuleLessons(canvaModules.map((m) => m.id)),
     foundation ? loadModuleLessons([foundation.id]) : Promise.resolve([] as ModuleLesson[]),
   ]);
+  // Kurzuslista: legújabbak elöl. Előbb az elérhetők (a legutóbb megjelent lecke szerint; csomagnál a moduljaié),
+  // utána a „Hamarosan” kurzusok (a legújabban felvett terv elöl).
+  const lastOf = (c: (typeof all)[number]): string => {
+    const own = catalog?.stats(c.id).last ?? '';
+    const mods = (c.bundle_course_ids ?? []).map((id) => catalog?.stats(id).last ?? '');
+    return [own, ...mods].sort().pop() || c.created_at;
+  };
+  const newestFirst = [...all].sort((a, b) =>
+    Number(a.coming_soon) - Number(b.coming_soon) ||
+    (a.coming_soon ? b.created_at.localeCompare(a.created_at) : lastOf(b).localeCompare(lastOf(a))) ||
+    a.sort_order - b.sort_order,
+  );
   const dayOf = (iso: string) => new Date(iso).toLocaleDateString('hu-HU', { day: '2-digit', timeZone: 'Europe/Budapest' }).replace('.', '');
   const monthOf = (iso: string) => new Date(iso).toLocaleDateString('hu-HU', { month: 'long', timeZone: 'Europe/Budapest' });
   const shortDate = (iso: string) => new Date(iso).toLocaleDateString('hu-HU', { month: 'short', day: 'numeric', timeZone: 'Europe/Budapest' });
@@ -198,7 +210,7 @@ export default async function Home() {
 
       {/* KURZUSOK */}
       <section id="kurzusok" className="card stack" style={{ '--gap': '36px' } as React.CSSProperties}>
-        <WorkshopList courses={(catalog?.courses ?? []).map(({ id, slug, title, subtitle, description, teaser, tool, level, price_huf, price_note, coming_soon, starts_at, bundle_course_ids, academy_level, was_price_huf, sale_ends_at, sale_label }) => ({ id, slug, title, subtitle, description, teaser, tool, level, price_huf, price_note, coming_soon, starts_at, bundle_course_ids, academy_level, was_price_huf, sale_ends_at, sale_label }))} />
+        <WorkshopList courses={newestFirst.map(({ id, slug, title, subtitle, description, teaser, tool, level, price_huf, price_note, coming_soon, starts_at, bundle_course_ids, academy_level, was_price_huf, sale_ends_at, sale_label }) => ({ id, slug, title, subtitle, description, teaser, tool, level, price_huf, price_note, coming_soon, starts_at, bundle_course_ids, academy_level, was_price_huf, sale_ends_at, sale_label }))} />
       </section>
 
       {/* CANVA KALAUZ – mit tanulsz, mit kapsz */}
