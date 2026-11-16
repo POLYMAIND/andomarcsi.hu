@@ -10,6 +10,9 @@ import { courseAccessible, getUserAccess } from '@/lib/data';
 import { youTubeEmbedUrl } from '@/lib/youtube';
 import { lessonNo, soonLabel, withStart, type Course, type Lesson } from '@/lib/types';
 import { toggleComplete } from './actions';
+import { AlapozoExtras } from '@/components/AlapozoExtras';
+import { FOUNDATION_SLUG } from '@/lib/polyakademia';
+import { FOUNDATION_EXTRAS_INTRO, loadRelatedExtras } from '@/lib/related';
 
 type Props = { params: Promise<{ slug: string; lessonId: string }> };
 
@@ -42,6 +45,7 @@ export default async function LessonPage({ params }: Props) {
   const prev = list[idx - 1];
   const next = list[idx + 1];
   const path = `/kurzusok/${course.slug}/${lesson.id}`;
+  const extras = await loadRelatedExtras(supabase, course);
 
   return (
     <div className="page">
@@ -91,6 +95,16 @@ export default async function LessonPage({ params }: Props) {
               </div>
             </div>
           </section>
+          {extras.length > 0 && (
+            <section className="card">
+              <AlapozoExtras
+                items={extras}
+                owned={[...access.enrolled]}
+                subscribed={access.subscribed}
+                intro={course.slug === FOUNDATION_SLUG ? FOUNDATION_EXTRAS_INTRO : undefined}
+              />
+            </section>
+          )}
         </main>
 
         <aside className="stack" style={{ '--gap': '16px' } as React.CSSProperties}>
