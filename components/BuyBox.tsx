@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { SUBSCRIPTION } from '@/lib/config';
-import { formatHuf, priceLabel } from '@/lib/format';
+import { formatHuf } from '@/lib/format';
 import { soonLabel, type Course } from '@/lib/types';
+import { PriceTag } from '@/components/PriceTag';
 import { PurchaseConsents } from '@/components/PurchaseConsents';
 import { FORM_TS_FIELD } from '@/lib/honeypot';
 
@@ -37,7 +38,7 @@ export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref,
       <div id="ertesites" className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
         <span className="pill new" style={{ alignSelf: 'flex-start' }}>{soonLabel(course)}</span>
         {course.price_huf !== null && (
-          <div style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 32, letterSpacing: '-.03em' }}>{priceLabel(course)}</div>
+          <PriceTag course={course} size={32} />
         )}
         {waitlisted ? (
           <div className="notice ok">✓ Feliratkoztál – szólok e-mailben, amint elérhető a kurzus.</div>
@@ -126,9 +127,7 @@ export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref,
 
   return (
     <div className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
-      <div className="plan-price" style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 36, letterSpacing: '-.03em' }}>
-        {formatHuf(course.price_huf as number)}
-      </div>
+      <div className="plan-price"><PriceTag course={course} size={36} /></div>
       <span className="muted" style={{ fontSize: 14 }}>{course.pocket_for ? 'Egyszeri díj – a fizetés után azonnal letöltheted a csomagot, és bármikor újra letöltheted.' : 'Egyszeri díj, a kurzushoz korlátlan ideig hozzáférsz.'}</span>
       <form action="/api/checkout" method="post">
         <input type="hidden" name="plan" value="course" />

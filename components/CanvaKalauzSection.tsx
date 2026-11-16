@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { PriceTag } from '@/components/PriceTag';
 import { formatHuf } from '@/lib/format';
 import type { Course } from '@/lib/types';
 import { soonLabel } from '@/lib/types';
@@ -67,7 +68,7 @@ export function CanvaKalauzSection({ modules, bundle, extra, lessons }: { module
                   </details>
                 )}
                 <div className="row between" style={{ marginTop: 'auto', alignItems: 'center' } as React.CSSProperties}>
-                  <span style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 22 }}>{formatHuf(m.price_huf)}</span>
+                  <PriceTag course={m} size={22} />
                   <Link href={`/kurzusok/${m.slug}`} className="btn sm">{m.coming_soon ? 'Szólj, ha indul' : 'Részletek'}</Link>
                 </div>
               </div>
@@ -105,7 +106,7 @@ export function CanvaKalauzSection({ modules, bundle, extra, lessons }: { module
             <div className="row between" style={{ alignItems: 'center' } as React.CSSProperties}>
               <span className="row" style={{ '--gap': '10px', alignItems: 'center' } as React.CSSProperties}>
                 {extra.coming_soon && <span className="pill new">{soonLabel(extra)}</span>}
-                <span style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 22 }}>{formatHuf(extra.price_huf)}</span>
+                <PriceTag course={extra} size={22} />
               </span>
               <Link href={`/kurzusok/${extra.slug}`} className="btn sm">{extra.coming_soon ? 'Szólj, ha indul' : 'Részletek'}</Link>
             </div>

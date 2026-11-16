@@ -5,7 +5,7 @@ import { SiteNav } from '@/components/SiteNav';
 import { requireAdmin } from '@/lib/auth';
 import { formatDate, formatHuf, isoToBudapestLocal, TOOL_COLORS } from '@/lib/format';
 import { SubmitButton } from '@/components/SubmitButton';
-import { courseStatus, type Course, type Lesson } from '@/lib/types';
+import { courseStatus, saleActive, type Course, type Lesson } from '@/lib/types';
 import { youTubeThumb } from '@/lib/youtube';
 import { deleteCourse, deleteLesson, grantAccess, saveCourse, saveLesson } from '../../actions';
 
@@ -55,6 +55,7 @@ export default async function EditCoursePage({ params, searchParams }: Props) {
   const now = Date.now();
   const nextOrder = lessons.reduce((m, l) => Math.max(m, l.sort_order), 0) + 1;
 
+  const saleNow = !!course && saleActive(course);
   return (
     <div className="page">
       <SiteNav />
@@ -180,6 +181,40 @@ export default async function EditCoursePage({ params, searchParams }: Props) {
             </label>
             <label className="check"><input type="checkbox" name="included_in_subscription" defaultChecked={course?.included_in_subscription ?? true} /> Benne van az előfizetésben</label>
           </div>
+          <fieldset className="stack" style={{ '--gap': '12px', border: '1.5px dashed var(--rose)', borderRadius: 18, padding: '16px 18px', margin: 0 } as React.CSSProperties}>
+            <legend className="mono" style={{ padding: '0 6px', fontSize: 12, letterSpacing: '.06em', textTransform: 'uppercase' }}>Időszakos akció</legend>
+            {course?.sale_price_huf != null && <input type="hidden" name="sale_had" value="1" />}
+            <span className="muted" style={{ fontSize: 13 }}>
+              {course && saleNow
+                ? `Most aktív: ${formatHuf(course.sale_price_huf)} (−${Math.round((1 - (course.sale_price_huf ?? 0) / (course.price_huf ?? 1)) * 100)}%)${course.sale_ends_at ? `, ${formatDate(course.sale_ends_at)}-ig` : ''}.`
+                : course?.sale_price_huf
+                  ? 'Be van állítva, de most nem aktív (még nem kezdődött el, vagy lejárt).'
+                  : 'Nincs akció. Add meg az akciós árat vagy a kedvezményt, és hogy meddig tart – a végén magától visszaáll a rendes ár.'}
+            </span>
+            <div className="grid" style={{ '--min': '200px', '--gap': '12px' } as React.CSSProperties}>
+              <label className="field">
+                Akciós ár (Ft)
+                <input className="input" name="sale_price_huf" type="number" min={1} step={10} placeholder="pl. 34950" defaultValue={course?.sale_price_huf ?? ''} />
+              </label>
+              <label className="field">
+                …vagy kedvezmény (%)
+                <input className="input" name="sale_pct" type="number" min={1} max={99} placeholder="pl. 50 – a rendes árból számol" />
+              </label>
+              <label className="field">
+                Címke
+                <input className="input" name="sale_label" placeholder="pl. Bevezető ár" defaultValue={course?.sale_label ?? ''} />
+              </label>
+              <label className="field">
+                Kezdete (üres = azonnal)
+                <input className="input" name="sale_starts_at" type="datetime-local" defaultValue={course?.sale_starts_at ? isoToBudapestLocal(course.sale_starts_at) : ''} />
+              </label>
+              <label className="field">
+                Vége (budapesti idő)
+                <input className="input" name="sale_ends_at" type="datetime-local" defaultValue={course?.sale_ends_at ? isoToBudapestLocal(course.sale_ends_at) : ''} />
+              </label>
+            </div>
+            <span className="muted" style={{ fontSize: 12 }}>Az akció kikapcsolása: töröld az akciós árat (és a %-ot hagyd üresen), majd mentsd.</span>
+          </fieldset>
           <div className="row between">
             <button className="btn" type="submit">{isNew ? 'Kurzus létrehozása' : 'Mentés'}</button>
           </div>

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { BuyBox } from '@/components/BuyBox';
+import { DownloadLink } from '@/components/DownloadLink';
 import { ChatWidget } from '@/components/ChatWidget';
 import { FaqList } from '@/components/FaqList';
 import { GuideView } from '@/components/GuideView';
@@ -259,7 +260,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
               {hasAccess && dl ? (
                 <>
                   <span><b>{guideBlocks ? 'A nyomtatható lapok.' : isFree ? 'Itt az ingyenes anyagod.' : 'A csomag a tiéd.'}</b> Bármikor újra letöltheted innen.</span>
-                  <a href={dl.url} target="_blank" rel="noopener noreferrer" className="btn ps-lime sm">{dl.label || 'Letöltöm a csomagot'} ↓</a>
+                  <DownloadLink href={dl.url} label={dl.label || 'Letöltöm a csomagot'} />
                 </>
               ) : hasAccess ? (
                 <span><b>Hozzáférsz.</b> Az anyag hamarosan felkerül ide – e-mailben is szólok.</span>
@@ -275,7 +276,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
               {hasAccess ? (
                 <>
                   <span><b>A kurzus anyagai.</b> Skillek, PDF-útmutató és munkalapok, bármikor újra letöltheted innen.</span>
-                  <a href={dl.url} target="_blank" rel="noopener noreferrer" className="btn ps-lime sm">{dl.label || 'Letöltöm az anyagokat'} ↓</a>
+                  <DownloadLink href={dl.url} label={dl.label || 'Letöltöm az anyagokat'} />
                 </>
               ) : (
                 <span><b>Letölthető anyagok is járnak hozzá</b> · kész skillek, PDF-útmutató és munkalapok</span>
@@ -329,7 +330,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
             }
           />
           {guideBlocks && dl && (
-            <a href={dl.url} target="_blank" rel="noopener noreferrer" className="btn ps-lime block" style={{ marginTop: 12 }}>Letöltöm PDF-ben ↓</a>
+            <div style={{ marginTop: 12 }}><DownloadLink href={dl.url} label="Letöltöm PDF-ben" block hint={null} /></div>
           )}
           </div>
           {outline.length > 0 && (

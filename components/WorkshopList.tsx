@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { priceLabel, toolColor } from '@/lib/format';
+import { toolColor } from '@/lib/format';
 import { ACADEMY } from '@/lib/polyakademia';
 import { soonLabel } from '@/lib/types';
+import { PriceTag } from '@/components/PriceTag';
 
 export type ListCourse = {
   id: string;
@@ -21,6 +22,9 @@ export type ListCourse = {
   starts_at: string | null;
   bundle_course_ids: string[];
   academy_level: number | null;
+  list_price_huf?: number | null; // aktív akciónál az eredeti ár
+  sale_ends_at?: string | null;
+  sale_label?: string;
 };
 
 // Főoldali kurzuslista témaszűrővel – az adatbázisban lévő (publikus) kurzusokból.
@@ -70,7 +74,7 @@ export function WorkshopList({ courses }: { courses: ListCourse[] }) {
             <div className="ws-meta">
               <div className="stack" style={{ '--gap': '6px' } as React.CSSProperties}>
                 {c.coming_soon && <span className="pill new" style={{ alignSelf: 'flex-start' }}>{soonLabel(c)}</span>}
-                <span style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 22, letterSpacing: '-.02em' }}>{priceLabel(c)}</span>
+                <PriceTag course={c} size={22} />
               </div>
               <Link href={`/kurzusok/${c.slug}`} className="btn sm">
                 {c.coming_soon ? 'Szólj, ha indul' : 'Részletek'}

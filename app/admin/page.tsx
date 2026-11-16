@@ -94,7 +94,7 @@ export default async function AdminPage() {
               title: c.title,
               tool: c.tool,
               lessons: allLessons.filter((l) => l.course_id === c.id).length,
-              price: formatHuf(c.price_huf),
+              price: c.list_price_huf != null ? `${formatHuf(c.price_huf)} · akció (${formatHuf(c.list_price_huf)})` : formatHuf(c.price_huf),
               status: courseStatus(c),
               soonLabel: soonLabel(c),
             }))}
