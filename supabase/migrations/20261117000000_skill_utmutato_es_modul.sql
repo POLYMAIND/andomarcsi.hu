@@ -21,12 +21,12 @@ update public.courses set
 where slug = 'ingyenes-skill-utmutato';
 
 insert into public.course_downloads (course_id, url, label, updated_at)
-select c.id, '/api/anyag/ingyenes-skill-utmutato', 'Letöltöm PDF-ben', now()
+select c.id, 'https://www.andormarcsi.hu/api/anyag/ingyenes-skill-utmutato', 'Letöltöm PDF-ben', now()
 from public.courses c where c.slug = 'ingyenes-skill-utmutato'
 on conflict (course_id) do update set url = excluded.url, label = excluded.label, updated_at = now();
 
 insert into public.course_downloads (course_id, url, label, updated_at)
-select c.id, '/api/anyag/ingyenes-videos-design-skill', 'Letöltöm PDF-ben', now()
+select c.id, 'https://www.andormarcsi.hu/api/anyag/ingyenes-videos-design-skill', 'Letöltöm PDF-ben', now()
 from public.courses c where c.slug = 'ingyenes-videos-design-skill'
 on conflict (course_id) do update set url = excluded.url, label = excluded.label, updated_at = now();
 
