@@ -50,7 +50,7 @@ const FAQ: Faq[] = [
   { q: 'Élő óra lesz?', a: 'Nem, minden anyag online, saját tempóban. Élőben csak a havidíjas tagság heti Q&A-ja és a mentorprogram személyes alkalmai mennek.' },
   { q: 'Meddig érem el az anyagokat?', a: 'A megvásárolt anyagokhoz a tudástárban belépés után korlátlan ideig hozzáférsz.' },
   { q: 'Mit csináljak, ha elakadok?', a: 'Kérdezd meg a tudástár AI-chatjét. Ha ez sem elég, a tagságban heti Q&A és zárt közösség vár.' },
-  { q: 'Megvehetem csak az egyik anyagot?', a: `Igen, minden skill-anyag külön is megvehető ${formatHuf(ACADEMY_PRICES.material)}-ért. Ha legalább négyet szeretnél, a Skill modul egyben (${formatHuf(ACADEMY_PRICES.module)}) jobban megéri.` },
+  { q: 'Megvehetem csak az egyik anyagot?', a: `Igen, minden skill-anyag külön is megvehető, ${formatHuf(ACADEMY_PRICES.material)}-tól. Ha legalább négyet szeretnél, a Skill modul egyben (${formatHuf(ACADEMY_PRICES.module)}) jobban megéri.` },
   { q: 'Mi a különbség a mentorprogram és a Polymaind szolgáltatása között?', a: 'A mentorprogramban megtanulod megépíteni a saját automatizációidat. A Polymaindnál megépítjük helyetted.' },
 ];
 
@@ -67,7 +67,7 @@ const TOC = [
 const DEPTHS = [
   { n: '01', price: '0 Ft', name: 'Kóstolsz', tone: 'mint', text: 'Ingyenes útmutató, prompt vagy mini skill. Csak az e-mail-címed kell: utána itt az oldalon olvasod, és PDF-ben is letöltheted.' },
   { n: '02', price: formatHuf(ACADEMY_PRICES.pocket), name: 'Kipróbálod', tone: 'amber', text: 'Zsebcsomag: egy kész skill vagy prompt-pack, egyoldalas útmutatóval. Kevesebb, mint egy kávé és egy kifli.' },
-  { n: '03', price: formatHuf(ACADEMY_PRICES.material), name: 'Megépíted', tone: 'purple', text: 'Skill-anyag: online videó, munkalap, letölthető skill – a végén egy működő, a te márkádra szabott eszköz.' },
+  { n: '03', price: `${formatHuf(ACADEMY_PRICES.material)}-tól`, name: 'Megépíted', tone: 'purple', text: 'Skill-anyag: online videó, munkalap, letölthető skill – a végén egy működő, a te márkádra szabott eszköz.' },
   { n: '04', price: 'Tanfolyam', name: 'Rendszert építesz', tone: 'ink', text: 'Teljes videótanfolyam egy témára: lépésről lépésre végigviszlek, a végén a vállalkozásodra beállított, kész rendszered van.' },
 ] as const;
 
@@ -255,7 +255,7 @@ export default async function PolySuliPage({ searchParams }: { searchParams: Pro
             <span role="columnheader">Téma</span>
             <span role="columnheader" className="mint">01 · Ingyenes</span>
             <span role="columnheader" className="amber">02 · Zsebcsomag · {formatHuf(ACADEMY_PRICES.pocket)}</span>
-            <span role="columnheader" className="lime">03 · Skill-anyag · {formatHuf(ACADEMY_PRICES.material)}</span>
+            <span role="columnheader" className="lime">03 · Skill-anyag · {formatHuf(ACADEMY_PRICES.material)}-tól</span>
             <span role="columnheader" className="lilac">04 · Tanfolyam</span>
           </div>
           <div className="ps-mx-row first" role="row">
