@@ -458,7 +458,7 @@ function MxItem({ c, canUse, showPrice = false }: { c: Course; canUse: (c: Cours
     <Link href={`/kurzusok/${c.slug}`} className="ps-mx-item">
       <b>{shortTitle(c.title)}</b>
       {c.subtitle && <span>{c.subtitle}</span>}
-      {showPrice && !owned && c.price_huf != null && <PriceTag course={c} size={20} />}
+      {!owned && !free && c.price_huf != null && (showPrice ? <PriceTag course={c} size={20} /> : <PriceTag course={c} size={16} badge={false} />)}
       {c.coming_soon ? <span className="ps-pill grey">{soonLabel(c)}</span> : <span className="ps-pill green ps-cta">{owned ? `A tiéd · ${cta}` : cta}</span>}
     </Link>
   );
