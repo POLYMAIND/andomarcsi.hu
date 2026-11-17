@@ -38,6 +38,7 @@ export const courseLeadCookie = (slug: string) => `lm_k_${slug}`;
 // A course_downloads.url ilyenkor a courseFilePath(slug).
 export const COURSE_FILES: Record<string, { file: string; filename: string }> = {
   'ingyenes-skill-utmutato': { file: 'private/segedlet/skill-utmutato.pdf', filename: 'Skill-utmutato_PolySuli.pdf' },
+  'ingyenes-markahang-kerdessor': { file: 'private/segedlet/markahang-kerdessor.pdf', filename: 'Markahang-kerdessor_PolySuli.pdf' },
   'ingyenes-videos-design-skill': { file: 'private/segedlet/sajat-videos-design-skill.pdf', filename: 'Sajat-videos-design-skill_PolySuli.pdf' },
 };
 export const courseFilePath = (slug: string) => `/api/anyag/${slug}`;
