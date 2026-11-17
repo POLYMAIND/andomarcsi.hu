@@ -68,6 +68,7 @@ const DEPTHS = [
   { n: '01', price: '0 Ft', name: 'Kóstolsz', tone: 'mint', text: 'Ingyenes útmutató, prompt vagy mini skill. Csak az e-mail-címed kell: utána itt az oldalon olvasod, és PDF-ben is letöltheted.' },
   { n: '02', price: formatHuf(ACADEMY_PRICES.pocket), name: 'Kipróbálod', tone: 'amber', text: 'Zsebcsomag: egy kész skill vagy prompt-pack, egyoldalas útmutatóval. Kevesebb, mint egy kávé és egy kifli.' },
   { n: '03', price: formatHuf(ACADEMY_PRICES.material), name: 'Megépíted', tone: 'purple', text: 'Skill-anyag: online videó, munkalap, letölthető skill – a végén egy működő, a te márkádra szabott eszköz.' },
+  { n: '04', price: 'Tanfolyam', name: 'Rendszert építesz', tone: 'ink', text: 'Teljes videótanfolyam egy témára: lépésről lépésre végigviszlek, a végén a vállalkozásodra beállított, kész rendszered van.' },
 ] as const;
 
 const MENTOR_MSG: Record<string, [string, string]> = {
@@ -82,9 +83,10 @@ const shortTitle = (t: string) => t.replace(/ Claude-dal$/, '').replace(/^(Zsebk
 const markOf = (c: Course): PyramidCourse['mark'] =>
   c.academy_tag === 'Itt kezdj' ? 'first' : c.skill_material ? 'new' : null;
 
-type TopicRow = { key: string; name: string; hint?: string; free: Course[]; pocket: Course[]; material: Course | null };
+type TopicRow = { key: string; name: string; hint?: string; free: Course[]; pocket: Course[]; material: Course | null; course: Course | null };
 
-// Egy téma = egy sor: a szülő tanfolyamhoz tartozó ingyenes anyagok, zsebcsomagok, és ha a szülő skill-anyag, maga a szülő.
+// Egy téma = egy sor: a szülő tanfolyamhoz tartozó ingyenes anyagok, zsebcsomagok, és maga a szülő –
+// skill-anyagként (03) vagy, ha teljes tanfolyam (pl. Claude alapozó vállalkozásoknak), a 04. oszlopban.
 function topicRows(courses: Course[], packages: Course[]): TopicRow[] {
   const byId = new Map(courses.map((c) => [c.id, c]));
   const parents = new Map<string, Course>();
@@ -109,6 +111,7 @@ function topicRows(courses: Course[], packages: Course[]): TopicRow[] {
         free: mine.filter((p) => p.price_huf === 0),
         pocket: mine.filter((p) => p.price_huf !== 0),
         material: parent.skill_material ? parent : null,
+        course: parent.skill_material ? null : parent,
       };
     });
 }
@@ -216,12 +219,12 @@ export default async function PolySuliPage({ searchParams }: { searchParams: Pro
         </div>
       </section>
 
-      {/* ── Így működik: három mélység ── */}
+      {/* ── Így működik: négy mélység ── */}
       <section id="hogyan" className="ps-section ps-anchor">
-        <SectionHead eyebrow="Így működik" title="Minden témát háromféle mélységben kapsz.">
-          Nem kell előre eldöntened, mennyit akarsz. Kóstolj bele ingyen, próbáld ki {formatHuf(ACADEMY_PRICES.pocket)}-ért, és ha bejön, építsd meg a sajátodat.
+        <SectionHead eyebrow="Így működik" title="Minden témát négyféle mélységben kapsz.">
+          Nem kell előre eldöntened, mennyit akarsz. Kóstolj bele ingyen, próbáld ki {formatHuf(ACADEMY_PRICES.pocket)}-ért, és ha bejön, építsd meg a sajátodat – vagy menj végig egy teljes tanfolyamon.
         </SectionHead>
-        <div className="ps-three">
+        <div className="ps-three ps-four">
           {DEPTHS.map((d) => (
             <div key={d.n} className={`ps-box ps-depth ${d.tone}`}>
               <div className="row between">
@@ -250,6 +253,7 @@ export default async function PolySuliPage({ searchParams }: { searchParams: Pro
             <span role="columnheader" className="mint">01 · Ingyenes</span>
             <span role="columnheader" className="amber">02 · Zsebcsomag · {formatHuf(ACADEMY_PRICES.pocket)}</span>
             <span role="columnheader" className="lime">03 · Skill-anyag · {formatHuf(ACADEMY_PRICES.material)}</span>
+            <span role="columnheader" className="lilac">04 · Tanfolyam</span>
           </div>
           <div className="ps-mx-row first" role="row">
             <span role="rowheader" className="ps-mx-topic"><b>Hol tartasz?</b></span>
@@ -262,6 +266,7 @@ export default async function PolySuliPage({ searchParams }: { searchParams: Pro
             </span>
             <span role="cell" data-col="Zsebcsomag" className="ps-mx-empty">—</span>
             <span role="cell" data-col="Skill-anyag" className="ps-mx-empty">—</span>
+            <span role="cell" data-col="Tanfolyam" className="ps-mx-empty">—</span>
           </div>
           {rows.map((r) => (
             <div key={r.key} className="ps-mx-row" role="row">
@@ -272,6 +277,7 @@ export default async function PolySuliPage({ searchParams }: { searchParams: Pro
               <MxCell col="Ingyenes" items={r.free} canUse={canUse} />
               <MxCell col="Zsebcsomag" items={r.pocket} canUse={canUse} />
               <MxCell col="Skill-anyag" items={r.material ? [r.material] : []} canUse={canUse} />
+              <MxCell col="Tanfolyam" items={r.course ? [r.course] : []} canUse={canUse} showPrice />
             </div>
           ))}
         </div>
@@ -414,7 +420,7 @@ function SectionHead({ eyebrow, title, children }: { eyebrow: string; title: str
 }
 
 // Egy mátrix-cella: a témához tartozó anyag(ok) adott mélységben – vagy egy gondolatjel, ha ott nincs semmi.
-function MxCell({ col, items, canUse }: { col: string; items: Course[]; canUse: (c: Course) => boolean }) {
+function MxCell({ col, items, canUse, showPrice = false }: { col: string; items: Course[]; canUse: (c: Course) => boolean; showPrice?: boolean }) {
   if (!items.length) return <span role="cell" data-col={col} className="ps-mx-empty">—</span>;
   return (
     <span role="cell" data-col={col} className="ps-mx-cell">
@@ -426,6 +432,7 @@ function MxCell({ col, items, canUse }: { col: string; items: Course[]; canUse: 
           <Link key={c.id} href={`/kurzusok/${c.slug}`} className="ps-mx-item">
             <b>{shortTitle(c.title)}</b>
             {c.subtitle && <span>{c.subtitle}</span>}
+            {showPrice && !owned && <PriceTag course={c} size={20} />}
             {c.coming_soon ? <span className="ps-pill grey">{soonLabel(c)}</span> : <span className="ps-pill green ps-cta">{owned ? `A tiéd · ${cta}` : cta}</span>}
           </Link>
         );
