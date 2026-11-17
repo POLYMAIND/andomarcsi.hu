@@ -127,8 +127,8 @@ export default async function PolySuliPage({ searchParams }: { searchParams: Pro
   const foundationLessons = foundation ? catalog.stats(foundation.id).count : 0;
   const packages = catalog.pockets.filter((p) => p.pocket_for && byId.has(p.pocket_for));
   // A Skill modul (a skill-anyagok egyben) a 04. oszlopban egyetlen, a témákat összefogó cellaként jelenik meg.
-  const skillModule = catalog.courses.find((c) => c.slug === SKILL_MODULE_SLUG) ?? null;
-  const { rows, span } = moduleSpan(topicRows(catalog.courses, packages), skillModule);
+  // A modulok (pl. Skill modul, Videó modul) a 04. oszlopban a témáikat összefogó cellaként jelennek meg.
+  const segments = moduleSegments(topicRows(catalog.courses, packages), catalog.courses);
   const canUse = (c: Course) => !!user && courseAccessible(c, access, profile?.is_admin);
   const pyramid = Object.fromEntries(
     LEVELS.map((l) => [l, academy.filter((c) => c.academy_level === l).map((c) => ({ slug: c.slug, title: shortTitle(c.title), mark: markOf(c) }))]),
@@ -270,18 +270,22 @@ export default async function PolySuliPage({ searchParams }: { searchParams: Pro
             <span role="cell" data-col="Skill-anyag" className="ps-mx-empty">—</span>
             <span role="cell" data-col="Tanfolyam" className="ps-mx-empty">—</span>
           </div>
-          {rows.slice(0, span ? span.from : rows.length).map((r) => <MxRow key={r.key} r={r} canUse={canUse} />)}
-          {span && skillModule && (
-            <div className="ps-mx-group" role="rowgroup">
-              <span role="cell" data-col="Tanfolyam" className="ps-mx-span" style={{ gridRow: `1 / span ${span.to - span.from}` }}>
-                <span className="ps-mx-span-label">Mind egyben · skill-anyagok + zsebcsomagok</span>
-                <MxItem c={skillModule} canUse={canUse} showPrice />
-                <Link href={`${ACADEMY.path}/zsebcsomagok`} className="ps-underline ps-mx-span-link">Minden zsebcsomag egy helyen →</Link>
-              </span>
-              {rows.slice(span.from, span.to).map((r) => <MxRow key={r.key} r={r} canUse={canUse} inGroup />)}
-            </div>
+          {segments.map((seg) =>
+            seg.module ? (
+              <div key={seg.module.id} className="ps-mx-group" role="rowgroup">
+                <span role="cell" data-col="Tanfolyam" className="ps-mx-span" style={{ gridRow: `1 / span ${seg.rows.length}` }}>
+                  <span className="ps-mx-span-label">Mind egyben · skill-anyagok + zsebcsomagok</span>
+                  <MxItem c={seg.module} canUse={canUse} showPrice />
+                  {seg.module.slug === SKILL_MODULE_SLUG && (
+                    <Link href={`${ACADEMY.path}/zsebcsomagok`} className="ps-underline ps-mx-span-link">Minden zsebcsomag egy helyen →</Link>
+                  )}
+                </span>
+                {seg.rows.map((r) => <MxRow key={r.key} r={r} canUse={canUse} inGroup />)}
+              </div>
+            ) : (
+              <MxRow key={seg.rows[0].key} r={seg.rows[0]} canUse={canUse} />
+            ),
           )}
-          {span && rows.slice(span.to).map((r) => <MxRow key={r.key} r={r} canUse={canUse} />)}
         </div>
         <div className="row between ps-small-dark">
           <span>A „Hamarosan” anyagoknál a gomb: <b>Szólj, ha kész →</b> (e-mail értesítő).</span>
@@ -422,17 +426,32 @@ function SectionHead({ eyebrow, title, children }: { eyebrow: string; title: str
 }
 
 // Egy mátrix-cella: a témához tartozó anyag(ok) adott mélységben – vagy egy gondolatjel, ha ott nincs semmi.
-// A Skill modul által összefogott sorok: azok a témák, amelyek skill-anyaga benne van a modulban (és nincs saját tanfolyamuk).
-// Ezek egymás alá kerülnek az első ilyen téma helyére (a többi téma, pl. a külön csomagos videós anyagok, utánuk jön),
-// így a modul egyetlen összefüggő cellában fogja össze őket. Kevesebb mint két ilyen témánál nincs összevont cella.
-function moduleSpan(rows: TopicRow[], mod: Course | null): { rows: TopicRow[]; span: { from: number; to: number } | null } {
-  const ids = new Set(mod?.bundle_course_ids ?? []);
-  const isCovered = (r: TopicRow) => !!r.material && ids.has(r.material.id) && !r.course;
-  const covered = rows.filter(isCovered);
-  if (covered.length < 2) return { rows, span: null };
-  const from = rows.findIndex(isCovered);
-  const rest = rows.filter((r) => !isCovered(r));
-  return { rows: [...rest.slice(0, from), ...covered, ...rest.slice(from)], span: { from, to: from + covered.length } };
+// Modulok (csomagok, pl. Skill modul, Videó modul): azok a témák, amelyek skill-anyaga benne van a modulban (és nincs saját
+// tanfolyamuk), egymás alá kerülnek az első ilyen téma helyére, és a modul egyetlen összefüggő cellában fogja össze őket.
+// Modul = csomag (bundle_course_ids), amely legalább két téma skill-anyagát tartalmazza; egy téma csak egy modulhoz tartozik.
+type Segment = { module: Course | null; rows: TopicRow[] };
+function moduleSegments(rows: TopicRow[], courses: Course[]): Segment[] {
+  const owner = new Map<string, Course>();
+  const modules = courses
+    .filter((c) => !c.pocket_for && c.bundle_course_ids?.length)
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .filter((m) => {
+      const ids = new Set(m.bundle_course_ids);
+      const mine = rows.filter((r) => r.material && !r.course && !owner.has(r.key) && ids.has(r.material.id));
+      if (mine.length < 2) return false;
+      for (const r of mine) owner.set(r.key, m);
+      return true;
+    });
+  const segs: Segment[] = [];
+  const done = new Set<string>();
+  for (const r of rows) {
+    const m = owner.get(r.key);
+    if (!m) { segs.push({ module: null, rows: [r] }); continue; }
+    if (done.has(m.id)) continue;
+    done.add(m.id);
+    segs.push({ module: m, rows: rows.filter((x) => owner.get(x.key) === m) });
+  }
+  return modules.length ? segs : rows.map((r) => ({ module: null, rows: [r] }));
 }
 
 function MxRow({ r, canUse, inGroup = false }: { r: TopicRow; canUse: (c: Course) => boolean; inGroup?: boolean }) {
