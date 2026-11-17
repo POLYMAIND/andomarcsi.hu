@@ -33,3 +33,11 @@ export const downloadPath = (slug: string) => `/api/segedlet/${slug}`;
 // A süti kurzusonként külön, aláírva (a slug csak kisbetű, szám és kötőjel).
 export const courseLeadKey = (slug: string) => `course:${slug}`;
 export const courseLeadCookie = (slug: string) => `lm_k_${slug}`;
+
+// Ingyenes anyag (0 Ft-os csomag) letölthető PDF-je a private/ mappából: csak e-mail-cím után (kurzus-süti) vagy belépve.
+// A course_downloads.url ilyenkor a courseFilePath(slug).
+export const COURSE_FILES: Record<string, { file: string; filename: string }> = {
+  'ingyenes-skill-utmutato': { file: 'private/segedlet/skill-utmutato.pdf', filename: 'Skill-utmutato_PolySuli.pdf' },
+  'ingyenes-videos-design-skill': { file: 'private/segedlet/sajat-videos-design-skill.pdf', filename: 'Sajat-videos-design-skill_PolySuli.pdf' },
+};
+export const courseFilePath = (slug: string) => `/api/anyag/${slug}`;

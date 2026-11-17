@@ -275,8 +275,9 @@ export default async function PolySuliPage({ searchParams }: { searchParams: Pro
           {span && skillModule && (
             <div className="ps-mx-group" role="rowgroup">
               <span role="cell" data-col="Tanfolyam" className="ps-mx-span" style={{ gridRow: `1 / span ${span.to - span.from}` }}>
-                <span className="ps-mx-span-label">Mind egyben · a témák skill-anyagai</span>
+                <span className="ps-mx-span-label">Mind egyben · skill-anyagok + zsebcsomagok</span>
                 <MxItem c={skillModule} canUse={canUse} showPrice />
+                <Link href={`${ACADEMY.path}/zsebcsomagok`} className="ps-underline ps-mx-span-link">Minden zsebcsomag egy helyen →</Link>
               </span>
               {rows.slice(span.from, span.to).map((r) => <MxRow key={r.key} r={r} canUse={canUse} inGroup />)}
             </div>

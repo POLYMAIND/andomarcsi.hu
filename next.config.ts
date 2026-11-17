@@ -2,7 +2,7 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   // A lead magnet PDF-ek a private/ mappában vannak (nem nyilvánosak), az API-útvonalnak be kell csomagolnia őket.
-  outputFileTracingIncludes: { '/api/segedlet/[slug]': ['./private/segedlet/**'] },
+  outputFileTracingIncludes: { '/api/segedlet/[slug]': ['./private/segedlet/**'], '/api/anyag/[slug]': ['./private/segedlet/**'] },
   images: { remotePatterns: [{ protocol: 'https', hostname: 'i.ytimg.com' }] },
   async redirects() {
     return [
