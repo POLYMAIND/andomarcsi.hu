@@ -21,17 +21,18 @@ update public.courses set
 where slug = 'ingyenes-skill-utmutato';
 
 insert into public.course_downloads (course_id, url, label, updated_at)
-select c.id, '/api/anyag/ingyenes-skill-utmutato', 'Letöltöm PDF-ben', now()
+select c.id, 'https://www.andormarcsi.hu/api/anyag/ingyenes-skill-utmutato', 'Letöltöm PDF-ben', now()
 from public.courses c where c.slug = 'ingyenes-skill-utmutato'
 on conflict (course_id) do update set url = excluded.url, label = excluded.label, updated_at = now();
 
 insert into public.course_downloads (course_id, url, label, updated_at)
-select c.id, '/api/anyag/ingyenes-videos-design-skill', 'Letöltöm PDF-ben', now()
+select c.id, 'https://www.andormarcsi.hu/api/anyag/ingyenes-videos-design-skill', 'Letöltöm PDF-ben', now()
 from public.courses c where c.slug = 'ingyenes-videos-design-skill'
 on conflict (course_id) do update set url = excluded.url, label = excluded.label, updated_at = now();
 
 insert into public.course_guides (course_id, body_md, updated_at)
-select c.id, $md$
+-- A kódblokkok jelei (három backtick) ~~~ formában vannak, hogy a bemásolás ne törje el; a replace visszaalakítja.
+select c.id, replace($md$
 ## Írd meg egyszer. Használd minden héten.
 
 Az első saját Claude-skilled, a te hangodon, kb. 45 perc alatt. Ez az útmutató megmutatja, mi az a skill, miből áll egy jó skill, és hogyan írod meg az elsőt.
@@ -80,17 +81,17 @@ Ebből dönti el Claude, mikor vegye elő a skillt. Ide a te szavaid kellenek, n
 
 ## A három varázsmondat
 
-```prompt Új skill
+~~~prompt Új skill
 Írjunk egy skillt arra, hogy...
-```
+~~~
 
-```prompt Javítás
+~~~prompt Javítás
 Javítsuk a [skill neve] skillt: ...
-```
+~~~
 
-```prompt Beszélgetésből
+~~~prompt Beszélgetésből
 Csinálj skillt abból, amit most csináltunk.
-```
+~~~
 
 ## A három feladat
 
@@ -126,7 +127,7 @@ Háromszor ugyanazt javítod kézzel? Az a skill hibája, nem a tiéd. Mondd el 
 ## Nem akarod a nulláról kezdeni?
 
 A **Skill-író zsebcsomagban** (990 Ft) benne van a skill-író skill, ami végigkérdez, és megírja veled a sajátodat, plusz 5 kész minta-skill: foglalási válasz, heti posztok, hírlevél, értékelés-válasz, ajánlatkérés-válasz. Mellé egy kitölthető SKILL-sablon és a „mi kell egy jó skillbe” keret. [Megnézem a Skill-író zsebcsomagot →](https://www.andormarcsi.hu/kurzusok/zseb-skill-iro)
-$md$, now()
+$md$, '~~~', repeat(chr(96), 3)), now()
 from public.courses c where c.slug = 'ingyenes-skill-utmutato'
 on conflict (course_id) do update set body_md = excluded.body_md, updated_at = now();
 
