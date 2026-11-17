@@ -273,7 +273,8 @@ export default async function PolySuliPage({ searchParams }: { searchParams: Pro
           {segments.map((seg) =>
             seg.module ? (
               <div key={seg.module.id} className="ps-mx-group" role="rowgroup">
-                <span role="cell" data-col="Tanfolyam" className="ps-mx-span" style={{ gridRow: `1 / span ${seg.rows.length}` }}>
+                {/* Egymás alatti modulok felváltva zöld és lila hátterűek, hogy ne folyjanak egybe */}
+                <span role="cell" data-col="Tanfolyam" className={`ps-mx-span${segments.filter((x) => x.module).indexOf(seg) % 2 ? ' alt' : ''}`} style={{ gridRow: `1 / span ${seg.rows.length}` }}>
                   <span className="ps-mx-span-label">Mind egyben · skill-anyagok + zsebcsomagok</span>
                   <MxItem c={seg.module} canUse={canUse} showPrice />
                   {seg.module.slug === SKILL_MODULE_SLUG && (
