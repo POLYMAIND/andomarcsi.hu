@@ -4,6 +4,7 @@ import { PixelEvent } from '@/components/PixelEvent';
 import { SiteNav } from '@/components/SiteNav';
 import { getCurrentUser } from '@/lib/auth';
 import { fulfillCheckoutSession } from '@/lib/fulfillment';
+import { guestEmail, isGuestSession } from '@/lib/guest-checkout';
 import { stripe } from '@/lib/stripe';
 import { createAdminClient } from '@/lib/supabase/server';
 import { withStart } from '@/lib/types';
@@ -21,12 +22,15 @@ export default async function SuccessPage({ searchParams }: { searchParams: Prom
   let pocket = false;
   let purchaseValue = 0;
   let purchaseCurrency = 'HUF';
+  let guestMail: string | null = null; // vendégvásárlás: erre a címre készült / ehhez került a fiók
 
-  if (session_id && user && /^cs_[A-Za-z0-9_]+$/.test(session_id)) {
+  if (session_id && /^cs_[A-Za-z0-9_]+$/.test(session_id)) {
     try {
       const session = await stripe().checkout.sessions.retrieve(session_id);
       const owner = session.metadata?.user_id ?? session.client_reference_id;
-      if (owner === user.id && (session.payment_status === 'paid' || session.payment_status === 'no_payment_required' || session.status === 'complete')) {
+      const guest = isGuestSession(session);
+      if (guest) guestMail = guestEmail(session);
+      if (((user && owner === user.id) || guest) && (session.payment_status === 'paid' || session.payment_status === 'no_payment_required' || session.status === 'complete')) {
         await fulfillCheckoutSession(session);
         ok = true;
         isSub = session.mode === 'subscription';
@@ -63,9 +67,20 @@ export default async function SuccessPage({ searchParams }: { searchParams: Prom
               {isSub ? 'Az előfizetésed aktív – minden videóhoz hozzáférsz.' : preorder ? 'Az előrendelésed rögzítve! A kurzus indulásakor azonnal hozzáférsz, erről e-mailt is küldök.' : pocket ? 'A zsebkurzus a tiéd – a kurzusoldalon letöltheted a csomagot, és bármikor újra letöltheted.' : 'A kurzus mostantól a tiéd, bármikor visszanézheted.'} A számlát e-mailben
               küldjük.
             </p>
+            {guestMail && !user && (
+              <div className="notice ok">
+                A fiókodat a <strong>{guestMail}</strong> címre hoztam létre, és oda küldtem egy belépő linket is – később azzal bármikor visszajössz. Jelszót a belépés után állíthatsz be.
+              </div>
+            )}
             <div className="row">
-              {courseSlug && <Link href={`/kurzusok/${courseSlug}`} className="btn">{pocket ? 'Letöltés' : 'Kurzus megnyitása'}</Link>}
-              <Link href="/dashboard" className={courseSlug ? 'btn light' : 'btn'}>Saját tanulás</Link>
+              {guestMail && !user ? (
+                <a href={`/api/checkout/belepes?session_id=${encodeURIComponent(session_id ?? '')}`} className="btn">{pocket ? 'Belépek és letöltöm' : 'Belépek és kezdem a kurzust →'}</a>
+              ) : (
+                <>
+                  {courseSlug && <Link href={`/kurzusok/${courseSlug}`} className="btn">{pocket ? 'Letöltés' : 'Kurzus megnyitása'}</Link>}
+                  <Link href="/dashboard" className={courseSlug ? 'btn light' : 'btn'}>Saját tanulás</Link>
+                </>
+              )}
             </div>
           </>
         ) : (

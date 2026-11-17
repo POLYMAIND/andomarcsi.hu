@@ -4,6 +4,7 @@ import { getCurrentUser } from '@/lib/auth';
 import { SITE_URL, SUBSCRIPTION } from '@/lib/config';
 import { formatHuf } from '@/lib/format';
 import { hufToStripe, stripe } from '@/lib/stripe';
+import { createAdminClient } from '@/lib/supabase/server';
 import { withStart, type Course } from '@/lib/types';
 
 // Űrlapból hívjuk (POST), és a Stripe Checkout oldalra irányítunk.
@@ -13,9 +14,9 @@ export async function POST(request: NextRequest) {
   const courseId = String(form.get('course_id') ?? '');
 
   const { supabase, user, profile } = await getCurrentUser();
-  if (!user) {
-    const back = plan === 'subscription' ? '/elofizetes' : '/kurzusok';
-    return NextResponse.redirect(new URL(`/belepes?next=${encodeURIComponent(back)}`, SITE_URL), 303);
+  // Előfizetéshez kell fiók; kurzust vendégként is meg lehet venni (a fiók a fizetés után készül el).
+  if (!user && plan === 'subscription') {
+    return NextResponse.redirect(new URL(`/belepes?next=${encodeURIComponent('/elofizetes')}`, SITE_URL), 303);
   }
 
   // Kötelező nyilatkozatok (ÁSZF + adatkezelés; digitális tartalomnál az elállási jogról)
@@ -25,6 +26,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.redirect(new URL(`${back}?hiba=nyilatkozat`, SITE_URL), 303);
   }
   const consentAt = new Date().toISOString();
+
+  if (!user) return guestCourseCheckout(courseId, consentAt);
 
   const customer = profile?.stripe_customer_id ?? undefined;
   const common: Stripe.Checkout.SessionCreateParams = {
@@ -110,5 +113,46 @@ export async function POST(request: NextRequest) {
     });
   }
 
+  return NextResponse.redirect(session.url!, 303);
+}
+
+// Belépés nélküli kurzusvásárlás: a Stripe kéri be az e-mail-címet, a fiók a fizetés után készül el
+// (lib/guest-checkout.ts). Ha a cím már regisztrált, a kurzus ahhoz a fiókhoz kerül.
+async function guestCourseCheckout(courseId: string, consentAt: string) {
+  const { data: rawCourse } = await createAdminClient().from('courses').select('*').eq('id', courseId).eq('published', true).maybeSingle<Course>();
+  const course = rawCourse ? withStart(rawCourse) : null;
+  if (!course) return NextResponse.json({ error: 'Ismeretlen kurzus' }, { status: 404 });
+  if (course.coming_soon) return NextResponse.redirect(new URL(`/kurzusok/${course.slug}#ertesites`, SITE_URL), 303);
+  if (!course.price_huf) {
+    const to = course.price_huf === null ? '/elofizetes' : `/belepes?next=${encodeURIComponent(`/kurzusok/${course.slug}`)}`;
+    return NextResponse.redirect(new URL(to, SITE_URL), 303);
+  }
+
+  const session = await stripe().checkout.sessions.create({
+    mode: 'payment',
+    locale: 'hu',
+    allow_promotion_codes: true,
+    billing_address_collection: 'required',
+    tax_id_collection: { enabled: true },
+    customer_creation: 'always',
+    invoice_creation: { enabled: true },
+    line_items: [
+      {
+        quantity: 1,
+        price_data: {
+          currency: 'huf',
+          unit_amount: hufToStripe(course.price_huf),
+          product_data: {
+            name: course.title,
+            description: [course.was_price_huf != null ? `${course.sale_label?.trim() || 'Akció'} (${formatHuf(course.was_price_huf)} helyett)` : '', course.subtitle].filter(Boolean).join(' · ') || undefined,
+          },
+        },
+      },
+    ],
+    metadata: { guest: '1', course_id: course.id, plan: 'course', consent_aszf_at: consentAt, consent_digital_at: consentAt },
+    custom_text: { submit: { message: 'A fizetés után ezen az e-mail-címen jön létre a fiókod, és ide küldjük a belépő linket.' } },
+    success_url: `${SITE_URL}/fizetes/sikeres?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${SITE_URL}/kurzusok/${course.slug}?megszakitva=1`,
+  });
   return NextResponse.redirect(session.url!, 303);
 }

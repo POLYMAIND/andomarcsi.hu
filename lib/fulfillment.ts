@@ -1,13 +1,17 @@
 import type Stripe from 'stripe';
 import { createAdminClient } from '@/lib/supabase/server';
 import { invoiceForCheckout } from '@/lib/billingo';
+import { guestEmail, isGuestSession, resolveGuestUser, sendGuestLoginEmail } from '@/lib/guest-checkout';
 import { stripe } from '@/lib/stripe';
 
 // Idempotens: a webhook és a sikeres-fizetés oldal is meghívhatja ugyanarra a sessionre.
 export async function fulfillCheckoutSession(session: Stripe.Checkout.Session) {
-  const userId = session.metadata?.user_id ?? session.client_reference_id;
-  if (!userId) return;
   const admin = createAdminClient();
+  const guest = isGuestSession(session);
+  // Vendégvásárlásnál csak sikeres fizetés után hozunk létre fiókot.
+  const paid = session.payment_status === 'paid' || session.payment_status === 'no_payment_required';
+  const userId = session.metadata?.user_id ?? session.client_reference_id ?? (guest && paid ? await resolveGuestUser(session) : null);
+  if (!userId) return;
 
   const customerId = typeof session.customer === 'string' ? session.customer : session.customer?.id;
   if (customerId) await admin.from('profiles').update({ stripe_customer_id: customerId }).eq('id', userId);
@@ -17,7 +21,7 @@ export async function fulfillCheckoutSession(session: Stripe.Checkout.Session) {
     if (session.payment_status !== 'paid' && session.payment_status !== 'no_payment_required') return;
     const courseId = session.metadata?.course_id;
     if (!courseId) return;
-    const { error } = await admin.from('enrollments').upsert(
+    const { data: inserted, error } = await admin.from('enrollments').upsert(
       {
         user_id: userId,
         course_id: courseId,
@@ -26,10 +30,16 @@ export async function fulfillCheckoutSession(session: Stripe.Checkout.Session) {
         amount_huf: Math.round((session.amount_total ?? 0) / 100),
       },
       { onConflict: 'user_id,course_id', ignoreDuplicates: true },
-    );
+    ).select('id');
     if (error) throw error;
     await enrollBundleContents(userId, courseId, 'stripe');
-    await invoiceForCheckout(session);
+    await invoiceForCheckout(session, { userId });
+    // Vendég: egyszer (az első rögzítéskor) belépő linket küldünk a kurzusra.
+    const email = guestEmail(session);
+    if (guest && inserted?.length && email) {
+      const { data: c } = await admin.from('courses').select('slug').eq('id', courseId).maybeSingle();
+      await sendGuestLoginEmail(email, c?.slug ? `/kurzusok/${c.slug}` : '/dashboard');
+    }
   } else if (session.mode === 'subscription' && session.subscription) {
     const subId = typeof session.subscription === 'string' ? session.subscription : session.subscription.id;
     await syncSubscription(await stripe().subscriptions.retrieve(subId), userId);

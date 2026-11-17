@@ -159,7 +159,7 @@ export async function issueInvoice(req: InvoiceRequest, { retry = false } = {}):
 }
 
 // Checkout session (kurzus / csomag vásárlás) → számla
-export async function invoiceForCheckout(session: Stripe.Checkout.Session, opts?: { retry?: boolean }) {
+export async function invoiceForCheckout(session: Stripe.Checkout.Session, opts?: { retry?: boolean; userId?: string }) {
   if (session.mode !== 'payment') return; // előfizetésnél az invoice.paid esemény számláz
   const courseId = session.metadata?.course_id;
   const admin = createAdminClient();
@@ -168,7 +168,7 @@ export async function invoiceForCheckout(session: Stripe.Checkout.Session, opts?
   await issueInvoice({
     stripeRef: session.id,
     kind: 'checkout',
-    userId: session.metadata?.user_id ?? session.client_reference_id ?? null,
+    userId: opts?.userId ?? session.metadata?.user_id ?? session.client_reference_id ?? null,
     customer: customerFromStripe({ name: d?.business_name || d?.name, email: d?.email ?? session.customer_email, address: d?.address, tax_ids: d?.tax_ids }),
     amountHuf: Math.round((session.amount_total ?? 0) / 100),
     description: `${course?.title ?? 'Online videókurzus'} – online videókurzus (digitális tartalom)`,

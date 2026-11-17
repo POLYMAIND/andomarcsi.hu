@@ -133,9 +133,10 @@ export function BuyBox({ course, loggedIn, hasAccess, enrolled, firstLessonHref,
       <form action="/api/checkout" method="post">
         <input type="hidden" name="plan" value="course" />
         <input type="hidden" name="course_id" value={course.id} />
-        {loggedIn && <PurchaseConsents />}
+        <PurchaseConsents />
         <TrackFormSubmit event="InitiateCheckout" params={{ content_ids: [course.slug], content_type: 'product', value: course.price_huf, currency: 'HUF' }} />
-        <button className="btn block" type="submit" style={{ marginTop: 10 }}>{loggedIn ? 'Megveszem bankkártyával' : 'Belépek és megveszem'}</button>
+        <button className="btn block" type="submit" style={{ marginTop: 10 }}>Megveszem bankkártyával</button>
+        {!loggedIn && <span className="muted" style={{ display: 'block', fontSize: 13, marginTop: 8 }}>Nem kell előre regisztrálnod: a fiókod a fizetés után magától elkészül, a belépő linket e-mailben kapod.</span>}
       </form>
       {upsell}
       {SUBSCRIPTION.enabled && course.included_in_subscription && (
