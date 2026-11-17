@@ -50,7 +50,7 @@ const FAQ: Faq[] = [
   { q: 'Élő óra lesz?', a: 'Nem, minden anyag online, saját tempóban. Élőben csak a havidíjas tagság heti Q&A-ja és a mentorprogram személyes alkalmai mennek.' },
   { q: 'Meddig érem el az anyagokat?', a: 'A megvásárolt anyagokhoz a tudástárban belépés után korlátlan ideig hozzáférsz.' },
   { q: 'Mit csináljak, ha elakadok?', a: 'Kérdezd meg a tudástár AI-chatjét. Ha ez sem elég, a tagságban heti Q&A és zárt közösség vár.' },
-  { q: 'Megvehetem csak az egyik anyagot?', a: `Igen, minden skill-anyag külön is megvehető, ${formatHuf(ACADEMY_PRICES.material)}-tól. Ha legalább négyet szeretnél, a Skill modul egyben (${formatHuf(ACADEMY_PRICES.module)}) jobban megéri.` },
+  { q: 'Megvehetem csak az egyik anyagot?', a: `Igen, minden skill-anyag külön is megvehető, ${formatHuf(ACADEMY_PRICES.material)}-tól. Ha egynél többet szeretnél, a Skill modul egyben (${formatHuf(ACADEMY_PRICES.module)}) jobban megéri: benne vannak a témák zsebcsomagjai is.` },
   { q: 'Mi a különbség a mentorprogram és a Polymaind szolgáltatása között?', a: 'A mentorprogramban megtanulod megépíteni a saját automatizációidat. A Polymaindnál megépítjük helyetted.' },
 ];
 
@@ -126,10 +126,9 @@ export default async function PolySuliPage({ searchParams }: { searchParams: Pro
   const foundation = catalog.courses.find((c) => c.slug === FOUNDATION_SLUG) ?? null;
   const foundationLessons = foundation ? catalog.stats(foundation.id).count : 0;
   const packages = catalog.pockets.filter((p) => p.pocket_for && byId.has(p.pocket_for));
-  const rows = topicRows(catalog.courses, packages);
   // A Skill modul (a skill-anyagok egyben) a 04. oszlopban egyetlen, a témákat összefogó cellaként jelenik meg.
   const skillModule = catalog.courses.find((c) => c.slug === SKILL_MODULE_SLUG) ?? null;
-  const span = moduleSpan(rows, skillModule);
+  const { rows, span } = moduleSpan(topicRows(catalog.courses, packages), skillModule);
   const canUse = (c: Course) => !!user && courseAccessible(c, access, profile?.is_admin);
   const pyramid = Object.fromEntries(
     LEVELS.map((l) => [l, academy.filter((c) => c.academy_level === l).map((c) => ({ slug: c.slug, title: shortTitle(c.title), mark: markOf(c) }))]),
@@ -423,16 +422,17 @@ function SectionHead({ eyebrow, title, children }: { eyebrow: string; title: str
 }
 
 // Egy mátrix-cella: a témához tartozó anyag(ok) adott mélységben – vagy egy gondolatjel, ha ott nincs semmi.
-// A Skill modul által összefogott sorok (egybefüggő szakasz: első és utolsó lefedett sor között minden sor skill-anyag a modulból).
-// Ha nincs ilyen, vagy valamelyik sorban már saját tanfolyam van, nincs összevont cella.
-function moduleSpan(rows: TopicRow[], mod: Course | null): { from: number; to: number } | null {
+// A Skill modul által összefogott sorok: azok a témák, amelyek skill-anyaga benne van a modulban (és nincs saját tanfolyamuk).
+// Ezek egymás alá kerülnek az első ilyen téma helyére (a többi téma, pl. a külön csomagos videós anyagok, utánuk jön),
+// így a modul egyetlen összefüggő cellában fogja össze őket. Kevesebb mint két ilyen témánál nincs összevont cella.
+function moduleSpan(rows: TopicRow[], mod: Course | null): { rows: TopicRow[]; span: { from: number; to: number } | null } {
   const ids = new Set(mod?.bundle_course_ids ?? []);
-  const covered = rows.map((r) => !!r.material && ids.has(r.material.id));
-  const from = covered.indexOf(true);
-  const to = covered.lastIndexOf(true) + 1;
-  if (from === -1 || to - from < 2) return null;
-  if (rows.slice(from, to).some((r) => r.course)) return null;
-  return { from, to };
+  const isCovered = (r: TopicRow) => !!r.material && ids.has(r.material.id) && !r.course;
+  const covered = rows.filter(isCovered);
+  if (covered.length < 2) return { rows, span: null };
+  const from = rows.findIndex(isCovered);
+  const rest = rows.filter((r) => !isCovered(r));
+  return { rows: [...rest.slice(0, from), ...covered, ...rest.slice(from)], span: { from, to: from + covered.length } };
 }
 
 function MxRow({ r, canUse, inGroup = false }: { r: TopicRow; canUse: (c: Course) => boolean; inGroup?: boolean }) {
