@@ -12,7 +12,7 @@ import { SUBSCRIPTION } from '@/lib/config';
 import { courseAccessible, getCatalog, getUserAccess } from '@/lib/data';
 import { formatHuf, priceLabel } from '@/lib/format';
 import { FORM_TS_FIELD } from '@/lib/honeypot';
-import { ACADEMY, ACADEMY_PRICES, ACADEMY_TOPICS, FOUNDATION_SLUG, MENTOR_TOPICS, byPackageOrder, isAcademyLevel, type AcademyLevel } from '@/lib/polyakademia';
+import { ACADEMY, ACADEMY_PRICES, ACADEMY_TOPICS, FOUNDATION_SLUG, MENTOR_TOPICS, SKILL_MODULE_SLUG, byPackageOrder, isAcademyLevel, type AcademyLevel } from '@/lib/polyakademia';
 import { faqPage, graph, ORGANIZATION, type Faq } from '@/lib/seo';
 import { soonLabel, type Course } from '@/lib/types';
 
@@ -127,6 +127,9 @@ export default async function PolySuliPage({ searchParams }: { searchParams: Pro
   const foundationLessons = foundation ? catalog.stats(foundation.id).count : 0;
   const packages = catalog.pockets.filter((p) => p.pocket_for && byId.has(p.pocket_for));
   const rows = topicRows(catalog.courses, packages);
+  // A Skill modul (a skill-anyagok egyben) a 04. oszlopban egyetlen, a témákat összefogó cellaként jelenik meg.
+  const skillModule = catalog.courses.find((c) => c.slug === SKILL_MODULE_SLUG) ?? null;
+  const span = moduleSpan(rows, skillModule);
   const canUse = (c: Course) => !!user && courseAccessible(c, access, profile?.is_admin);
   const pyramid = Object.fromEntries(
     LEVELS.map((l) => [l, academy.filter((c) => c.academy_level === l).map((c) => ({ slug: c.slug, title: shortTitle(c.title), mark: markOf(c) }))]),
@@ -268,18 +271,17 @@ export default async function PolySuliPage({ searchParams }: { searchParams: Pro
             <span role="cell" data-col="Skill-anyag" className="ps-mx-empty">—</span>
             <span role="cell" data-col="Tanfolyam" className="ps-mx-empty">—</span>
           </div>
-          {rows.map((r) => (
-            <div key={r.key} className="ps-mx-row" role="row">
-              <span role="rowheader" className="ps-mx-topic">
-                <b>{r.name}</b>
-                {r.hint && <span>{r.hint}</span>}
+          {rows.slice(0, span ? span.from : rows.length).map((r) => <MxRow key={r.key} r={r} canUse={canUse} />)}
+          {span && skillModule && (
+            <div className="ps-mx-group" role="rowgroup">
+              <span role="cell" data-col="Tanfolyam" className="ps-mx-span" style={{ gridRow: `1 / span ${span.to - span.from}` }}>
+                <span className="ps-mx-span-label">Mind egyben · a témák skill-anyagai</span>
+                <MxItem c={skillModule} canUse={canUse} showPrice />
               </span>
-              <MxCell col="Ingyenes" items={r.free} canUse={canUse} />
-              <MxCell col="Zsebcsomag" items={r.pocket} canUse={canUse} />
-              <MxCell col="Skill-anyag" items={r.material ? [r.material] : []} canUse={canUse} />
-              <MxCell col="Tanfolyam" items={r.course ? [r.course] : []} canUse={canUse} showPrice />
+              {rows.slice(span.from, span.to).map((r) => <MxRow key={r.key} r={r} canUse={canUse} inGroup />)}
             </div>
-          ))}
+          )}
+          {span && rows.slice(span.to).map((r) => <MxRow key={r.key} r={r} canUse={canUse} />)}
         </div>
         <div className="row between ps-small-dark">
           <span>A „Hamarosan” anyagoknál a gomb: <b>Szólj, ha kész →</b> (e-mail értesítő).</span>
@@ -420,23 +422,52 @@ function SectionHead({ eyebrow, title, children }: { eyebrow: string; title: str
 }
 
 // Egy mátrix-cella: a témához tartozó anyag(ok) adott mélységben – vagy egy gondolatjel, ha ott nincs semmi.
+// A Skill modul által összefogott sorok (egybefüggő szakasz: első és utolsó lefedett sor között minden sor skill-anyag a modulból).
+// Ha nincs ilyen, vagy valamelyik sorban már saját tanfolyam van, nincs összevont cella.
+function moduleSpan(rows: TopicRow[], mod: Course | null): { from: number; to: number } | null {
+  const ids = new Set(mod?.bundle_course_ids ?? []);
+  const covered = rows.map((r) => !!r.material && ids.has(r.material.id));
+  const from = covered.indexOf(true);
+  const to = covered.lastIndexOf(true) + 1;
+  if (from === -1 || to - from < 2) return null;
+  if (rows.slice(from, to).some((r) => r.course)) return null;
+  return { from, to };
+}
+
+function MxRow({ r, canUse, inGroup = false }: { r: TopicRow; canUse: (c: Course) => boolean; inGroup?: boolean }) {
+  return (
+    <div className="ps-mx-row" role="row">
+      <span role="rowheader" className="ps-mx-topic">
+        <b>{r.name}</b>
+        {r.hint && <span>{r.hint}</span>}
+      </span>
+      <MxCell col="Ingyenes" items={r.free} canUse={canUse} />
+      <MxCell col="Zsebcsomag" items={r.pocket} canUse={canUse} />
+      <MxCell col="Skill-anyag" items={r.material ? [r.material] : []} canUse={canUse} />
+      {!inGroup && <MxCell col="Tanfolyam" items={r.course ? [r.course] : []} canUse={canUse} showPrice />}
+    </div>
+  );
+}
+
+function MxItem({ c, canUse, showPrice = false }: { c: Course; canUse: (c: Course) => boolean; showPrice?: boolean }) {
+  const owned = canUse(c);
+  const free = c.price_huf === 0;
+  const cta = owned ? 'Megnyitom →' : free ? 'Olvasom →' : 'Megveszem →';
+  return (
+    <Link href={`/kurzusok/${c.slug}`} className="ps-mx-item">
+      <b>{shortTitle(c.title)}</b>
+      {c.subtitle && <span>{c.subtitle}</span>}
+      {showPrice && !owned && c.price_huf != null && <PriceTag course={c} size={20} />}
+      {c.coming_soon ? <span className="ps-pill grey">{soonLabel(c)}</span> : <span className="ps-pill green ps-cta">{owned ? `A tiéd · ${cta}` : cta}</span>}
+    </Link>
+  );
+}
+
 function MxCell({ col, items, canUse, showPrice = false }: { col: string; items: Course[]; canUse: (c: Course) => boolean; showPrice?: boolean }) {
   if (!items.length) return <span role="cell" data-col={col} className="ps-mx-empty">—</span>;
   return (
     <span role="cell" data-col={col} className="ps-mx-cell">
-      {items.map((c) => {
-        const owned = canUse(c);
-        const free = c.price_huf === 0;
-        const cta = owned ? 'Megnyitom →' : free ? 'Olvasom →' : 'Megveszem →';
-        return (
-          <Link key={c.id} href={`/kurzusok/${c.slug}`} className="ps-mx-item">
-            <b>{shortTitle(c.title)}</b>
-            {c.subtitle && <span>{c.subtitle}</span>}
-            {showPrice && !owned && <PriceTag course={c} size={20} />}
-            {c.coming_soon ? <span className="ps-pill grey">{soonLabel(c)}</span> : <span className="ps-pill green ps-cta">{owned ? `A tiéd · ${cta}` : cta}</span>}
-          </Link>
-        );
-      })}
+      {items.map((c) => <MxItem key={c.id} c={c} canUse={canUse} showPrice={showPrice} />)}
     </span>
   );
 }

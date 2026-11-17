@@ -399,8 +399,14 @@ a.lesson-hero:hover .lesson-hero-play { transform: translate(-50%, -50%) scale(1
 .ps-good .mono { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
 
 /* Mátrix: sor = téma, oszlop = mélység. Mobilon kártyákká esik szét. */
-.ps-mx { background: #fff; border-radius: 22px; overflow: hidden; border: 1px solid var(--line); }
-.ps-mx-row { display: grid; grid-template-columns: minmax(140px, .75fr) repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); }
+.ps-mx { background: #fff; border-radius: 22px; overflow: hidden; border: 1px solid var(--line); display: grid; grid-template-columns: minmax(140px, .75fr) repeat(4, minmax(0, 1fr)); }
+.ps-mx-row { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; border-top: 1px solid var(--line); }
+/* A Skill modul összevont cellája: a csoport sorai az első 4 oszlopban, a modul az 5.-ben, az összes soron át. */
+.ps-mx-group { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; }
+.ps-mx-group > .ps-mx-row { grid-column: 1 / 5; }
+.ps-mx-group > .ps-mx-span { grid-column: 5; border-top: 1px solid var(--line); border-left: 3px solid var(--lime); background: #f6faea; padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.ps-mx-span > .ps-mx-item { position: sticky; top: 90px; }
+.ps-mx-span-label { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--purple); }
 .ps-mx-row > span { padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .ps-mx-head { background: var(--ink); color: #fff; border-top: 0; }
 .ps-mx-head > span { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; padding-top: 16px; padding-bottom: 16px; }
@@ -421,6 +427,9 @@ a.lesson-hero:hover .lesson-hero-play { transform: translate(-50%, -50%) scale(1
   .ps-mx { background: transparent; border: 0; display: flex; flex-direction: column; gap: 12px; border-radius: 0; }
   .ps-mx-head { display: none; }
   .ps-mx-row { grid-template-columns: 1fr; background: #fff; border: 1px solid var(--line); border-radius: 18px; }
+  .ps-mx-group { display: flex; flex-direction: column; gap: 12px; }
+  .ps-mx-group > .ps-mx-span { order: 99; border: 1px solid var(--line); border-left: 3px solid var(--lime); border-radius: 18px; }
+  .ps-mx-span > .ps-mx-item { position: static; }
   .ps-mx-row > span { padding: 12px 18px; }
   .ps-mx-row > .ps-mx-topic { padding-top: 18px; }
   .ps-mx-row > [data-col]::before { content: attr(data-col); font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
