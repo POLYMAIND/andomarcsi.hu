@@ -37,6 +37,7 @@ export const courseLeadCookie = (slug: string) => `lm_k_${slug}`;
 // Ingyenes anyag (0 Ft-os csomag) letölthető PDF-je a private/ mappából: csak e-mail-cím után (kurzus-süti) vagy belépve.
 // A course_downloads.url ilyenkor a courseFilePath(slug).
 export const COURSE_FILES: Record<string, { file: string; filename: string }> = {
+  'ingyenes-100-horog': { file: 'private/segedlet/100-horog.pdf', filename: '100-horog-kkv-knak_PolySuli.pdf' },
   'ingyenes-skill-utmutato': { file: 'private/segedlet/skill-utmutato.pdf', filename: 'Skill-utmutato_PolySuli.pdf' },
   'ingyenes-markahang-kerdessor': { file: 'private/segedlet/markahang-kerdessor.pdf', filename: 'Markahang-kerdessor_PolySuli.pdf' },
   'ingyenes-design-system-sablon': { file: 'private/segedlet/design-system-sablon.pdf', filename: 'Design-system-sablon_PolySuli.pdf' },
