@@ -12,7 +12,7 @@ import { SUBSCRIPTION } from '@/lib/config';
 import { courseAccessible, getCatalog, getUserAccess } from '@/lib/data';
 import { formatHuf, priceLabel } from '@/lib/format';
 import { FORM_TS_FIELD } from '@/lib/honeypot';
-import { ACADEMY, ACADEMY_PRICES, ACADEMY_TOPICS, FOUNDATION_SLUG, MENTOR_TOPICS, SKILL_MODULE_SLUG, byPackageOrder, isAcademyLevel, type AcademyLevel } from '@/lib/polyakademia';
+import { ACADEMY, ACADEMY_PRICES, ACADEMY_TOPICS, FOUNDATION_SLUG, MENTOR_TOPICS, SKILL_MODULE_SLUG, byPackageOrder, isAcademyLevel, topicOfPackage, type AcademyLevel } from '@/lib/polyakademia';
 import { faqPage, graph, ORGANIZATION, type Faq } from '@/lib/seo';
 import { soonLabel, type Course } from '@/lib/types';
 
@@ -90,30 +90,49 @@ type TopicRow = { key: string; name: string; hint?: string; free: Course[]; pock
 function topicRows(courses: Course[], packages: Course[]): TopicRow[] {
   const byId = new Map(courses.map((c) => [c.id, c]));
   const parents = new Map<string, Course>();
-  for (const p of packages) {
+  // A saját sort adó témák (ACADEMY_TOPICS[].packages) csomagjai nem a szülő sorába mennek.
+  const own = packages.filter((p) => !topicOfPackage(p.slug));
+  for (const p of own) {
     const parent = byId.get(p.pocket_for!);
     if (parent) parents.set(parent.id, parent);
   }
   for (const c of courses) if (c.skill_material) parents.set(c.id, c);
-  const order = (c: Course) => {
-    const i = ACADEMY_TOPICS.findIndex((t) => t.slug === c.slug);
+  const orderOf = (slug: string) => {
+    const i = ACADEMY_TOPICS.findIndex((t) => t.slug === slug);
     return i === -1 ? ACADEMY_TOPICS.length : i;
   };
-  return [...parents.values()]
-    .sort((a, b) => order(a) - order(b) || a.sort_order - b.sort_order)
-    .map((parent) => {
-      const topic = ACADEMY_TOPICS.find((t) => t.slug === parent.slug);
-      const mine = packages.filter((p) => p.pocket_for === parent.id).sort(byPackageOrder);
-      return {
-        key: parent.id,
-        name: topic?.name ?? shortTitle(parent.title),
-        hint: topic?.hint,
-        free: mine.filter((p) => p.price_huf === 0),
-        pocket: mine.filter((p) => p.price_huf !== 0),
-        material: parent.skill_material ? parent : null,
-        course: parent.skill_material ? null : parent,
-      };
+  const rows: (TopicRow & { order: number; sort: number })[] = [...parents.values()].map((parent) => {
+    const topic = ACADEMY_TOPICS.find((t) => t.slug === parent.slug);
+    const mine = own.filter((p) => p.pocket_for === parent.id).sort(byPackageOrder);
+    return {
+      key: parent.id,
+      name: topic?.name ?? shortTitle(parent.title),
+      hint: topic?.hint,
+      free: mine.filter((p) => p.price_huf === 0),
+      pocket: mine.filter((p) => p.price_huf !== 0),
+      material: parent.skill_material ? parent : null,
+      course: parent.skill_material ? null : parent,
+      order: orderOf(parent.slug),
+      sort: parent.sort_order,
+    };
+  });
+  for (const t of ACADEMY_TOPICS) {
+    if (!t.packages?.length) continue;
+    const mine = packages.filter((p) => t.packages!.includes(p.slug)).sort(byPackageOrder);
+    if (!mine.length) continue;
+    rows.push({
+      key: `topic:${t.slug}`,
+      name: t.name,
+      hint: t.hint,
+      free: mine.filter((p) => p.price_huf === 0),
+      pocket: mine.filter((p) => p.price_huf !== 0),
+      material: null,
+      course: null,
+      order: orderOf(t.slug),
+      sort: 0,
     });
+  }
+  return rows.sort((a, b) => a.order - b.order || a.sort - b.sort).map(({ order, sort, ...r }) => r);
 }
 
 export default async function PolySuliPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
