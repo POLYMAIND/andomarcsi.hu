@@ -6,7 +6,7 @@ import { getCurrentUser } from '@/lib/auth';
 import { SITE_URL, SUBSCRIPTION } from '@/lib/config';
 import { courseAccessible, getCatalog, getUserAccess } from '@/lib/data';
 import { formatHuf, priceLabel, toolColor } from '@/lib/format';
-import { ACADEMY, ACADEMY_PRICES, ACADEMY_TOPICS, byPackageOrder } from '@/lib/polyakademia';
+import { ACADEMY, ACADEMY_PRICES, ACADEMY_TOPICS, byPackageOrder, topicOfPackage } from '@/lib/polyakademia';
 import { graph, ORGANIZATION } from '@/lib/seo';
 import { soonLabel, type Course } from '@/lib/types';
 import { lessonsWithVideo, videoThumbUrl } from '@/lib/video-preview';
@@ -35,12 +35,19 @@ export default async function PocketsPage() {
   const { supabase, user, profile } = await getCurrentUser();
   const [catalog, access] = await Promise.all([getCatalog(supabase), getUserAccess(supabase, user?.id)]);
   const byId = new Map(catalog.courses.map((c) => [c.id, c]));
-  const topicOrder = (c: Course | undefined) => {
-    const i = c ? ACADEMY_TOPICS.findIndex((t) => t.slug === c.slug) : -1;
+  // A saját sort adó témák csomagjai (pl. Marketing) a témájuk alá kerülnek, nem a pocket_for szerinti szülő alá.
+  const topicOrder = (p: Course) => {
+    const own = topicOfPackage(p.slug);
+    const c = byId.get(p.pocket_for!);
+    const i = own ? ACADEMY_TOPICS.indexOf(own) : c ? ACADEMY_TOPICS.findIndex((t) => t.slug === c.slug) : -1;
     return i === -1 ? ACADEMY_TOPICS.length : i;
   };
-  const topicName = (parent: Course | undefined) =>
-    (parent && ACADEMY_TOPICS.find((t) => t.slug === parent.slug)?.name) || (parent ? shortTitle(parent.title) : 'Egyéb');
+  const topicName = (p: Course) => {
+    const own = topicOfPackage(p.slug);
+    if (own) return own.name;
+    const parent = byId.get(p.pocket_for!);
+    return (parent && ACADEMY_TOPICS.find((t) => t.slug === parent.slug)?.name) || (parent ? shortTitle(parent.title) : 'Egyéb');
+  };
 
   // Csak a fizetős (zseb)csomagok; az ingyenes anyagok a PolySuli oldalon vannak.
   // Sorrend: előbb a megvehetők, a „Hamarosan” a végén; azon belül téma, majd csomagsorrend.
@@ -49,7 +56,7 @@ export default async function PocketsPage() {
     .sort(
       (a, b) =>
         Number(a.coming_soon) - Number(b.coming_soon) ||
-        topicOrder(byId.get(a.pocket_for!)) - topicOrder(byId.get(b.pocket_for!)) ||
+        topicOrder(a) - topicOrder(b) ||
         byPackageOrder(a, b),
     );
   const available = pockets.filter((p) => !p.coming_soon);
@@ -131,7 +138,7 @@ export default async function PocketsPage() {
                     {video?.duration ? <span className="lesson-hero-dur mono">{video.duration} perc</span> : null}
                   </span>
                   <div className="row between" style={gap('8px')}>
-                    <span className="ps-pill grey">{topicName(byId.get(p.pocket_for!))}</span>
+                    <span className="ps-pill grey">{topicName(p)}</span>
                     {p.coming_soon && <span className="ps-pill grey">{soonLabel(p)}</span>}
                   </div>
                   <h3 className="h3">{shortTitle(p.title)}</h3>
