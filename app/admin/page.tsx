@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { SiteNav } from '@/components/SiteNav';
 import { AdminCourseTable } from '@/components/AdminCourseTable';
 import { AdminEnrollmentTable } from '@/components/AdminEnrollmentTable';
+import { SalesChart, type SalesDay } from '@/components/SalesChart';
 import { requireAdmin } from '@/lib/auth';
 import { SUBSCRIPTION } from '@/lib/config';
 import { formatDate, formatHuf, formatMoney } from '@/lib/format';
@@ -18,6 +19,28 @@ function weekStart(offsetWeeks = 0) {
   d.setUTCHours(0, 0, 0, 0);
   d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7) + offsetWeeks * 7);
   return d;
+}
+
+// Budapesti naptári nap (YYYY-MM-DD)
+const bpDay = (d: Date | string) => new Date(d).toLocaleDateString('sv-SE', { timeZone: 'Europe/Budapest' });
+
+// Napi eladások az utolsó `n` napra (a grafikon az utolsó 7/30/90 napot és az előző ugyanannyit mutatja).
+function dailySales(paid: { created_at: string; amount_huf: number }[], n = 180): SalesDay[] {
+  const today = bpDay(new Date());
+  const base = new Date(`${today}T12:00:00Z`).getTime();
+  const days: SalesDay[] = Array.from({ length: n }, (_, i) => ({
+    date: new Date(base - (n - 1 - i) * DAY).toISOString().slice(0, 10),
+    revenue: 0,
+    orders: 0,
+  }));
+  const idx = new Map(days.map((d, i) => [d.date, i]));
+  for (const e of paid) {
+    const i = idx.get(bpDay(e.created_at));
+    if (i == null || !(e.amount_huf > 0)) continue; // a csomag tartalmának 0 Ft-os sorai nem rendelések
+    days[i].revenue += e.amount_huf;
+    days[i].orders += 1;
+  }
+  return days;
 }
 
 export default async function AdminPage() {
@@ -84,6 +107,7 @@ export default async function AdminPage() {
           <div className="stat"><span className="label">Felhasználók</span><span className="value">{userCount ?? 0}</span><Link href="/admin/vasarlok" className="muted" style={{ fontSize: 13, textDecoration: 'underline' }}>tanulók listája →</Link></div>
           <div className="stat"><span className="label">Élő leckék</span><span className="value">{live.length}</span><span className="muted" style={{ fontSize: 13 }}>{scheduled.length} ütemezve · {missingVideo} videó nélkül</span></div>
         </div>
+        <SalesChart days={dailySales(paid)} />
       </section>
 
       <div className="layout-sidebar">
