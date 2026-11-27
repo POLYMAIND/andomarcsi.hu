@@ -44,3 +44,21 @@ test('külső forrás neve', () => {
   assert.equal(sanitizeSourceName('poly suli'), null);
   assert.equal(sanitizeSourceName(''), null);
 });
+
+test('CSV-import: pontosvesszős magyar Excel, idézőjelek, ismétlődés, hibás sor', async () => {
+  const { contactsFromCsv } = await import('./contacts.ts');
+  const csv = '﻿E-mail cím;Vezetéknév;Keresztnév\r\nAnna@Pelda.hu;Kiss;Anna\r\n"bela@pelda.hu";"Nagy; Béla";\r\nnem-email;X;Y\r\nanna@pelda.hu;Kiss;Anna\r\n';
+  const r = contactsFromCsv(csv);
+  assert.deepEqual(r.rows, [
+    { email: 'anna@pelda.hu', name: 'Kiss Anna' },
+    { email: 'bela@pelda.hu', name: 'Nagy; Béla' },
+  ]);
+  assert.equal(r.invalid, 1);
+});
+
+test('CSV-import: vesszős, név oszloppal; fejléc nélkül az első oszlop az e-mail', async () => {
+  const { contactsFromCsv } = await import('./contacts.ts');
+  assert.deepEqual(contactsFromCsv('email,name\ncili@pelda.hu,"Cili, a nagy"\n').rows, [{ email: 'cili@pelda.hu', name: 'Cili, a nagy' }]);
+  assert.deepEqual(contactsFromCsv('dora@pelda.hu\nede@pelda.hu\n').rows.map((r) => r.email), ['dora@pelda.hu', 'ede@pelda.hu']);
+  assert.equal(contactsFromCsv('nev,telefon\nAnna,123\n').rows.length, 0, 'e-mail oszlop nélkül semmi');
+});
