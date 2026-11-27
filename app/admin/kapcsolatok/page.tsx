@@ -4,6 +4,7 @@ import { SiteNav } from '@/components/SiteNav';
 import { requireAdmin } from '@/lib/auth';
 import { filterContacts, KIND_LABEL, KIND_ORDER } from '@/lib/contacts';
 import { formatDate } from '@/lib/format';
+import { importExternalCsv } from './actions';
 import { loadContacts } from './data';
 
 export const metadata: Metadata = { title: 'Kapcsolatok' };
@@ -11,6 +12,14 @@ export const metadata: Metadata = { title: 'Kapcsolatok' };
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
 const SHOW = 500; // ennyit mutatunk az oldalon; a CSV-ben mindenki benne van
+
+const IMPORT_ERR: Record<string, string> = {
+  forras: 'Adj meg egy forrásnevet (kisbetű, szám, kötőjel – pl. polysuli).',
+  fajl: 'Válassz ki egy CSV-fájlt.',
+  meret: 'A fájl legfeljebb 5 MB lehet.',
+  ures: 'Nem találtunk érvényes e-mail címet a fájlban (kell egy „email” vagy „e-mail cím” oszlop).',
+  hiba: 'Az importálás közben hiba történt.',
+};
 
 export default async function ContactsPage({ searchParams }: Props) {
   const sp = await searchParams;
@@ -54,6 +63,18 @@ export default async function ContactsPage({ searchParams }: Props) {
         </div>
       </section>
 
+      {sp.import === 'ok' && (
+        <div className="notice ok">
+          Import kész: {sp.uj ?? 0} új cím{Number(sp.megvolt) > 0 && `, ${sp.megvolt} már megvolt`}{Number(sp.hibas) > 0 && `, ${sp.hibas} hibás sor kimaradt`}.
+        </div>
+      )}
+      {sp.import && sp.import !== 'ok' && (
+        <div className="notice err">
+          {IMPORT_ERR[sp.import] ?? IMPORT_ERR.hiba}
+          {sp.import === 'hiba' && Number(sp.uj) > 0 && ` (${sp.uj} cím addig bekerült)`}
+        </div>
+      )}
+
       <section className="card stack" style={{ '--gap': '14px' } as React.CSSProperties}>
         <form className="row" method="get" style={{ '--gap': '8px' } as React.CSSProperties}>
           <input className="input" name="q" defaultValue={sp.q ?? ''} placeholder="Keresés e-mailre vagy névre" style={{ maxWidth: 260 }} />
@@ -92,6 +113,21 @@ export default async function ContactsPage({ searchParams }: Props) {
           </table>
         </div>
         {list.length > SHOW && <p className="muted" style={{ margin: 0 }}>Az első {SHOW} látszik – a teljes lista a CSV-ben van.</p>}
+      </section>
+
+      <section id="import" className="card stack" style={{ '--gap': '14px' } as React.CSSProperties}>
+        <h2 className="h3">Külső lista importálása (CSV)</h2>
+        <p className="muted" style={{ margin: 0, maxWidth: 680 }}>
+          Egy másik oldal meglévő feliratkozóinak egyszeri betöltése (pl. a Polysuli PolyOS-ből exportált listája). Kell egy „email” vagy
+          „e-mail cím” oszlop; a név a „név” / „name” vagy a „vezetéknév” + „keresztnév” oszlopból jön. Ami már megvan, nem duplikálódik.
+          Az új feliratkozók ezután maguktól érkeznek (WordPress: PolyOS bővítmény → Közös kapcsolatlista).
+        </p>
+        <form action={importExternalCsv} className="row" style={{ '--gap': '8px', alignItems: 'flex-end' } as React.CSSProperties}>
+          <label className="field" style={{ maxWidth: 200 }}>Forrás<input className="input" name="source" required defaultValue="polysuli" pattern="[a-z0-9][a-z0-9_\-]{0,39}" /></label>
+          <label className="field" style={{ maxWidth: 220 }}>Lista (nem kötelező)<input className="input" name="list" placeholder="pl. hírlevél" /></label>
+          <label className="field" style={{ maxWidth: 320 }}>CSV-fájl<input className="input" name="file" type="file" accept=".csv,text/csv" required /></label>
+          <button className="btn" type="submit">Importálás</button>
+        </form>
       </section>
     </div>
   );

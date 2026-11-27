@@ -2,6 +2,8 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   images: { remotePatterns: [{ protocol: 'https', hostname: 'i.ytimg.com' }] },
+  // Admin CSV-import (Kapcsolatok → külső lista): a fájl legfeljebb 5 MB, az alap 1 MB-os korlát kevés.
+  experimental: { serverActions: { bodySizeLimit: '6mb' } },
   async headers() {
     return [
       {

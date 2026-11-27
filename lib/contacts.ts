@@ -99,3 +99,59 @@ export function sanitizeSourceName(v: unknown): string | null {
   const s = String(v ?? '').trim().toLowerCase();
   return /^[a-z0-9][a-z0-9_-]{0,39}$/.test(s) ? s : null;
 }
+
+// ── CSV-import külső listához (pl. a Polysuli régi feliratkozói) ─────────────
+// Elfogad vesszős és pontosvesszős (magyar Excel) CSV-t, idézőjeles mezőkkel. Az e-mail oszlopot
+// a fejléc alapján keresi (email / e-mail / e-mail cím), a nevet a név / nev / name / full_name oszlopból,
+// vagy a vezetéknév + keresztnév oszlopokból. Fejléc nélkül az első oszlop az e-mail.
+export function parseCsv(text: string): string[][] {
+  const src = text.replace(/^﻿/, '');
+  const firstLine = src.split(/\r?\n/, 1)[0] ?? '';
+  const delim = (firstLine.match(/;/g)?.length ?? 0) > (firstLine.match(/,/g)?.length ?? 0) ? ';' : ',';
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let cell = '';
+  let quoted = false;
+  for (let i = 0; i < src.length; i++) {
+    const ch = src[i];
+    if (quoted) {
+      if (ch === '"' && src[i + 1] === '"') { cell += '"'; i++; }
+      else if (ch === '"') quoted = false;
+      else cell += ch;
+    } else if (ch === '"') quoted = true;
+    else if (ch === delim) { row.push(cell); cell = ''; }
+    else if (ch === '\n' || ch === '\r') {
+      if (ch === '\r' && src[i + 1] === '\n') i++;
+      row.push(cell); rows.push(row); row = []; cell = '';
+    } else cell += ch;
+  }
+  if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter((r) => r.some((c) => c.trim() !== ''));
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const norm = (h: string) => h.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z]/g, '');
+
+export function contactsFromCsv(text: string): { rows: { email: string; name: string | null }[]; invalid: number } {
+  const table = parseCsv(text);
+  if (!table.length) return { rows: [], invalid: 0 };
+  const head = table[0].map(norm);
+  const find = (...names: string[]) => head.findIndex((h) => names.includes(h));
+  let emailIdx = find('email', 'emailcim', 'emailaddress', 'mail');
+  const hasHeader = emailIdx >= 0 || !EMAIL_RE.test(normalizeEmail(table[0][0] ?? ''));
+  if (emailIdx < 0) emailIdx = hasHeader ? -1 : 0;
+  if (emailIdx < 0) return { rows: [], invalid: table.length - 1 };
+  const nameIdx = hasHeader ? find('nev', 'name', 'fullname', 'teljesnev') : -1;
+  const lastIdx = hasHeader ? find('vezeteknev', 'lastname') : -1;
+  const firstIdx = hasHeader ? find('keresztnev', 'firstname') : -1;
+  const seen = new Map<string, { email: string; name: string | null }>();
+  let invalid = 0;
+  for (const r of hasHeader ? table.slice(1) : table) {
+    const email = normalizeEmail(r[emailIdx] ?? '');
+    if (!EMAIL_RE.test(email) || email.length > 200) { invalid++; continue; }
+    const joined = [r[lastIdx] ?? '', r[firstIdx] ?? ''].map((s) => s.trim()).filter(Boolean).join(' ');
+    const name = ((nameIdx >= 0 ? r[nameIdx] : '') || joined || '').trim().slice(0, 120) || null;
+    if (!seen.has(email)) seen.set(email, { email, name });
+  }
+  return { rows: [...seen.values()], invalid };
+}

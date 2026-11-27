@@ -62,6 +62,11 @@ Stripe fizetés: egyedi kurzusvásárlás és **havi előfizetés (14 990 Ft/hó
 
   Régi feliratkozók egyszeri áttöltése: `{"source": "polysuli", "contacts": [{"email": "..."}, ...]}` (max. 500 / kérés).
   A válasz: `{ ok, received, added, duplicates, rejected }`. Ugyanaz a cím ugyanabból a forrásból csak egyszer kerül be.
+- **Polysuli (WordPress)**: a PolyOS for WordPress bővítmény (1.8.0+) → Vezérlőpult → PolyOS → *Közös kapcsolatlista*:
+  végpont `https://andormarcsi.hu/api/contacts/ingest`, kulcs = `CONTACTS_INGEST_SECRET`, forrás = `polysuli`.
+  Ettől minden új `[polyos_newsletter]` feliratkozó ide is megérkezik (a PolyOS által elfogadottak közül).
+- **Régi feliratkozók egyszeri áttöltése**: `/admin/kapcsolatok` → *Külső lista importálása (CSV)* (pl. a PolyOS-ből exportált lista).
+  Ezeket nem küldjük vissza a PolyOS-be, mert onnan jönnek.
 
 Az előfizetés kikapcsolható, amíg kevés a videó: `NEXT_PUBLIC_SUBSCRIPTION_ENABLED=false`.
 
