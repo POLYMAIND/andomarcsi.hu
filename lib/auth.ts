@@ -1,8 +1,17 @@
 import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
+import { syncRegistrationIfNeeded } from '@/lib/polyos-sync';
 import { createClient } from '@/lib/supabase/server';
 
-export type Profile = { id: string; email: string | null; full_name: string | null; is_admin: boolean; stripe_customer_id: string | null };
+export type Profile = {
+  id: string;
+  email: string | null;
+  full_name: string | null;
+  is_admin: boolean;
+  stripe_customer_id: string | null;
+  created_at?: string;
+  polyos_synced_at?: string | null; // mikor ment át a regisztráció PolyOS-be (lib/polyos-sync.ts)
+};
 
 export const supabaseConfigured = () => !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
@@ -14,6 +23,7 @@ export async function getCurrentUser() {
   const { data } = await supabase.auth.getUser();
   if (!data.user) return { supabase, user: null, profile: null as Profile | null };
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', data.user.id).maybeSingle<Profile>();
+  if (profile) syncRegistrationIfNeeded(profile);
   return { supabase, user: data.user, profile };
 }
 

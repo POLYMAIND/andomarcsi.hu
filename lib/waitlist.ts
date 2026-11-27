@@ -1,5 +1,5 @@
-// „Értesítést kérek” feliratkozások továbbítása külső rendszerbe (PolyOS).
-// POLYOS_WEBHOOK_URL: ide küldünk minden új feliratkozást JSON-ben (POST).
+// Feliratkozások, regisztrációk, ingyenes letöltések továbbítása külső rendszerbe (PolyOS).
+// POLYOS_WEBHOOK_URL: ide küldünk minden új eseményt JSON-ben (POST). Az „event” mező mondja meg, honnan jött.
 // POLYOS_WEBHOOK_SECRET: opcionális, X-Webhook-Secret fejlécben megy át.
 export type WaitlistEvent =
   | {
@@ -10,7 +10,23 @@ export type WaitlistEvent =
       consent_at: string;
       source: string;
     }
-  | { event: 'newsletter.signup'; email: string; name: string | null; consent_at: string; source: string };
+  | { event: 'newsletter.signup'; email: string; name: string | null; consent_at: string; source: string }
+  // Új fiók az andormarcsi.hu-n (első belépéskor küldjük, egyszer).
+  | { event: 'user.registered'; email: string; name: string | null; registered_at: string; source: 'andormarcsi.hu' }
+  // Ingyenes kurzus felvétele a „Saját tanulás” listába.
+  | { event: 'course.free_enroll'; email: string; name: string | null; course: { id: string; slug: string; title: string }; enrolled_at: string; source: 'andormarcsi.hu' }
+  // Ingyenes anyag letöltése (e-mail megadásával). newsletter: kért-e hírlevelet is.
+  | {
+      event: 'resource.download';
+      email: string;
+      name: string | null;
+      resource: { id: string; slug: string; title: string };
+      newsletter: boolean;
+      consent_at: string;
+      source: string;
+    }
+  // Külső forrásból (pl. Polysuli) beküldött feliratkozó.
+  | { event: 'external.signup'; email: string; name: string | null; source: string; list: string | null; consent_at: string | null };
 
 export async function forwardToPolyos(payload: WaitlistEvent) {
   const url = process.env.POLYOS_WEBHOOK_URL;

@@ -34,6 +34,13 @@ const ACTIVITIES = [
     retention: 'a hozzájárulás visszavonásáig (leiratkozásig)',
   },
   {
+    name: 'Ingyenes anyagok letöltése',
+    data: 'e-mail cím, név (ha megadod), a letöltött anyag, a hozzájárulás időpontja, kértél-e hírlevelet is',
+    purpose: 'a letöltési link átadása, az anyaghoz kapcsolódó tippek és ajánlatok küldése; az adatokat ügyfélkezelő rendszerünkben (PolyOS) is tároljuk',
+    basis: 'hozzájárulás (GDPR 6. cikk (1) a)), amely bármikor visszavonható',
+    retention: 'a hozzájárulás visszavonásáig (leiratkozásig)',
+  },
+  {
     name: 'Látogatottsági statisztika (Google Analytics)',
     data: 'álnevesített használati adatok: megnézett oldalak, eszköz és böngésző típusa, hozzávetőleges hely (ország/város), forrás (honnan érkeztél)',
     purpose: 'az oldal és a kurzusok fejlesztése – látni, mi hasznos és mi nem',
@@ -119,8 +126,10 @@ export default function PrivacyPage() {
         </table>
       </div>
       <p>
-        A hírlevél- és „Értesítést kérek” feliratkozók adatait saját ügyfélkezelő rendszerünkben, a <strong>PolyOS</strong>-ben kezeljük, és a hírleveleket,
-        illetve a kurzusindulásról szóló értesítéseket is innen küldjük. A PolyOS-t maga az adatkezelő ({COMPANY.name}) üzemelteti, így ez nem jelent
+        A regisztrált felhasználók, a hírlevél- és „Értesítést kérek” feliratkozók, valamint az ingyenes kurzusok és anyagok igénylőinek
+        e-mail címét és nevét saját ügyfélkezelő rendszerünkben, a <strong>PolyOS</strong>-ben is kezeljük, és a hírleveleket, illetve a
+        kurzusindulásról szóló értesítéseket is innen küldjük. Ugyanitt kezeljük az adatkezelő más oktatási szolgáltatásainak (pl. Polysuli)
+        feliratkozóit is, mindig a feliratkozáskor adott hozzájárulás keretei között. A PolyOS-t maga az adatkezelő ({COMPANY.name}) üzemelteti, így ez nem jelent
         adattovábbítást harmadik félnek.
       </p>
       <p>
