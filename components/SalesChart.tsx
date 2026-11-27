@@ -2,7 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-export type SalesDay = { date: string; revenue: number; orders: number }; // date: 'YYYY-MM-DD' (Budapest)
+// date: 'YYYY-MM-DD' (Budapest); revenue/orders: kurzuseladás; subRevenue/subPayments: előfizetési terhelések
+export type SalesDay = { date: string; revenue: number; orders: number; subRevenue: number; subPayments: number };
+
+const sum = (d: SalesDay) => d.revenue + d.subRevenue;
 
 const PERIODS = [7, 30, 90] as const;
 const PAD = { top: 16, right: 14, bottom: 28, left: 52 };
@@ -23,7 +26,7 @@ function niceScale(v: number) {
   return { max: step * 4, ticks: [0, 1, 2, 3, 4].map((k) => k * step) };
 }
 
-// Napi eladások (Shopify-szerű): a választott időszak vonala, mögötte szaggatottan az előző azonos hosszú időszak.
+// Napi bevétel (kurzus + előfizetés, Shopify-szerű): a választott időszak vonala, mögötte szaggatottan az előző azonos hosszú időszak.
 export function SalesChart({ days }: { days: SalesDay[] }) {
   const [period, setPeriod] = useState<(typeof PERIODS)[number]>(30);
   const [hover, setHover] = useState<number | null>(null);
@@ -40,21 +43,24 @@ export function SalesChart({ days }: { days: SalesDay[] }) {
   }, []);
   const H = W < 500 ? 200 : 240;
 
-  const { cur, prev, total, prevTotal, orders, max, ticks } = useMemo(() => {
+  const { cur, prev, total, prevTotal, courseTotal, subTotal, orders, subPayments, max, ticks } = useMemo(() => {
     const cur = days.slice(-period);
     const prev = days.slice(-2 * period, -period);
-    const total = cur.reduce((s, d) => s + d.revenue, 0);
-    const prevTotal = prev.reduce((s, d) => s + d.revenue, 0);
+    const total = cur.reduce((s, d) => s + sum(d), 0);
+    const prevTotal = prev.reduce((s, d) => s + sum(d), 0);
+    const courseTotal = cur.reduce((s, d) => s + d.revenue, 0);
+    const subTotal = cur.reduce((s, d) => s + d.subRevenue, 0);
     const orders = cur.reduce((s, d) => s + d.orders, 0);
-    const { max, ticks } = niceScale(Math.max(...cur.map((d) => d.revenue), ...prev.map((d) => d.revenue)));
-    return { cur, prev, total, prevTotal, orders, max, ticks };
+    const subPayments = cur.reduce((s, d) => s + d.subPayments, 0);
+    const { max, ticks } = niceScale(Math.max(...cur.map(sum), ...prev.map(sum)));
+    return { cur, prev, total, prevTotal, courseTotal, subTotal, orders, subPayments, max, ticks };
   }, [days, period]);
 
   const iw = W - PAD.left - PAD.right;
   const ih = H - PAD.top - PAD.bottom;
   const x = (i: number) => PAD.left + (cur.length <= 1 ? iw / 2 : (i / (cur.length - 1)) * iw);
   const y = (v: number) => PAD.top + ih - (v / max) * ih;
-  const path = (pts: SalesDay[]) => pts.map((d, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(d.revenue).toFixed(1)}`).join(' ');
+  const path = (pts: SalesDay[]) => pts.map((d, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(sum(d)).toFixed(1)}`).join(' ');
   const area = `${path(cur)} L${x(cur.length - 1).toFixed(1)},${y(0)} L${x(0).toFixed(1)},${y(0)} Z`;
   const change = prevTotal > 0 ? Math.round(((total - prevTotal) / prevTotal) * 100) : null;
   // Kb. 70 px-enként egy dátumfelirat, a legutolsó nap mindig kap feliratot.
@@ -75,7 +81,7 @@ export function SalesChart({ days }: { days: SalesDay[] }) {
     <div className="stack sales" style={{ '--gap': '14px' } as React.CSSProperties}>
       <div className="row between" style={{ alignItems: 'flex-end', '--gap': '12px' } as React.CSSProperties}>
         <div className="stack" style={{ '--gap': '4px' } as React.CSSProperties}>
-          <span className="label">Kurzuseladás · utolsó {period} nap</span>
+          <span className="label">Bevétel · utolsó {period} nap</span>
           <div className="row" style={{ '--gap': '10px', alignItems: 'baseline' } as React.CSSProperties}>
             <span className="sales-total">{huf(total)}</span>
             {change != null && (
@@ -83,7 +89,7 @@ export function SalesChart({ days }: { days: SalesDay[] }) {
             )}
           </div>
           <span className="muted" style={{ fontSize: 13 }}>
-            {orders} rendelés{orders ? ` · átlag ${huf(total / orders)}` : ''} · előző {period} nap: {huf(prevTotal)}
+            Kurzus: {huf(courseTotal)} ({orders} rendelés{orders ? `, átlag ${huf(courseTotal / orders)}` : ''}) · Előfizetés: {huf(subTotal)} ({subPayments} terhelés) · előző {period} nap: {huf(prevTotal)}
           </span>
         </div>
         <div className="sales-tabs" role="tablist" aria-label="Időszak">
@@ -102,7 +108,7 @@ export function SalesChart({ days }: { days: SalesDay[] }) {
           height={H}
           viewBox={`0 0 ${W} ${H}`}
           role="img"
-          aria-label={`Napi kurzuseladás az utolsó ${period} napban, összesen ${huf(total)}`}
+          aria-label={`Napi bevétel (kurzus + előfizetés) az utolsó ${period} napban, összesen ${huf(total)}`}
           onPointerMove={onMove}
           onPointerLeave={() => setHover(null)}
         >
@@ -123,7 +129,7 @@ export function SalesChart({ days }: { days: SalesDay[] }) {
           {h && hover != null && (
             <g>
               <line x1={x(hover)} x2={x(hover)} y1={PAD.top} y2={PAD.top + ih} stroke="#141216" strokeOpacity={0.25} />
-              <circle cx={x(hover)} cy={y(h.revenue)} r={5} fill={LINE} stroke="#fff" strokeWidth={2} />
+              <circle cx={x(hover)} cy={y(sum(h))} r={5} fill={LINE} stroke="#fff" strokeWidth={2} />
             </g>
           )}
         </svg>
@@ -134,8 +140,10 @@ export function SalesChart({ days }: { days: SalesDay[] }) {
             style={{ left: `${(x(hover) / W) * 100}%`, transform: `translateX(${x(hover) / W < 0.2 ? '0' : x(hover) / W > 0.8 ? '-100%' : '-50%'})` }}
           >
             <b>{weekday(h.date)} · {dayLabel(h.date)}</b>
-            <span>{huf(h.revenue)} · {h.orders} rendelés</span>
-            {hp && <span className="muted">előző időszak ({dayLabel(hp.date)}): {huf(hp.revenue)}</span>}
+            <span>{huf(sum(h))}</span>
+            <span>kurzus: {huf(h.revenue)} · {h.orders} rendelés</span>
+            <span>előfizetés: {huf(h.subRevenue)} · {h.subPayments} terhelés</span>
+            {hp && <span className="muted">előző időszak ({dayLabel(hp.date)}): {huf(sum(hp))}</span>}
           </div>
         )}
       </div>
@@ -148,12 +156,18 @@ export function SalesChart({ days }: { days: SalesDay[] }) {
       <details>
         <summary className="muted" style={{ fontSize: 13, cursor: 'pointer' }}>Napi bontás táblázatban</summary>
         <table className="table" style={{ marginTop: 8 }}>
-          <thead><tr><th>Nap</th><th>Rendelés</th><th style={{ textAlign: 'right' }}>Eladás</th></tr></thead>
+          <thead><tr><th>Nap</th><th>Rendelés</th><th style={{ textAlign: 'right' }}>Kurzus</th><th style={{ textAlign: 'right' }}>Előfizetés</th><th style={{ textAlign: 'right' }}>Összesen</th></tr></thead>
           <tbody>
-            {[...cur].reverse().filter((d) => d.orders > 0).map((d) => (
-              <tr key={d.date}><td>{weekday(d.date)} · {dayLabel(d.date)}</td><td>{d.orders}</td><td style={{ textAlign: 'right' }}>{huf(d.revenue)}</td></tr>
+            {[...cur].reverse().filter((d) => d.orders + d.subPayments > 0).map((d) => (
+              <tr key={d.date}>
+                <td>{weekday(d.date)} · {dayLabel(d.date)}</td>
+                <td>{d.orders + d.subPayments}</td>
+                <td style={{ textAlign: 'right' }}>{huf(d.revenue)}</td>
+                <td style={{ textAlign: 'right' }}>{huf(d.subRevenue)}</td>
+                <td style={{ textAlign: 'right' }}>{huf(sum(d))}</td>
+              </tr>
             ))}
-            {!cur.some((d) => d.orders > 0) && <tr><td colSpan={3} className="muted">Ebben az időszakban nem volt eladás.</td></tr>}
+            {!cur.some((d) => d.orders + d.subPayments > 0) && <tr><td colSpan={5} className="muted">Ebben az időszakban nem volt bevétel.</td></tr>}
           </tbody>
         </table>
       </details>

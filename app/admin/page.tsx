@@ -25,13 +25,17 @@ function weekStart(offsetWeeks = 0) {
 const bpDay = (d: Date | string) => new Date(d).toLocaleDateString('sv-SE', { timeZone: 'Europe/Budapest' });
 
 // Napi eladások az utolsó `n` napra (a grafikon az utolsó 7/30/90 napot és az előző ugyanannyit mutatja).
-function dailySales(paid: { created_at: string; amount_huf: number }[], n = 180): SalesDay[] {
+// Kurzuseladás: Stripe-os beiratkozások; előfizetés: a havi tagság sikeres terhelései (minden terhelésről számla-sor készül).
+type Pay = { created_at: string; amount_huf: number };
+function dailySales(paid: Pay[], subPays: Pay[], n = 180): SalesDay[] {
   const today = bpDay(new Date());
   const base = new Date(`${today}T12:00:00Z`).getTime();
   const days: SalesDay[] = Array.from({ length: n }, (_, i) => ({
     date: new Date(base - (n - 1 - i) * DAY).toISOString().slice(0, 10),
     revenue: 0,
     orders: 0,
+    subRevenue: 0,
+    subPayments: 0,
   }));
   const idx = new Map(days.map((d, i) => [d.date, i]));
   for (const e of paid) {
@@ -40,18 +44,25 @@ function dailySales(paid: { created_at: string; amount_huf: number }[], n = 180)
     days[i].revenue += e.amount_huf;
     days[i].orders += 1;
   }
+  for (const e of subPays) {
+    const i = idx.get(bpDay(e.created_at));
+    if (i == null || !(e.amount_huf > 0)) continue;
+    days[i].subRevenue += e.amount_huf;
+    days[i].subPayments += 1;
+  }
   return days;
 }
 
 export default async function AdminPage() {
   const { supabase } = await requireAdmin();
-  const [{ data: rawCourses }, { data: lessons }, { data: videos }, { data: enrollments }, { data: subs }, { count: userCount }] = await Promise.all([
+  const [{ data: rawCourses }, { data: lessons }, { data: videos }, { data: enrollments }, { data: subs }, { count: userCount }, { data: subInvoices }] = await Promise.all([
     supabase.from('courses').select('*').order('sort_order').returns<Course[]>(),
     supabase.from('lessons').select('id, course_id, title, published_at').order('published_at', { ascending: false }).returns<Lesson[]>(),
     supabase.from('lesson_videos').select('lesson_id'),
     supabase.from('enrollments').select('created_at, amount_huf, source, course_id, profiles(email)').order('created_at', { ascending: false }),
     supabase.from('subscriptions').select('status, current_period_end, cancel_at_period_end'),
     supabase.from('profiles').select('id', { count: 'exact', head: true }),
+    supabase.from('invoices').select('created_at, amount_huf').eq('kind', 'subscription').gte('created_at', new Date(Date.now() - 182 * DAY).toISOString()),
   ]);
 
   const courses = withStartAll(rawCourses);
@@ -107,7 +118,7 @@ export default async function AdminPage() {
           <div className="stat"><span className="label">Felhasználók</span><span className="value">{userCount ?? 0}</span><Link href="/admin/vasarlok" className="muted" style={{ fontSize: 13, textDecoration: 'underline' }}>tanulók listája →</Link></div>
           <div className="stat"><span className="label">Élő leckék</span><span className="value">{live.length}</span><span className="muted" style={{ fontSize: 13 }}>{scheduled.length} ütemezve · {missingVideo} videó nélkül</span></div>
         </div>
-        <SalesChart days={dailySales(paid)} />
+        <SalesChart days={dailySales(paid, subInvoices ?? [])} />
       </section>
 
       <div className="layout-sidebar">
